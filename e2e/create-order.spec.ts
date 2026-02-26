@@ -11,11 +11,17 @@ import { test, expect } from '@playwright/test';
 import { createAppeal } from '../helpers/commands';
 import { pickFirstAvailableDate } from '../helpers/commands';
 import { deleteAllPositions } from '../helpers/commands';
+import { label, feature } from 'allure-js-commons';
+import { label as allureLabel, feature as allureFeature } from 'allure-js-commons';
 
 
 
 //https://allure.itlabs.io/project/28/test-cases/4423?treeId=58
-test('#4423 Создание предложения с доставкой', async ({ page }) => {
+test('#4423 Создание предложения с доставкой', 
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -46,7 +52,11 @@ await deleteAllPositions(page1);
 });
 
 // https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
-test('#4609 Перевод предложения в заказ', async ({ page }) => {
+test('#4609 Перевод предложения в заказ',
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
   await page1
@@ -68,7 +78,11 @@ await deleteAllPositions(page1);
 });
 
  // https://allure.itlabs.io/project/28/test-cases/5301?treeId=58
- test('#5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск', async ({ page }) => {
+ test('#5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск', 
+ { tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
   await page1
@@ -102,7 +116,11 @@ await expect(page1.getByText('Успешно сохранено')).toBeVisible()
  });
 
  //https://allure.itlabs.io/project/28/test-cases/4605?treeId=58
- test('#4605 Отмена позиции до и после создания заказа', async ({ page }) => {
+ test('#4605 Отмена позиции до и после создания заказа', 
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
   await page1

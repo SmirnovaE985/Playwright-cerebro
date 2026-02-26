@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - menu [ref=e4]:
+      - menuitem "home Домашняя страница" [ref=e5] [cursor=pointer]:
+        - img "home" [ref=e6]:
+          - img [ref=e7]
+        - link "Домашняя страница" [ref=e10]:
+          - /url: /home
+      - menuitem "info-circle Вики" [ref=e11] [cursor=pointer]:
+        - img "info-circle" [ref=e12]:
+          - img [ref=e13]
+        - link "Вики" [ref=e17]:
+          - /url: /home/wiki
+      - menuitem "message Talk-Me" [ref=e18] [cursor=pointer]:
+        - img "message" [ref=e19]:
+          - img [ref=e20]
+        - link "Talk-Me" [ref=e23]:
+          - /url: /home/talk-me
+      - menuitem "rise Рейтинг менеджеров" [ref=e24] [cursor=pointer]:
+        - img "rise" [ref=e25]:
+          - img [ref=e26]
+        - link "Рейтинг менеджеров" [ref=e29]:
+          - /url: /home/manager-rating
+      - menuitem "history История обращений" [ref=e30] [cursor=pointer]:
+        - img "history" [ref=e31]:
+          - img [ref=e32]
+        - link "История обращений" [ref=e35]:
+          - /url: /home/appeal-history
+      - menuitem "team Клиенты" [ref=e36] [cursor=pointer]:
+        - img "team" [ref=e37]:
+          - img [ref=e38]
+        - text: Клиенты
+      - menuitem "phone Наумен" [ref=e40] [cursor=pointer]:
+        - img "phone" [ref=e41]:
+          - img [ref=e42]
+        - link "Наумен" [ref=e45]:
+          - /url: /home/naumen
+      - menuitem "logout Выйти" [ref=e46] [cursor=pointer]:
+        - img "logout" [ref=e47]:
+          - img [ref=e48]
+        - link "Выйти" [ref=e51]:
+          - /url: /auth
+      - menuitem "user" [ref=e52] [cursor=pointer]:
+        - img "user" [ref=e53]:
+          - img [ref=e54]
+        - generic:
+          - link:
+            - /url: /home/personal-account
+      - menuitem [disabled]:
+        - img:
+          - img
+  - generic [ref=e58]:
+    - heading "Новое обращение" [level=4] [ref=e61]
+    - generic [ref=e64]:
+      - generic [ref=e65] [cursor=pointer]:
+        - radio "Телефон" [checked] [ref=e67]
+        - generic [ref=e69]: Телефон
+      - generic [ref=e70] [cursor=pointer]:
+        - radio "E-mail" [ref=e72]
+        - generic [ref=e74]: E-mail
+      - generic [ref=e75] [cursor=pointer]:
+        - radio "Мессенджер" [ref=e77]
+        - generic [ref=e79]: Мессенджер
+    - generic [ref=e84]:
+      - generic [ref=e87]:
+        - textbox "Телефон" [ref=e88]: +7(900)-000-00-66
+        - img "phone" [ref=e90]:
+          - img [ref=e91]
+      - alert [ref=e94]
+    - button "Создать новое обращение" [ref=e95] [cursor=pointer]:
+      - generic [ref=e96]: Создать новое обращение
+```

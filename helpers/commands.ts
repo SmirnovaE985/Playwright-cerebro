@@ -13,6 +13,7 @@ await page.goto('https://cerebro.dev.contact-center.itlabs.io/home');
   await page.locator('input[name="login"]').fill("mmalyutina");
   await page.locator('input[name="password"]').fill("123456789");
   await page.getByRole("button", { name: "Войти" }).click();
+  await expect(page.getByText('Клиенты')).toBeVisible();
 
   const clientsLink = page.getByText("Клиенты").first();
   await clientsLink.waitFor({ state: 'visible' });

@@ -17,7 +17,6 @@
 import { test, expect } from '@playwright/test';
 import { createAppeal } from '../helpers/commands';
 import { text } from 'stream/consumers';
-// import { tag, feature, label } from 'allure-js-commons';
 import { label, feature } from 'allure-js-commons';
 
 

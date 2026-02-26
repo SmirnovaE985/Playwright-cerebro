@@ -11,9 +11,15 @@
 import { test, expect } from '@playwright/test';
 import { createAppeal } from '../helpers/commands';
 import { deleteAllPositions } from '../helpers/commands';
+import { label, feature } from 'allure-js-commons';
+import { label as allureLabel, feature as allureFeature } from 'allure-js-commons';
 
   // https://allure.itlabs.io/project/28/test-cases/6240?treeId=58
-test('#6240 создание стандартного заказа для товара, который имеет признак ГТР', async ({page}) => { 
+test('#6240 создание стандартного заказа для товара, который имеет признак ГТР',
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -38,7 +44,11 @@ await deleteAllPositions(page1);
  });
 
  //https://allure.itlabs.io/project/28/test-cases/4141?treeId=58
-test('#4141Создать заказ на бетон через быстрое добавление в корзину', async ({page}) => {     
+test('#4141Создать заказ на бетон через быстрое добавление в корзину',
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -85,7 +95,11 @@ await expect(page1.getByText('Заказ успешно создан')).toBeVisi
  });
 
 //https://allure.itlabs.io/project/28/test-cases/4251?treeId=58
-test('#4251 Создать заказ бетона с несколькими машинами', async ({page}) => {     
+test('#4251 Создать заказ бетона с несколькими машинами',
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+allureLabel('tag', 'regress');
+allureFeature('Auth');      
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -148,7 +162,11 @@ await expect(page1.getByText('Заказ успешно создан')).toBeVisi
  });
 
   //allure.itlabs.io/project/28/test-cases/4345?treeId=58
-test('#4345 Создать заказ с дробным числом', async ({page}) => {     
+test('#4345 Создать заказ с дробным числом', 
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -195,7 +213,11 @@ await expect(page1.getByText('Заказ успешно создан')).toBeVisi
 
 
 // allure.itlabs.io/project/28/test-cases/4346?treeId=58
-test('#4346 Создать заказ с комментарием к ТТН', async ({page}) => {     
+test('#4346 Создать заказ с комментарием к ТТН', 
+ { tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');     
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -243,7 +265,11 @@ await page1.locator('[data-test="cart-position"]').click();
 
 
 //https:allure.itlabs.io/project/28/test-cases/4130?treeId=58
-test('#4130 Создать заказ бетона с через карточку товара с ручной ценой', async ({page}) => {     
+test('#4130 Создать заказ бетона с через карточку товара с ручной ценой',
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');     
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -370,7 +396,11 @@ await expect(page1.getByText('9 м3. х')).toBeVisible();
 });
 
 //https://allure.itlabs.io/project/28/test-cases/4018?treeId=58
-test('#4018 Создать заказ с бетоном через причину обращения "консультация"', async ({page}) => {     
+test('#4018 Создать заказ с бетоном через причину обращения "консультация"', 
+{ tag: ['@regress'] }, 
+async ({page}) => { 
+label('tag', 'regress');   
+feature('Auth');
 const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
