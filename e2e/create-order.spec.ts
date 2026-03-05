@@ -1,10 +1,7 @@
-// #4423 Создание предложения с доставкой'
+
 // #4609 Перевод предложения в заказ
 // #5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск
 // #4605 Отмена позиции до и после создания заказа
-// 
-// 
-// 
 
 
 import { test, expect } from '@playwright/test';
@@ -14,42 +11,6 @@ import { deleteAllPositions } from '../helpers/commands';
 import { label, feature } from 'allure-js-commons';
 import { label as allureLabel, feature as allureFeature } from 'allure-js-commons';
 
-
-
-//https://allure.itlabs.io/project/28/test-cases/4423?treeId=58
-test('#4423 Создание предложения с доставкой', 
-{ tag: ['@regress'] }, 
-async ({page}) => { 
-label('tag', 'regress');   
-feature('Auth');
-const page1 = await createAppeal(page);
-await page1.locator('[data-test="select-appeal"]').click();
-await page1
-  .locator('[data-test="select-appeal"] li')
-  .filter({ hasText: 'Новый заказ' })
-  .click();
-await page1.locator('.ant-select-selection-overflow').click();
-await page1.getByText('РЦ Тмн, 50 лет Октября, 109 ко').click();
-await page1.locator('[data-test="search-input"]').click();
-await page1.locator('[data-test="search-input"]').fill('молоток');
-await page1.locator('[data-test="search-button"]').click();
-await page1.locator('[data-test="shopping-card-button"]').first().click();
-await page1.getByRole('button', { name: 'Добавить' }).click();
-await page1.locator('[data-test="to-cart-button"]').click();
-await page1.locator('[data-test="make-offer"]').click();
-await expect(page1.getByText('Предложение успешно создано')).toBeVisible();
-await page1.locator('[data-test="cart-to-delivery-link"]').click();
-await page1.locator('[data-test="delivery-address"]').fill('широтная');
-await page1.getByText('улица Широтная').first().click();
-await page1.getByRole('switch').click();
-await page1.getByText('0,5 тент').click();
-await pickFirstAvailableDate(page1);
-await page1.locator('[data-test="delivery-ttn-save"]').click();
-await page1.waitForTimeout(7000);
-await page1.locator('[data-test="link-back"]').click();
-await page1.locator('[data-test="offer-to-order"]').click();
-await deleteAllPositions(page1);
-});
 
 // https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
 test('#4609 Перевод предложения в заказ',

@@ -1,16 +1,18 @@
 // #6240 создание стандартного заказа для товара, который имеет признак ГТР
-// #4141Создать заказ на бетон через быстрое добавление в корзину
+// #4141 Создать заказ на бетон через быстрое добавление в корзину
 // #4251 Создать заказ бетона с несколькими машинами
 // #4345 Создать заказ с дробным числом
 // #4346 Создать заказ с комментарием к ТТН
 // #4130 Создать заказ бетона с через карточку товара с ручной ценой
 // #4232 Создать заказ бетона с изменением объема через листинг
 // #4018 Создать заказ с бетоном через причину обращения "консультация"
+// #4245 Создать заказ бетона с изменением цены через листинг 
 
 
 import { test, expect } from '@playwright/test';
 import { createAppeal } from '../helpers/commands';
 import { deleteAllPositions } from '../helpers/commands';
+import { addConcrete} from '../helpers/commands';
 import { label, feature } from 'allure-js-commons';
 import { label as allureLabel, feature as allureFeature } from 'allure-js-commons';
 
@@ -26,7 +28,10 @@ await page1
   .locator('[data-test="select-appeal"] li')
   .filter({ hasText: 'Новый заказ' })
   .click();
-  await page1.locator('.ant-select-selection-overflow').click();
+// выбрать сбытовую 
+await page1.locator('[data-test="sale-orgs"]').click();
+await page1.locator('[data-test="1000"]').getByText('СД Тюмень').click();
+await page1.locator('.ant-select-selection-overflow').click();
 await page1.getByText('РЦ Тмн, 50 лет Октября, 109 ко').click();
 await page1.locator('[data-test="search-input"]').click();
 await page1.locator('[data-test="search-input"]').fill('14904');
@@ -40,6 +45,8 @@ await page1.locator('[data-test=send-sms]').click();
 await page1.locator('[data-test=pattern-sms]').click();
 await page1.getByText('Заказ. Номер сумма, адрес самовывоза').click();
 await page1.locator('[data-test=send-sms-for]').click();
+await expect(page1.getByText('Сообщение успешно отправлено!')).toBeVisible();
+await expect(page1.locator('[data-test="delete-all-position"]')).toBeVisible();
 await deleteAllPositions(page1);
  });
 
@@ -81,10 +88,10 @@ await page.waitForTimeout(3000);
 await page1.locator('[data-test="cars-type"]').click();
 await page1.getByText('Бетоновоз 6м3').click();
 //выбрать время
- await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('[data-test="cars-time-0"] .ant-select-dropdown')
-  .first()
-  .click();
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('6');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
@@ -108,60 +115,44 @@ await page1
   .click();
 await page1.locator('[data-test="search-input"]').click();
 await page1.locator('[data-test="search-input"]').fill('бетон');
-await page1.locator('[data-test="search-button"]').click();
-await page1.locator('[data-test="shopping-card-button"]').first().click();
-await page1.locator('[data-test=add-quantity-input]').click();
-await page1.locator('[data-test=add-quantity-input]').fill('20');
-await page1.locator('[data-test=delivery-address]').fill('Агеева');
-await page1.getByText('Агеева').first().click();
-await page1.locator('input[placeholder*="Выберите дату"]').click();
- //определяем текущую дату и добавляем к ней 1 день
-  const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const day = String(tomorrow.getDate()).padStart(2, '0');
-    const tomorrowFormatted = `${year}-${month}-${day}`;
-    await page1.locator(`td[title="${tomorrowFormatted}"]`).click();
-     //Нажать кнопку "нужен автобетононасос"
-     await page1.waitForTimeout(3000);
-const label = page1.locator('div', { hasText: 'Нужен автобетононасос' });
-const toggle = label.locator('button[role="switch"]');
-if (await toggle.getAttribute('aria-checked') === 'false') {
-  await toggle.click();
+//
+let attempt = 0;
+await expect(async () => {
+  attempt++;
+  // перед 2-й и следующими попытками
+  if (attempt > 1) {
+    const close = page1.locator('[data-icon="close"]');
+    if (await close.isVisible().catch(() => false)) {
+      await close.click();
+      //  дождаться закрытия
+      await expect(close).toBeHidden({ timeout: 5000 });
+    }
+  }
+  await addConcrete(page1);
+}).toPass();
+//
+await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
+const cartBtn = page1.locator('[data-test="to-cart-button"]');
+await cartBtn.click();
+const newOrder = page1.locator('[data-test="make-order"]');
+try {
+  await newOrder.waitFor({ timeout: 5000 });
+} catch (e) {
+  await cartBtn.click();
+  await newOrder.waitFor({ timeout: 5000 });
 }
 
-await page1.locator('[data-test="length-of-pump"]').click();
-await page1.getByText('АБН до 28м').click();
-await page1.locator('[data-test="interval-of-pump"]').click();
-await page1.locator('.ant-select-item-option-content', { hasText: '08:00-13:00'}).click();
-// Нажимаем "Добавить машину"
- await page1.getByText('Добавить машину').click();
-await page1.locator('[data-test="cars-type"]').click();
-await page1.getByText('Бетоновоз 10м3').click();
-//выбрать время
-await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('.ant-select-item-option-content', { hasText: '09:00-10:00'}).click();
-//ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('10');
-// Нажимаем "Добавить машину 2"
- await page1.getByText('Добавить машину').click();
-await page1.locator('[data-test="cars-type"]', { hasText: 'Выберите тип' }).click();
-await page1.getByText('Бетоновоз 12м3').first().click();
-//выбрать время
- await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('.ant-select-item-option-content', { hasText: '10:00-11:00'}).first().click();
-//ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').first().pressSequentially('10', { delay: 500 });
-await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
-await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
-await expect(page1.getByText('Заказ успешно создан')).toBeVisible();
-// ошибка с бека- цены на насос и доставку-0, нельзя добавить в корзину, вернуться  к тесту как поправят
- });
+await expect(page1.locator('[data-test="save-order"]')).toBeEnabled();
+// проверяем, что в контейнере доставок, сохранено три элемента
+const deliveriesContainer = page1.locator('div[class^="_deliveries-container_"]');
+const deliveries = deliveriesContainer.locator('div[class^="_delivery_"]');
 
-  //allure.itlabs.io/project/28/test-cases/4345?treeId=58
+await expect(deliveriesContainer).toBeVisible({ timeout: 30_000 });
+await expect(deliveries).toHaveCount(3, { timeout: 30_000 });
+})
+
+ //allure.itlabs.io/project/28/test-cases/4345?treeId=58
 test('#4345 Создать заказ с дробным числом', 
 { tag: ['@regress'] }, 
 async ({page}) => { 
@@ -179,6 +170,7 @@ await page1.locator('[data-test="search-button"]').click();
 await page1.locator('[data-test="shopping-card-button"]').first().click();
 await page1.locator('[data-test=add-quantity-input]').click();
 await page1.locator('[data-test=add-quantity-input]').fill('10.5');
+await expect(page1.locator('[data-test=add-quantity-input]')).toHaveValue('10.5');
 await page1.locator('[data-test=delivery-address]').fill('Агеева');
 await page1.getByText('Агеева').first().click();
 await page1.locator('input[placeholder*="Выберите дату"]').click();
@@ -199,10 +191,10 @@ await page.waitForTimeout(3000);
 await page1.locator('[data-test="cars-type"]').click();
 await page1.getByText('Бетоновоз 12м3').click();
 //выбрать время
- await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('[data-test="cars-time-0"] .ant-select-dropdown')
-  .first()
-  .click();
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('10.5');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
@@ -230,6 +222,7 @@ await page1.locator('[data-test="search-button"]').click();
 await page1.locator('[data-test="shopping-card-button"]').first().click();
 await page1.locator('[data-test=add-quantity-input]').click();
 await page1.locator('[data-test=add-quantity-input]').fill('10');
+await expect(page1.locator('[data-test=add-quantity-input]')).toHaveValue('10');
 await page1.locator('[data-test=delivery-address]').fill('Агеева');
 await page1.getByText('Агеева').first().click();
 await page1.locator('input[placeholder*="Выберите дату"]').click();
@@ -249,8 +242,10 @@ await page1.locator('input[placeholder*="Выберите дату"]').click();
 await page1.locator('[data-test="cars-type"]').click();
 await page1.getByText('Бетоновоз 10м3').click();
 //выбрать время
-await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('.ant-select-item-option-content', { hasText: '09:00-10:00'}).click();
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('10');
 await page1.locator('[data-test=comment-car]').fill('тестовый комментарий');
@@ -318,10 +313,10 @@ await page1.locator('[data-test="add-car-concrete"]').click();
 await page1.locator('[data-test="cars-type"]').click();
 await page1.getByText('Бетоновоз 10м3').click();
 //выбрать время
- await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('[data-test="cars-time-0"] .ant-select-dropdown')
-  .first()
-  .click();
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('6');
 const modal = page1.locator('.ant-modal:visible'); // текущее открытое модальное окно
@@ -373,8 +368,10 @@ await page1.getByText('Добавить машину').click();
 await page1.locator('[data-test="cars-type"]').click();
  await page1.getByText('Бетоновоз 12м3').click();
 //выбрать время
-await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('.ant-select-item-option-content', { hasText: '09:00-10:00'}).click();
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('10');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
@@ -434,8 +431,10 @@ await page1.getByText('Добавить машину').click();
 await page1.locator('[data-test="cars-type"]').click();
  await page1.getByText('Бетоновоз 12м3').click();
 //выбрать время
-await page1.locator('[data-test="cars-time-0"]').click();
-await page1.locator('.ant-select-item-option-content', { hasText: '09:00-10:00'}).click();
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('10');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
@@ -443,5 +442,71 @@ await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
 await expect(page1.getByText('Заказ №')).toBeVisible();
 await expect(page1.getByText('10 м3. х')).toBeVisible();
+
+});
+
+//https://allure.itlabs.io/project/28/test-cases/4245?treeId=58
+test('#4245 Создать заказ бетона с изменением цены через листинг', async ({page}) => {     
+const page1 = await createAppeal(page);
+await page1.locator('[data-test="select-appeal"]').click();
+await page1
+  .locator('[data-test="select-appeal"] li')
+  .filter({ hasText: 'Новый заказ' })
+  .click();
+// закрыть подсказку "здравствуйте меня зовут ....."
+await page1.locator('.ant-notification-notice-close').click();
+await page1.locator('[data-test="search-input"]').click();
+await page1.locator('[data-test="search-input"]').fill('бетон');
+await page1.locator('[data-test="search-button"]').click();
+await page1.locator('[data-test="shopping-card-button"]').first().click();
+await page1.locator('[data-test=add-quantity-input]').click();
+await page1.locator('[data-test=add-quantity-input]').fill('10');
+  const priceDigits = '8500';
+  const priceInput = page1.locator('[data-test="input-price-modal-0"]');
+  await priceInput.fill(priceDigits);
+  //сравниваем по цифрам
+  const priceValueDigits = (await priceInput.inputValue()).replace(/\D/g, '');
+  expect(priceValueDigits).toBe(priceDigits);
+// 
+await page1.locator('[data-test=delivery-address]').fill('Агеева');
+await page1.getByText('Агеева').first().click();
+await page1.locator('input[placeholder*="Выберите дату"]').click();
+//определяем текущую дату и добавляем к ней 2 дн
+const today = new Date();
+const targetDate = new Date(today);
+targetDate.setDate(today.getDate() + 2);
+
+const year = targetDate.getFullYear();
+const month = String(targetDate.getMonth() + 1).padStart(2, '0');
+const day = String(targetDate.getDate()).padStart(2, '0');
+
+const targetDateFormatted = `${year}-${month}-${day}`;
+await page1.locator(`td[title="${targetDateFormatted}"]`).click();
+ await page1.waitForTimeout(3000); 
+// Нажимаем "Добавить машину"
+await page1.getByText('Добавить машину').click({ trial: true });
+await page1.getByText('Добавить машину').click();
+await page1.locator('[data-test="cars-type"]').click();
+ await page1.getByText('Бетоновоз 10м3').click();
+//выбрать время
+const timeInput = page1.locator('[data-test="cars-time-0"] input[role="combobox"]');
+await timeInput.click();
+await page1.keyboard.press('ArrowDown');
+await page1.keyboard.press('Enter');
+//ввести объём бетона
+await page1.locator('input[placeholder*="Объём"]').fill('10');
+await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
+await page1.locator('[data-test="to-cart-button"]').click();
+await page1.locator('[data-test="make-order"]').click();
+await expect(page1.getByText('Заказ №')).toBeVisible();
+await expect(page1.getByText('10 м3. х')).toBeVisible();
+// 
+const unitPriceRub = page1.locator('span:has-text("₽")').first();
+  await expect(unitPriceRub).toBeVisible({ timeout: 30_000 });
+const unitPriceContainer = unitPriceRub.locator('xpath=ancestor::div[1]');
+// убеждаемся, что это строка вида "... x ... ₽"
+  await expect(unitPriceContainer).toContainText('8 500'); 
+const unitDigits = (await unitPriceRub.innerText()).replace(/\D/g, '');
+  expect(unitDigits).toBe(priceDigits);
 
 });

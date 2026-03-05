@@ -33,6 +33,8 @@ await page1.locator('[data-test="select-appeal"]').click();
   .filter({ hasText: 'Редактирование заказа' })
   .click();
   await expect(page1.locator('[data-test="search-input-number-order"]')).toBeVisible();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Редактирование заказа' }))
+.toBeVisible();  
 });
 
 // https://allure.itlabs.io/project/28/test-cases/6735?treeId=58
@@ -45,9 +47,10 @@ test('#3242 Создание обращения с причиной "Справ�
 await page1.locator('[data-test="select-appeal"]').click();
   await page1
   .locator('[data-test="select-appeal"] li')
-  .filter({ hasText: 'Справка' })
+  .filter({ hasText: 'Справка / Перевод' })
   .click();
-//  await expect(page.locator('input[placeholder*="Поиск"]')).toBeVisible({ timeout: 5000});
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Справка / Перевод' }))
+.toBeVisible();
 });
 
  // https://allure.itlabs.io/project/28/test-cases/3244?treeId=58
@@ -63,6 +66,8 @@ await page1.locator('[data-test="select-appeal"]').click();
   .filter({ hasText: 'Консультация Материалы / Услуги' })
   .click();
   await expect(page1.locator('[data-test="search-input"]')).toBeVisible();
+  await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Консультация Материалы / Услуги' }))
+.toBeVisible();
 });
 
  // https://allure.itlabs.io/project/28/test-cases/3245?treeId=58
@@ -78,6 +83,8 @@ await page1.locator('[data-test="select-appeal"]').click();
   .filter({ hasText: 'Информация по заказу' })
   .click();
 await expect(page1.locator('[data-test="search-input-number-order"]')).toBeVisible();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Информация по заказу' }))
+.toBeVisible();
 });
 
  // https://allure.itlabs.io/project/28/test-cases/3243?treeId=58
@@ -90,9 +97,11 @@ test('#3243 Создание обращения с причиной "Ошибк�
 await page1.locator('[data-test="select-appeal"]').click();
   await page1
   .locator('[data-test="select-appeal"] li')
-  .filter({ hasText: 'Регистрация ошибки/ос' })
+  .filter({ hasText: 'Ошибки / ОС' })
   .click();
   await expect(page1.getByText('Зарегистрировать ошибку')).toBeVisible();
+   await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Ошибки / ОС' }))
+.toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/3243?treeId=58 ПРОВЕРИТЬ 
@@ -108,6 +117,8 @@ await page1.locator('[data-test="select-appeal"]').click();
   .filter({ hasText: 'Претензия' })
   .click();
  await expect(page1.getByText('Отправить претензию')).toBeVisible();
+ await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Претензия' }))
+.toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/3247?treeId=58 
@@ -123,6 +134,8 @@ test('#3247 Создание обращения с причиной "Соиск�
     .click();
 await expect(page1.locator('[data-test="go-appeal-history"]')).toBeVisible();   
 await page1.locator('[data-test="go-appeal-history"]').click();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Соискатели' }))
+.toBeVisible();
 });
 
  //https://allure.itlabs.io/project/28/test-cases/3248?treeId=58
@@ -137,6 +150,8 @@ await page1.locator('[data-test="select-appeal"]').click();
   .locator('[data-test="select-appeal"] li')
   .filter({ hasText: 'Прокат' })
   .click();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Прокат' }))
+.toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/3249?treeId=58
@@ -151,7 +166,8 @@ await page1.locator('[data-test="select-appeal"]').click();
   .locator('[data-test="select-appeal"] li')
   .filter({ hasText: 'Водители/ЛТС/ЦТС' })
   .click();
-  await expect(page1.getByText('Предложение переведено в заказ успешно!')).toBeVisible();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Водители/ЛТС/ЦТС' }))
+.toBeVisible();
 });
 
 
@@ -190,6 +206,8 @@ await page1.locator('[data-test="shopping-card-button"]').first().click();
 await page1.getByRole('button', { name: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
+await page1.locator('.ant-notification-notice-close').first().click();
+await page1.locator('.ant-notification-notice-close').last().click();
 await page1.waitForSelector('[data-test="select-appeal"]', { state: 'attached' });
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
@@ -209,17 +227,18 @@ test('#6750 Редактирование ранее созданного зак�
   label('tag', 'regress');   
    feature('Auth');
 const page1 = await createAppeal(page);
-await page1.locator('[data-test="go-appeal-history"]').click();
 await page1
   .locator('[data-icon="form"]')
   .first()
   .click();
-  await page1.locator('[data-test="select-appeal"]').click();
+await page1.locator('[data-test="select-appeal"]').click();
 await page1
   .locator('[data-test="select-appeal"] li')
   .filter({ hasText: 'Редактирование' })
   .click();
-await expect(page1.getByText('Заказ №')).toBeVisible();
+await expect(page1.locator('[data-test="save-order"]')).toBeVisible();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Редактирование' }))
+.toBeVisible();
 })
 
 //https://allure.itlabs.io/project/28/test-cases/5636?treeId=58 
@@ -227,10 +246,16 @@ test('#5636 Создание обращение клиента, который �
    { tag: ['@regress'] },
   async ({ page }) => {
     label('tag', 'regress');   
-   feature('Auth');
-  const appealPage = await createAppeal(page, "(919)-959-32-97");
- await expect(page.getByText('История обращений')).toBeVisible();
-  await expect(appealPage).toHaveURL(/\/appeal/);
+   feature('Auth')
+  const context = page.context();
+  const [page1] = await Promise.all([
+  context.waitForEvent('page'),
+  createAppeal(page, '(919)-959-32-97'),
+  ]);
+  await page1.waitForLoadState('domcontentloaded');
+  await expect(
+  page1.getByRole('button', { name: /Регистрация в ПЛ/ })).toBeVisible({ timeout: 15000 });
+
 });
 
 
@@ -240,7 +265,7 @@ test("#4576 Создание обращения - валидация (телеф
   async ({ page }) => {
     label('tag', 'regress');   
    feature('Auth');
-  await page.goto("https://cerebro.dev.contact-center.itlabs.io/home");
+  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
   await page.locator('input[name="login"]').fill("mmalyutina");
   await page.locator('input[name="password"]').fill("123456789");
   await page.getByRole("button", { name: "Войти" }).click();
@@ -284,42 +309,41 @@ test("#4576 Создание обращения - валидация (email)",
   async ({ page }) => {
     label('tag', 'regress');   
    feature('Auth');
-  await page.goto("https://cerebro.dev.contact-center.itlabs.io/home");
+  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
   await page.locator('input[name="login"]').fill("mmalyutina");
   await page.locator('input[name="password"]').fill("123456789");
   await page.getByRole("button", { name: "Войти" }).click();
-  // Переход: Клиенты -> Новое обращение
-  const clientsLink = page.getByText("Клиенты").first();
-  await clientsLink.waitFor({ state: "visible" });
-  await clientsLink.click({ force: true });
-  await page.getByRole("link", { name: "Новое обращение" }).click();
+  // Находим пункт "Клиенты" 
+  const clients = page.getByText('Клиенты', { exact: true }).first();
+// Проверяем, что он видим, открыть меню по hover
+await expect(clients).toBeVisible({ timeout: 30_000 });
+await clients.hover();
+const newAppeal = page.getByRole('link', { name: 'Новое обращение' });
+// Ждём пока элемент будет доступен
+await expect(newAppeal).toBeVisible({ timeout: 30_000 });
+await newAppeal.click();
+  // 
   const emailInput = page.locator('input[name="email"]');
   const submitBtn = page.locator('button[type="submit"]');
-
-  // 1) Пустое поле -> "Это обязательное поле"
+  //  Пустое поле -> "Это обязательное поле"
   await page.getByText("E-mail").click(); 
   await submitBtn.click();
   await expect(page.getByText("Это обязательное поле")).toBeVisible();
-
-  // 2) Слишком длинный/некорректный email -> "Укажите корректный email"
+  //  Слишком длинный/некорректный email -> "Укажите корректный email"
   await emailInput.fill(`${"s".repeat(50)}nikaniki02@mail.ru`);
   await submitBtn.click();
   await expect(page.getByText("Укажите корректный email")).toBeVisible();
-
-  // 3) grusha@@mail.ru -> "Укажите корректный email"
+  // grusha@@mail.ru -> "Укажите корректный email"
   await emailInput.fill("grusha@@mail.ru");
   await submitBtn.click();
   await expect(page.getByText("Укажите корректный email")).toBeVisible();
   // 4) Валидный email 
   await emailInput.fill("nikaniki02@mail.ru");
-
   const popupOrNull = await Promise.all([
     page.waitForEvent("popup").catch(() => null),
     submitBtn.click(),
   ]).then(([popup]) => popup);
-
   const targetPage = popupOrNull ?? page;
-
   await expect(targetPage).toHaveURL(/\/selectClient/);
   await expect(targetPage.getByText("Создание клиента")).toBeVisible();
 });
@@ -330,16 +354,25 @@ test("#4576 Создание обращения - валидация (мессе
   async ({ page }) => {
     label('tag', 'regress');   
    feature('Auth');
-  await page.goto("https://cerebro.dev.contact-center.itlabs.io/home");
+  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
   await page.locator('input[name="login"]').fill("mmalyutina");
   await page.locator('input[name="password"]').fill("123456789");
   await page.getByRole("button", { name: "Войти" }).click();
   // Переход: Клиенты -Новое обращение
-  const clientsLink = page.getByText("Клиенты").first();
-  await clientsLink.waitFor({ state: "visible" });
-  await clientsLink.click({ force: true });
-  await page.getByRole("link", { name: "Новое обращение" }).click();
-
+  // const clientsLink = page.getByText("Клиенты").first();
+  // await clientsLink.waitFor({ state: "visible" });
+  // await clientsLink.click({ force: true });
+  // await page.getByRole("link", { name: "Новое обращение" }).click();
+  // Находим пункт "Клиенты" 
+  const clients = page.getByText('Клиенты', { exact: true }).first();
+// Проверяем, что он видим, открыть меню по hover
+await expect(clients).toBeVisible({ timeout: 30_000 });
+await clients.hover();
+const newAppeal = page.getByRole('link', { name: 'Новое обращение' });
+// Ждём пока элемент будет доступен
+await expect(newAppeal).toBeVisible({ timeout: 30_000 });
+await newAppeal.click();
+  // 
   const messengerInput = page.locator('input[name="messanger"]');
   const submitBtn = page.locator('button[type="submit"]');
   // 1) Пустое поле -> "Укажите корректный номер телефона"
@@ -356,9 +389,7 @@ test("#4576 Создание обращения - валидация (мессе
     page.waitForEvent("popup").catch(() => null),
     submitBtn.click(),
   ]).then(([popup]) => popup);
-
   const targetPage = popupOrNull ?? page;
-
   await expect(targetPage).toHaveURL(/\/selectClient/);
   await expect(targetPage.getByText("Создание клиента")).toBeVisible();
 });
