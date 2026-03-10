@@ -1,41 +1,67 @@
 import { Page, expect } from "@playwright/test";
 
+
+// ======================================
+// авторизация в наумен 
+//=======================================
+export async function fillLoginForm(
+  page: Page,
+  login: string = "mmalyutina",
+  password: string = "123456789"
+): Promise<Page> {
+  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
+  await page.locator('input[name="login"]').fill(login);
+  await page.locator('input[name="password"]').fill(password);
+  await page.getByRole("button", { name: "Войти" }).click();
+  return page;
+}
+
 // ======================================
 // создание обращения и открытие страницы 
 //=======================================
+type ContactType = "Телефон" | "E-mail" | "Мессенджер";
+
+interface CreateAppealOptions {
+  contactType?: ContactType;
+  contactValue?: string;
+}
+
 export async function createAppeal(
   page: Page,
-  phone: string = "(900)-000-00-66"
-): Promise<Page>{
-// await page.goto('https://cerebro.dev.contact-center.itlabs.io/auth'); поменять при необходимости 
-await page.goto('https://cerebro.dev.contact-center.itlabs.io');
+  options: CreateAppealOptions = {}
+): Promise<Page> {
+  const {
+    contactType = "Телефон",
+    contactValue = "(900)-000-00-66",
+  } = options;
+
+  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
   await page.locator('input[name="login"]').fill("mmalyutina");
   await page.locator('input[name="password"]').fill("123456789");
   await page.getByRole("button", { name: "Войти" }).click();
-  // await page.locator('.ant-notification-notice-close').first().click();
-  // await page.locator('.ant-notification-notice-close').last().click();
-  // Находим пункт "Клиенты" 
-   await page.getByText("Клиенты").hover({ force: true });
-   await page.getByText("Клиенты").click();
-   const newAppeal = page.getByRole('link', { name: 'Новое обращение' });
-  // Ждём пока элемент будет доступен
-await expect(newAppeal).toBeVisible();
-await newAppeal.click();
-  // 
-  await page.getByRole("textbox", { name: "Телефон" }).fill(phone);
+
+  await page.getByText("Клиенты").hover({ force: true });
+  await page.getByText("Клиенты").click();
+
+  const newAppeal = page.getByRole("link", { name: "Новое обращение" });
+  await expect(newAppeal).toBeVisible();
+  await newAppeal.click();
+
+  await page.getByText(contactType, { exact: true }).click();
+  await page.getByRole("textbox").fill(contactValue);
+
   const page1Promise = page.waitForEvent("popup");
   await page.getByRole("button", { name: "Создать новое обращение" }).click();
   const page1 = await page1Promise;
 
   await page1
     .getByRole("listitem")
-      .first()
+    .first()
     .locator('[data-test="select-client"]')
     .click();
-  
+
   await expect(page1).toHaveURL(/\/appeal/);
   return page1;
-     
 }
 
 
