@@ -1,3 +1,5 @@
+// #5352 Создание обращения клиента с сегментом Мастер
+// #3232 Создание обращения с причиной "Новый заказ"
 // #3242 Создание обращения с причиной "Редактирование заказа"
 // #6735 Создание обращения с причиной "Справка"
 // #3243 Создание обращения с причиной "Ошибки / ОС"
@@ -11,7 +13,7 @@
 // #4344 Переход из одной причины обращения в другую
 // #6750 Редактирование ранее созданного заказа, через историю
 // #5636 Создание обращение клиента, который не зарегистрирован в ПЛ, но обращался на линию
-// #4576 Создание обращения - валидация (телефон)///
+// #4576 Создание обращения - валидация (телефон)
 
 
 import { test, expect } from '@playwright/test';
@@ -19,10 +21,23 @@ import { createAppeal } from '../helpers/commands';
 import { text } from 'stream/consumers';
 import { label, feature } from 'allure-js-commons';
 
+// https://allure.itlabs.io/project/28/test-cases/5352?treeId=58
+test('5352 Процесс создания обращения клиента, с сегментом "Мастер"',
+  { tag: ['@regress'] },
+  async ({ page }) => {
+    label('tag', 'regress');
+    feature('Auth');
+    const page1 = await createAppeal(page, {
+      contactType: 'Телефон',
+      contactValue: '9000000022',
+    });
+    await expect(page1.getByText('Мастер')).toHaveCount(2);
+  }
+);
 
 
 // https://allure.itlabs.io/project/28/test-cases/3232?treeId=58
-test('#3232 Создание обращения клиента с причиной новый заказ',  
+test('#3232 Создание обращения клиента с причиной Новый заказ',  
    { tag: ['@regress'] }, 
    async ({ page }) => {
 label('tag', 'regress');   
@@ -37,6 +52,22 @@ await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Новый
 .toBeVisible();  
 });
 
+// 
+// https://allure.itlabs.io/project/28/test-cases/3232?treeId=58
+test('#5352 Процесс создания обращения клиента, с сегментом "Мастер"',  
+   { tag: ['@regress'] }, 
+   async ({ page }) => {
+label('tag', 'regress');   
+feature('Auth');
+  const page1 = await createAppeal(page);
+await page1.locator('[data-test="select-appeal"]').click();
+await page1
+  .locator('[data-test="select-appeal"] li')
+  .filter({ hasText: 'Новый заказ' })
+  .click();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Новый заказ' }))
+.toBeVisible();  
+});
 
 // https://allure.itlabs.io/project/28/test-cases/3242?treeId=58
 test('#6735 Создание обращения с причиной "Редактирование заказа"',  
@@ -261,20 +292,28 @@ await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Редак
 
 //https://allure.itlabs.io/project/28/test-cases/5636?treeId=58 
 test('#5636 Создание обращение клиента, который не зарегистрирован в ПЛ, но обращался на линию',
-   { tag: ['@regress'] },
+{ tag: ['@regress'] },
   async ({ page }) => {
-    label('tag', 'regress');   
-   feature('Auth')
-  const context = page.context();
-  const [page1] = await Promise.all([
-  context.waitForEvent('page'),
-  createAppeal(page, '(919)-959-32-97'),
-  ]);
-  await page1.waitForLoadState('domcontentloaded');
+    label('tag', 'regress');
+    feature('Auth');
+  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
+  await page.locator('input[name="login"]').fill("mmalyutina");
+  await page.locator('input[name="password"]').fill("123456789");
+  await page.getByRole("button", { name: "Войти" }).click();
+  await page.getByText('Клиенты', { exact: true }).click();
+  await page.getByRole('link', { name: 'Новое обращение' }).click();
+  await page.getByRole('textbox', { name: 'Телефон' }).click();
+  await page.getByRole('textbox', { name: 'Телефон' }).fill('+7(900)-007-77-77');
+  const page1Promise = page.waitForEvent('popup');
+  await page.getByRole('button', { name: 'Создать новое обращение' }).click();
+  const page1 = await page1Promise;
   await expect(
-  page1.getByRole('button', { name: /Регистрация в ПЛ/ })).toBeVisible({ timeout: 15000 });
+  page1.getByRole('button', { name: 'Регистрация в ПЛ' })).toBeVisible({ timeout: 10000 });
+  }
+);
+  
 
-});
+
 
 
  // https://allure.itlabs.io/project/28/test-cases/4576?treeId=58
