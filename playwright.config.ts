@@ -21,7 +21,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "off",
     viewport: { width: 1920, height: 1200 },
-    headless: true,
+    headless: false,
   },
 
   projects: [
@@ -29,16 +29,10 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        headless: true, // важно: после devices, чтобы перетереть
+        headless: false,
       },
     },
   ],
-
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !isCI,
-  // },
 });
 
 // import { defineConfig, devices } from "@playwright/test";
