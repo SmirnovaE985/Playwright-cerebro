@@ -150,27 +150,14 @@ const orderInput = page1.locator('input[name="orderNumber"]');
 await orderInput.click();
 await orderInput.press('Control+A');
 await page1.keyboard.type(orderNumber);
-// 
-const shop = page1.locator(
-  'span.ant-select-selection-placeholder',
-  { hasText: 'Выберите место инцидента' }
-);
-const selectShop = shop.locator('xpath=ancestor::div[contains(@class,"ant-select")]').first();
-await selectShop.locator('.ant-select-item-option-content').click();
-await page1.getByText('РЦ Тимберленд 50летОктября 122').click();
-// 
-const type = page1.locator(
-  'span.ant-select-selection-placeholder',
-  { hasText: 'Укажите тип ошибки' }
-);
-const selectType = type.locator('xpath=ancestor::div[contains(@class,"ant-select")]').first();
-await selectType.locator('.ant-select-item-option-content').click();
+await page1.locator('.ant-select-selection-overflow').click();
+await page1.getByText('РЦ Тимберленд 50летОктября').nth(1).click();
+await page1.getByRole('button', { name: 'Зарегистрировать ошибку' }).click();
+await page1.locator('.ant-select.ant-select-in-form-item > .ant-select-selector').click(); 
 await page1.getByText('Брак/Пересорт').click();
-
 await page1.getByPlaceholder('Укажите комментарий').fill('jhgbv94jh bhnjhbv');
-await page1.locator('button[type="submit"]').click(); 
+await page1.getByRole('button', { name: 'Зарегистрировать ошибку' }).click(); 
 await expect(page1.getByText('Инцидент создан успешно')).toBeVisible();
-
 });
 
 
