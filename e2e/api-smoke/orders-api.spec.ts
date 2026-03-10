@@ -2,44 +2,48 @@ import { test, expect } from "@playwright/test";
 import { label, feature } from "allure-js-commons";
 
 test(
-  "Создание заказа через POST /v1/orders",
+  "Получить текст приветствия через GET /v1/crm/greeting",
   { tag: ["@api", "@smoke"] },
-  async ({ request }) => {
+  async ({ page }) => {
     label("tag", "api");
     label("tag", "smoke");
-    feature("Orders API");
+    feature("CRM API");
 
-    const response = await request.post("https://test.pas.sdvor.com/api/cerebro/v1/orders", {
-      headers: {
-        "x-app-client": "ТУТ_X_APP_CLIENT",
-        "x-token": "ТУТ_X_TOKEN",
-        "Authorization": "ТУТ_AUTHORIZATION",
-        "Content-Type": "application/json",
-      },
-      data: {
-        parentNumber: "123456",
-        typeCode: "stri",
-        source: "stri",
-        guid: "test-guid-123",
-        authorCode: "string",
-        contractCode: "string",
-        proxyCode: "string",
-        salesOrgCode: "stri",
-        salesDepCode: "stri",
-        salesChnCode: "str",
-        salesGrpCode: "str",
-        payment: {
-          totalOld: 99.99
+    await page.goto("https://test.pas.sdvor.com/api/cerebro/swagger.html#/crm");
+
+    const result = await page.evaluate(async () => {
+      const res = await fetch(
+        "https://test.pas.sdvor.com/api/cerebro/v1/crm/greeting?phone=%2B79000000033&operator=elesmirnova",
+        {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "x-app-client": "cerebro",
+            "x-token": "elesmirnova",
+          },
+          credentials: "include",
         }
-      },
+      );
+
+      return {
+        status: res.status,
+        contentType: res.headers.get("content-type"),
+        text: await res.text(),
+      };
     });
 
-    expect(response.status()).toBe(200);
+    console.log("status:", result.status);
+    console.log("content-type:", result.contentType);
+    console.log("body:", result.text);
 
-    const body = await response.json();
+    expect(result.status, `Response body: ${result.text}`).toBe(200);
+    expect(result.text, "Expected JSON, got HTML").not.toContain("<html");
 
-    expect(body).toBeDefined();
+    const body = JSON.parse(result.text);
     expect(body.apiVersion).toBeDefined();
     expect(body.data).toBeDefined();
+    expect(body.data.message).toBeDefined();
+    expect(body.data.client).toBeDefined();
+    expect(body.data.operator).toBeDefined();
   }
 );

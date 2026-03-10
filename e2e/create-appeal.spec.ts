@@ -20,6 +20,24 @@ import { text } from 'stream/consumers';
 import { label, feature } from 'allure-js-commons';
 
 
+
+// https://allure.itlabs.io/project/28/test-cases/3232?treeId=58
+test('#3232 Создание обращения клиента с причиной новый заказ',  
+   { tag: ['@regress'] }, 
+   async ({ page }) => {
+label('tag', 'regress');   
+feature('Auth');
+  const page1 = await createAppeal(page);
+await page1.locator('[data-test="select-appeal"]').click();
+  await page1
+  .locator('[data-test="select-appeal"] li')
+  .filter({ hasText: 'Новый заказ' })
+  .click();
+await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Новый заказ' }))
+.toBeVisible();  
+});
+
+
 // https://allure.itlabs.io/project/28/test-cases/3242?treeId=58
 test('#6735 Создание обращения с причиной "Редактирование заказа"',  
    { tag: ['@regress'] }, 
