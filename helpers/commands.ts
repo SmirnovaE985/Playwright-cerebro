@@ -305,6 +305,23 @@ if (options?.beforeMakeOrder) {
 }
 
 
+//////////////////////
+// добавление колеровки
+//////////////////////
+export async function addColoring(page1: Page, code: string) {
+  const codeInput = page1.getByRole('textbox', { name: 'Код', exact: true });
+
+  await expect(codeInput).toBeVisible();
+  await codeInput.click();
+  await codeInput.fill(code);
+
+  const option = page1.locator('[data-test="colors-item"]').filter({ hasText: code }).first();
+  await expect(option).toBeVisible();
+  await option.click();
+
+  await page1.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page1.getByText('Услуга успешно добавлена')).toBeVisible();
+}
 
 //====================================
 //заполнение модалки бетона для теста 

@@ -153,7 +153,7 @@ await page1.locator('[data-test="select-appeal"]').click();
 .toBeVisible();
 });
 
-// https://allure.itlabs.io/project/28/test-cases/3243?treeId=58 ПРОВЕРИТЬ 
+// https://allure.itlabs.io/project/28/test-cases/3243?treeId=58  
 test('#3246 Создание обращения с причиной "Претензия"',
    { tag: ['@regress'] },
   async ({ page }) => {
@@ -415,12 +415,6 @@ test("#4576 Создание обращения - валидация (мессе
   await page.locator('input[name="login"]').fill("mmalyutina");
   await page.locator('input[name="password"]').fill("123456789");
   await page.getByRole("button", { name: "Войти" }).click();
-  // Переход: Клиенты -Новое обращение
-  // const clientsLink = page.getByText("Клиенты").first();
-  // await clientsLink.waitFor({ state: "visible" });
-  // await clientsLink.click({ force: true });
-  // await page.getByRole("link", { name: "Новое обращение" }).click();
-  // Находим пункт "Клиенты" 
   const clients = page.getByText('Клиенты', { exact: true }).first();
 // Проверяем, что он видим, открыть меню по hover
 await expect(clients).toBeVisible({ timeout: 30_000 });
