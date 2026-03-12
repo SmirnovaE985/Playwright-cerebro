@@ -21,7 +21,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "off",
     viewport: { width: 1920, height: 1200 },
-    headless: false,
+    headless: isCI,
   },
 
   projects: [
@@ -29,7 +29,7 @@ export default defineConfig({
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        headless: false,
+        headless: isCI,
       },
     },
   ],
