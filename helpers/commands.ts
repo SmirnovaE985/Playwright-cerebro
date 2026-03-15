@@ -1,21 +1,35 @@
-import { Page, expect } from "@playwright/test";
+import { Page, expect } from '@playwright/test';
+
+function getLogin(): string {
+  const login = process.env.USER_LOGIN;
+  if (!login) {
+    throw new Error('USER_LOGIN не задан в .env');
+  }
+  return login;
+}
+
+function getPassword(): string {
+  const password = process.env.USER_PASSWORD;
+  if (!password) {
+    throw new Error('USER_PASSWORD не задан в .env');
+  }
+  return password;
+}
 
 
 // ======================================
 // авторизация в наумен 
 //=======================================
-export async function fillLoginForm(
-  page: Page,
-  login: string = "mmalyutina",
-  password: string = "123456789"
-): Promise<Page> {
-  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
-  await page.locator('input[name="login"]').fill(login);
-  await page.locator('input[name="password"]').fill(password);
-  await page.getByRole("button", { name: "Войти" }).click();
+
+export async function fillLoginForm(page: Page): Promise<Page> {
+  await page.goto('/');
+
+  await page.locator('input[name="login"]').fill(getLogin());
+  await page.locator('input[name="password"]').fill(getPassword());
+  await page.getByRole('button', { name: 'Войти' }).click();
+
   return page;
 }
-
 // ======================================
 // создание обращения и открытие страницы 
 //=======================================
@@ -35,10 +49,7 @@ export async function createAppeal(
     contactValue = "(900)-000-00-66",
   } = options;
 
-  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
-  await page.locator('input[name="login"]').fill("mmalyutina");
-  await page.locator('input[name="password"]').fill("123456789");
-  await page.getByRole("button", { name: "Войти" }).click();
+ await fillLoginForm(page);
 
   await page.getByText("Клиенты").hover({ force: true });
   await page.getByText("Клиенты").click();
@@ -78,12 +89,7 @@ export async function createOrder(
     searchText = 'цемент',
    } = options ?? {};
 
-  await page.goto('https://cerebro.dev.contact-center.itlabs.io');
-  await page.locator('input[name="login"]').fill("mmalyutina");
-  await page.locator('input[name="password"]').fill("123456789");
-  await page.getByRole("button", { name: "Войти" }).click();
-  //  await page.locator('.ant-notification-notice-close').first().click();
-  // await page.locator('.ant-notification-notice-close').last().click();
+  await fillLoginForm(page);
   // Находим пункт "Клиенты" 
    await page.getByText("Клиенты").hover({ force: true });
    await page.getByText("Клиенты").click();
@@ -181,10 +187,8 @@ export async function createOrderCheckPromo(
 
   // Авторизация и создание обращения
 
-  await page.goto('https://cerebro.dev.contact-center.itlabs.io');
-  await page.locator('input[name="login"]').fill('mmalyutina');
-  await page.locator('input[name="password"]').fill('123456789');
-  await page.getByRole('button', { name: 'Войти' }).click();
+  await fillLoginForm(page);
+  
   await page.getByText('Клиенты').first().click();
   await page.getByRole('link', { name: 'Новое обращение' }).click();
   await page
