@@ -1,44 +1,40 @@
+import { defineConfig, devices } from '@playwright/test';
+import * as dotenv from 'dotenv';
 
-import { defineConfig, devices } from "@playwright/test";
+dotenv.config();
 
 const isCI = !!process.env.CI;
 
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: './e2e',
   fullyParallel: false,
   forbidOnly: isCI,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 3 : undefined,
 
   reporter: [
-    ["list"],
-    ["allure-playwright", { outputFolder: "allure-results" }],
+    ['list'],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
   ],
 
   use: {
-    baseURL: "https://cerebro.dev.contact-center.itlabs.io",
-    trace: "off",
-    screenshot: "only-on-failure",
-    video: "off",
+    baseURL: process.env.BASE_URL,
+    trace: 'off',
+    screenshot: 'only-on-failure',
+    video: 'off',
     viewport: { width: 1920, height: 1200 },
-    headless: true,
+    headless: isCI,
   },
 
   projects: [
     {
-      name: "chromium",
+      name: 'chromium',
       use: {
-        ...devices["Desktop Chrome"],
-        headless: true, // важно: после devices, чтобы перетереть
+        ...devices['Desktop Chrome'],
+        headless: isCI,
       },
     },
   ],
-
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !isCI,
-  // },
 });
 
 // import { defineConfig, devices } from "@playwright/test";
