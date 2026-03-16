@@ -247,14 +247,19 @@ test('#5636 Создание обращение клиента, который �
   async ({ page }) => {
     label('tag', 'regress');   
    feature('Auth')
-  const context = page.context();
-  const [page1] = await Promise.all([
-  context.waitForEvent('page'),
-  createAppeal(page, '(919)-959-32-97'),
-  ]);
-  await page1.waitForLoadState('domcontentloaded');
-  await expect(
-  page1.getByRole('button', { name: /Регистрация в ПЛ/ })).toBeVisible({ timeout: 15000 });
+  // const context = page.context();
+  // const [page1] = await Promise.all([
+  // context.waitForEvent('page'),
+  // createAppeal(page, '(919)-959-32-97'),
+  // ]);
+
+  const page1 = await createAppeal(page, '(919)-959-32-97');
+  await page1.locator('[data-test="select-appeal"]').click();
+  await page1
+    .locator('[data-test="select-appeal"] li')
+    .filter({ hasText: 'Новый заказ' })
+    .click();
+  await page1.locator('.ant-btn-default', { hasText: 'Регистрация в ПЛ' }).click();
 
 });
 
