@@ -13,5 +13,8 @@
     "start": "node src/index.js",
     "test:e2e": "playwright test",
     "test:regress": "playwright test --grep @regress"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
   }
 }
