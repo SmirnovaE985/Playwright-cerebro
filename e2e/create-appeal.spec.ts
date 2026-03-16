@@ -294,6 +294,23 @@ await expect(page1.locator('[data-test="select-appeal"]', { hasText: 'Редак
 test('#5636 Создание обращение клиента, который не зарегистрирован в ПЛ, но обращался на линию',
 { tag: ['@regress'] },
   async ({ page }) => {
+<<<<<<< HEAD
+    label('tag', 'regress');   
+   feature('Auth')
+  // const context = page.context();
+  // const [page1] = await Promise.all([
+  // context.waitForEvent('page'),
+  // createAppeal(page, '(919)-959-32-97'),
+  // ]);
+
+  const page1 = await createAppeal(page, '(919)-959-32-97');
+  await page1.locator('[data-test="select-appeal"]').click();
+  await page1
+    .locator('[data-test="select-appeal"] li')
+    .filter({ hasText: 'Новый заказ' })
+    .click();
+  await page1.locator('.ant-btn-default', { hasText: 'Регистрация в ПЛ' }).click();
+=======
     label('tag', 'regress');
     feature('Auth');
   await page.goto("https://cerebro.dev.contact-center.itlabs.io");
@@ -313,6 +330,7 @@ test('#5636 Создание обращение клиента, который �
 );
   
 
+>>>>>>> 43a1ca52e6f72e6e06d4c552028e364231bff191
 
 
 

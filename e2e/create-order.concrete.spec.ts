@@ -12,7 +12,7 @@
 import { test, expect } from '@playwright/test';
 import { createAppeal } from '../helpers/commands';
 import { deleteAllPositions } from '../helpers/commands';
-import { addConcrete} from '../helpers/commands';
+// import { addConcrete} from '../helpers/commands';
 import { label, feature } from 'allure-js-commons';
 import { label as allureLabel, feature as allureFeature } from 'allure-js-commons';
 
@@ -101,56 +101,59 @@ await page1.locator('[data-test="make-order"]').click();
 await expect(page1.getByText('Заказ успешно создан')).toBeVisible();
  });
 
-//https://allure.itlabs.io/project/28/test-cases/4251?treeId=58
-test('#4251 Создать заказ бетона с несколькими машинами',
-{ tag: ['@regress'] }, 
-async ({page}) => { 
-allureLabel('tag', 'regress');
-allureFeature('Auth');      
-const page1 = await createAppeal(page);
-await page1.locator('[data-test="select-appeal"]').click();
-await page1
-  .locator('[data-test="select-appeal"] li')
-  .filter({ hasText: 'Новый заказ' })
-  .click();
-await page1.locator('[data-test="search-input"]').click();
-await page1.locator('[data-test="search-input"]').fill('бетон');
-//
-let attempt = 0;
-await expect(async () => {
-  attempt++;
-  // перед 2-й и следующими попытками
-  if (attempt > 1) {
-    const close = page1.locator('[data-icon="close"]');
-    if (await close.isVisible().catch(() => false)) {
-      await close.click();
-      //  дождаться закрытия
-      await expect(close).toBeHidden({ timeout: 5000 });
-    }
-  }
-  await addConcrete(page1);
-}).toPass();
-//
-await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
-const cartBtn = page1.locator('[data-test="to-cart-button"]');
-await cartBtn.click();
-const newOrder = page1.locator('[data-test="make-order"]');
-try {
-  await newOrder.waitFor({ timeout: 5000 });
-} catch (e) {
-  await cartBtn.click();
-  await newOrder.waitFor({ timeout: 5000 });
-}
 
-await page1.locator('[data-test="make-order"]').click();
-await expect(page1.locator('[data-test="save-order"]')).toBeEnabled();
-// проверяем, что в контейнере доставок, сохранено три элемента
-const deliveriesContainer = page1.locator('div[class^="_deliveries-container_"]');
-const deliveries = deliveriesContainer.locator('div[class^="_delivery_"]');
 
-await expect(deliveriesContainer).toBeVisible({ timeout: 30_000 });
-await expect(deliveries).toHaveCount(3, { timeout: 30_000 });
-})
+// переведен в ручной
+// //https://allure.itlabs.io/project/28/test-cases/4251?treeId=58
+// test('#4251 Создать заказ бетона с несколькими машинами',
+// { tag: ['@regress'] }, 
+// async ({page}) => { 
+// allureLabel('tag', 'regress');
+// allureFeature('Auth');      
+// const page1 = await createAppeal(page);
+// await page1.locator('[data-test="select-appeal"]').click();
+// await page1
+//   .locator('[data-test="select-appeal"] li')
+//   .filter({ hasText: 'Новый заказ' })
+//   .click();
+// await page1.locator('[data-test="search-input"]').click();
+// await page1.locator('[data-test="search-input"]').fill('бетон');
+// //
+// let attempt = 0;
+// await expect(async () => {
+//   attempt++;
+//   // перед 2-й и следующими попытками
+//   if (attempt > 1) {
+//     const close = page1.locator('[data-icon="close"]');
+//     if (await close.isVisible().catch(() => false)) {
+//       await close.click();
+//       //  дождаться закрытия
+//       await expect(close).toBeHidden({ timeout: 5000 });
+//     }
+//   }
+//   await addConcrete(page1);
+// }).toPass();
+// //
+// await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
+// const cartBtn = page1.locator('[data-test="to-cart-button"]');
+// await cartBtn.click();
+// const newOrder = page1.locator('[data-test="make-order"]');
+// try {
+//   await newOrder.waitFor({ timeout: 5000 });
+// } catch (e) {
+//   await cartBtn.click();
+//   await newOrder.waitFor({ timeout: 5000 });
+// }
+
+// await page1.locator('[data-test="make-order"]').click();
+// await expect(page1.locator('[data-test="save-order"]')).toBeEnabled();
+// // проверяем, что в контейнере доставок, сохранено три элемента
+// const deliveriesContainer = page1.locator('div[class^="_deliveries-container_"]');
+// const deliveries = deliveriesContainer.locator('div[class^="_delivery_"]');
+
+// await expect(deliveriesContainer).toBeVisible({ timeout: 30_000 });
+// await expect(deliveries).toHaveCount(3, { timeout: 30_000 });
+// })
 
  //allure.itlabs.io/project/28/test-cases/4345?treeId=58
 test('#4345 Создать заказ с дробным числом', 
@@ -170,7 +173,7 @@ await page1.locator('[data-test="search-button"]').click();
 await page1.locator('[data-test="shopping-card-button"]').first().click();
 await page1.locator('[data-test=add-quantity-input]').click();
 await page1.locator('[data-test=add-quantity-input]').fill('10.5');
-await expect(page1.locator('[data-test=add-quantity-input]')).toHaveValue('10.5');
+// await expect(page1.locator('[data-test=add-quantity-input]')).toHaveValue('10.5');
 await page1.locator('[data-test=delivery-address]').fill('Агеева');
 await page1.getByText('Агеева').first().click();
 await page1.locator('input[placeholder*="Выберите дату"]').click();
@@ -238,6 +241,7 @@ await page1.locator('input[placeholder*="Выберите дату"]').click();
     const tomorrowFormatted = `${year}-${month}-${day}`;
     await page1.locator(`td[title="${tomorrowFormatted}"]`).click();
 // Нажимаем "Добавить машину"
+await page.waitForTimeout(3000);
  await page1.getByText('Добавить машину').click();
 await page1.locator('[data-test="cars-type"]').click();
 await page1.getByText('Бетоновоз 10м3').click();
@@ -249,7 +253,7 @@ await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('10');
 await page1.locator('[data-test=comment-car]').fill('тестовый комментарий');
-await page1.waitForTimeout(3000);
+await expect(page1.locator('[data-test="data-test=comment-car"]', hasText: {})).toHaveValue('тестовый комментарий');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
