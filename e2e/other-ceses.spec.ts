@@ -12,6 +12,7 @@ import { createOrderCheckPromo } from '../helpers/commands';
 import { randomInt } from 'crypto';
 import { label, feature } from 'allure-js-commons';
 import { label as allureLabel, feature as allureFeature } from 'allure-js-commons';
+import { fillLoginForm } from '../helpers/commands';
 
 // https://allure.itlabs.io/project/28/test-cases/4587?treeId=58
 test('#4587 Привязка клиента к менеджеру через вкладку "мои клиенты"',
@@ -22,12 +23,9 @@ test('#4587 Привязка клиента к менеджеру через в�
 }) => {
   label('tag', 'regress');   
   feature('Auth');
-  await page.goto("https://cerebro.dev.contact-center.itlabs.io");
-  await page.locator('input[name="login"]').fill("mmalyutina");
-  await page.locator('input[name="password"]').fill("123456789");
-  await page.getByRole("button", { name: "Войти" }).click();
-  await page.getByText("Клиенты").hover({ force: true });
-  await page.getByText("Мои клиенты").click();
+ await fillLoginForm(page);
+ await page.getByText("Клиенты").hover({ force: true });
+ await page.getByText("Мои клиенты").click();
   // Добавить нового клиента
   await page.getByText('Добавить нового клиента').click();
   const rnd = () => Math.floor(Math.random() * 10);
@@ -244,5 +242,4 @@ await option1.click();
 await page1.locator('[data-icon=close-circle]').click();
 const select = page1.locator('[data-test="pattern-sms"]');
 await expect(select).toContainText('Выберите шаблон');
-
 });
