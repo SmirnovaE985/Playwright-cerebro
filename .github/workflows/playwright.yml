@@ -13,6 +13,11 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
 
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      USER_LOGIN: ${{ secrets.USER_LOGIN }}
+      USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,6 +33,11 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
+
+      - name: Check BASE_URL availability
+        run: |
+         echo "BASE_URL is set"
+         curl -I -L --max-time 20 "$BASE_URL" || true
 
       - name: Run Playwright tests
         run: npx playwright test
