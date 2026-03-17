@@ -1,6 +1,7 @@
 # Cerebro E2E — автотесты на Playwright
 
-Проект предназначен для автоматизированного **end-to-end тестирования** системы **Cerebro** — рабочего места менеджера контакт-центра.
+Проект  **Cerebro** — рабочего места менеджера контакт-центра. Является учебным и служит демонстрацией навыков автоматизации **UI**  тестирования с использованием Playwright.
+
 
 Основная цель проекта — проверка ключевых пользовательских сценариев, снижение рисков при изменениях и поддержка регрессионного тестирования.  
 В репозитории содержатся только e2e-тесты, реализованные на **Playwright**.
@@ -37,24 +38,48 @@ Cerebro — это единый интерфейс для работы сотр�
 
 ```text
 .
-├── .github/                    # служебные файлы GitHub
-├── allure-results/             # результаты для Allure
-├── e2e/                        # e2e-тесты
-│   ├── api-smoke/              # API smoke тесты
-│   ├── auth.setup.ts           # подготовка / авторизация
-│   ├── create-appeal.spec.ts
+playwright/
+│
+├── .github/                     # конфигурация GitHub (CI, workflows)
+│
+├── e2e/                         # E2E тесты
+│   ├── api/                     # API smoke / API тесты
+│   │   └── api-smoke.spec.ts
+│   │
+│   ├── auth/                    # авторизация и подготовка
+│   │   └── auth.setup.ts
+│   │
+│   ├── create-appeal.spec.ts          # тесты создания заказов
 │   ├── create-order-debitor.spec.ts
-│   ├── create-order.concrete.spec.ts
+│   ├── create-order-concrete.spec.ts
 │   ├── create-order.spec.ts
-│   ├── example.spec.ts
-│   └── other-cases.spec.ts
-├── helpers/                    # хелперы и вспомогательные команды
+│   ├── other-cases.spec.ts
+│   └── example.spec.ts
+│
+├── helpers/                     # хелперы и кастомные команды
 │   └── commands.ts
-├── playwright/.auth/           # сохранённые данные авторизации
-├── test-results/               # артефакты падений / результаты Playwright
+│
+├── playwright/.auth/            # сохранённые состояния авторизации
+│
+├── test-results/                # результаты тестов (падения, логи)
+├── playwright-report/           # HTML отчёт Playwright
+├── allure-results/              # результаты для Allure
+│
+├── .env                         # переменные окружения
+├── .env.example                 # пример env файла
+├── .gitignore
+│
 ├── package.json
-├── playwright.config.ts
-└── README.md
+├── package-lock.json
+├── yarn.lock
+│
+├── playwright.config.ts         # конфигурация Playwright
+│
+├── README.md
+│
+├── .gitlab-ci.yml               # CI (если используется GitLab)
+│
+└── devops/                      # (опционально) скрипты/конфиги для CI/CD
 ```
 
 ### Установка:
