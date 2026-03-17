@@ -2,7 +2,7 @@
 // #4141 Создать заказ на бетон через быстрое добавление в корзину
 // #4251 Создать заказ бетона с несколькими машинами
 // #4345 Создать заказ с дробным числом
-// #4346 Создать заказ с комментарием к ТТН
+// #4346 Создать заказ с комментарием к ТТН  (не использовать)
 // #4130 Создать заказ бетона с через карточку товара с ручной ценой
 // #4232 Создать заказ бетона с изменением объема через листинг
 // #4018 Создать заказ с бетоном через причину обращения "консультация"
@@ -93,7 +93,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('6');
+await page1.locator('[data-test="volume-car-0"]').fill('6');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 // 
 await page1.locator('[data-test="to-cart-button"]').click();
@@ -171,9 +171,8 @@ await page1.locator('[data-test="search-input"]').click();
 await page1.locator('[data-test="search-input"]').fill('бетон');
 await page1.locator('[data-test="search-button"]').click();
 await page1.locator('[data-test="shopping-card-button"]').first().click();
-await page1.locator('[data-test=add-quantity-input]').click();
-await page1.locator('[data-test=add-quantity-input]').fill('10.5');
-// await expect(page1.locator('[data-test=add-quantity-input]')).toHaveValue('10.5');
+await page1.locator('[data-test=add-quantity-input]').fill('10,5');
+ await expect(page1.locator('[data-test=add-quantity-input]')).toHaveValue('10,5');
 await page1.locator('[data-test=delivery-address]').fill('Агеева');
 await page1.getByText('Агеева').first().click();
 await page1.locator('input[placeholder*="Выберите дату"]').click();
@@ -199,7 +198,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('10.5');
+await page1.locator('[data-test="volume-car-0"]').fill('10.5');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
@@ -251,7 +250,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('10');
+await page1.locator('[data-test="volume-car-0"]').fill('10');
 await page1.locator('[data-test=comment-car]').fill('тестовый комментарий');
 await expect(page1.locator('[data-test="data-test=comment-car"]')).toHaveText('тестовый комментарий');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
@@ -322,7 +321,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('6');
+await page1.locator('[data-test="volume-car-0"]').fill('6');
 const modal = page1.locator('.ant-modal:visible'); // текущее открытое модальное окно
 await modal
   .locator('.ant-btn-primary', { hasText: 'Добавить' })
@@ -377,7 +376,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('10');
+await page1.locator('[data-test="volume-car-0"]').fill('10');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="cart-position"]').click();
@@ -440,7 +439,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('10');
+await page1.locator('[data-test="volume-car-0"]').fill('10');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
@@ -498,7 +497,7 @@ await timeInput.click();
 await page1.keyboard.press('ArrowDown');
 await page1.keyboard.press('Enter');
 //ввести объём бетона
-await page1.locator('input[placeholder*="Объём"]').fill('10');
+await page1.locator('[data-test="volume-car-0"]').fill('10');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
