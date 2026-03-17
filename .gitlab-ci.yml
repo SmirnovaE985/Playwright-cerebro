@@ -13,25 +13,24 @@ playwright_regress:
     PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
 
   before_script:
-  - node -v
-  - npm -v
-  - npm ci
-  # npx playwright install --with-deps  # обычно лишнее в официальном образе
-  - curl -fsSL -o allurectl https://github.com/allure-framework/allurectl/releases/download/2.18.0/allurectl_linux_amd64
-  - chmod +x allurectl
-  - ./allurectl --version
+    - node -v
+    - npm -v
+    - npm ci
+    - mkdir -p allure-results
+    - mkdir -p test-results
+    - mkdir -p playwright-report
 
   script:
-  - echo "Branch=${Branch:-main} Browser=${Browser:-chromium} Grep=${Grep:-@regress}"
-
-  # Просто логируем доступность Allure (не валим job)
-  - curl -vk --connect-timeout 10 --max-time 30 "$ALLURE_ENDPOINT/api/uaa/account/me" || true
-
-  # Запуск тестов + отправка результатов в Allure TestOps
-  - npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --grep "${Grep:-@regress}"
+    - echo "Branch=${Branch:-main} Browser=${Browser:-chromium} Grep=${Grep:-@regress}"
+    - test -n "$BASE_URL" || (echo "BASE_URL is NOT set" && exit 1)
+    - test -n "$USER_LOGIN" || (echo "USER_LOGIN is NOT set" && exit 1)
+    - test -n "$USER_PASSWORD" || (echo "USER_PASSWORD is NOT set" && exit 1)
+    - npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --grep "${Grep:-@regress}"
 
   artifacts:
     when: always
     expire_in: 7 days
     paths:
       - allure-results/
+      - playwright-report/
+      - test-results/
