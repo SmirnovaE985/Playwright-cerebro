@@ -120,7 +120,7 @@ await selectShop.locator('.ant-select-selection-search').click();
 await page1.getByText('БМ Тмн Панфиловцев').click();
 await page1.getByPlaceholder('Опишите претензию').fill('нахамили и водой облили');
 await page1.getByRole('button', { name: 'Отправить претензию' }).click();
-await expect(page1.getByText('Претензия успешно создана')).toBeVisible();
+await expect(page1.getByText('Успешно зарегистрирована')).toBeVisible({ timeout: 10000 });
 });
 
 

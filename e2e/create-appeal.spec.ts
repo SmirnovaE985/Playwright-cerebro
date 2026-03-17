@@ -246,6 +246,7 @@ await page1
   .locator('[data-test="select-appeal"] li')
   .filter({ hasText: 'Новый заказ' })
   .click();
+await page1.locator('.ant-notification-notice-close').click();
 await page1.locator('.ant-select-selection-overflow').click();
 await page1.getByText('РЦ Тмн, 50 лет Октября, 109 ко').click();
 await page1.locator('[data-test="search-input"]').click();
@@ -256,7 +257,6 @@ await page1.getByRole('button', { name: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
 await page1.locator('.ant-notification-notice-close').first().click();
-await page1.locator('.ant-notification-notice-close').last().click();
 await page1.waitForSelector('[data-test="select-appeal"]', { state: 'attached' });
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
