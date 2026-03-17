@@ -28,7 +28,7 @@ playwright_regress:
   - curl -vk --connect-timeout 10 --max-time 30 "$ALLURE_ENDPOINT/api/uaa/account/me" || true
 
   # Запуск тестов + отправка результатов в Allure TestOps
-  - ./allurectl watch --results ./allure-results -- npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --grep "${Grep:-@regress}"
+  - npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --grep "${Grep:-@regress}"
 
   artifacts:
     when: always
