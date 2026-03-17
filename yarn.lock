@@ -16,6 +16,11 @@
   dependencies:
     undici-types "~7.16.0"
 
+allure-commandline@^2.38.0:
+  version "2.38.0"
+  resolved "https://registry.npmjs.org/allure-commandline/-/allure-commandline-2.38.0.tgz"
+  integrity sha512-RcEB1ZdJt8t0CCucMQG3NF2R2r8S//sWwWWVWeJr8rPYNQhV7AMlcPyaVRfKp6a3zIHROysmurxs3mxP+L7SfQ==
+
 allure-js-commons@^3.4.5, allure-js-commons@3.4.5:
   version "3.4.5"
   resolved "https://registry.npmjs.org/allure-js-commons/-/allure-js-commons-3.4.5.tgz"
