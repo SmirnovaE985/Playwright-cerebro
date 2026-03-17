@@ -56,7 +56,7 @@ npx playwright show-report
 - **Фреймворк автотестов:** Playwright
 - **Среда выполнения:** Node.js
 - **Менеджер пакетов:** npm
-- **Отчёты:** Allure Report
+- **Отчёты:** Allure Report/ HTML
 - **CI:** GitLab CI / GitHub repository
 - **Дополнительно:** allure-playwright, allure-js-commons
 
