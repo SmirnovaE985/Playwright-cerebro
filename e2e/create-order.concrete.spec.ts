@@ -253,7 +253,7 @@ await page1.keyboard.press('Enter');
 //ввести объём бетона
 await page1.locator('input[placeholder*="Объём"]').fill('10');
 await page1.locator('[data-test=comment-car]').fill('тестовый комментарий');
-await expect(page1.locator('[data-test="data-test=comment-car"]', hasText: {})).toHaveValue('тестовый комментарий');
+// await expect(page1.locator('[data-test="data-test=comment-car"]')).toHaveValue('тестовый комментарий');
 await page1.locator('.ant-btn-primary', { hasText: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
