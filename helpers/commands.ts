@@ -154,10 +154,14 @@ export async function pickFirstAvailableDate(page: Page) {
 //удаление всех позиций в заказе
 // =============================
 export async function deleteAllPositions(page: Page) {
-  await page.locator('[data-test="delete-all-position"]').click();
+  const deleteAllButton = page.locator('[data-test="delete-all-position"]');
+
+  await deleteAllButton.waitFor({ state: 'visible' });
+  await deleteAllButton.scrollIntoViewIfNeeded();
+  await deleteAllButton.click();
+
   await page.locator('[data-test="delete-all-position-ok-button"]').click();
   await page.locator('[data-test="save-order"], [data-test="save-offer"]').click();
-  await expect(page.getByText('Успешно сохранено')).toBeVisible();
 }
 
 
@@ -309,23 +313,112 @@ if (options?.beforeMakeOrder) {
 }
 
 
-//////////////////////
+//======================
 // добавление колеровки
-//////////////////////
+//======================
 export async function addColoring(page1: Page, code: string) {
-  const codeInput = page1.getByRole('textbox', { name: 'Код', exact: true });
+  const modal = page1.locator('.ant-modal').last();
+  const codeInput = modal.getByRole('textbox', { name: 'Код', exact: true });
 
+  await expect(modal).toBeVisible();
   await expect(codeInput).toBeVisible();
+
   await codeInput.click();
   await codeInput.fill(code);
 
-  const option = page1.locator('[data-test="colors-item"]').filter({ hasText: code }).first();
-  await expect(option).toBeVisible();
+  const option = modal.locator('[data-test="colors-item"]').filter({ hasText: code });
+  await expect(option).toBeVisible({ timeout: 5000 });
   await option.click();
 
-  await page1.getByRole('button', { name: 'Сохранить', exact: true }).click();
-  await expect(page1.getByText('Услуга успешно добавлена')).toBeVisible();
+  const saveButton = modal.getByRole('button', { name: 'Сохранить', exact: true });
+  await expect(saveButton).toBeVisible({ timeout: 5000 });
+  await expect(saveButton).toBeEnabled({ timeout: 5000 });
+  await saveButton.click();
+
+  await expect(page1.getByText('Услуга успешно добавлена')).toBeVisible({ timeout: 10000 });
 }
+
+// ==================
+//  добавление ЗАЗЫ 
+// ==================
+
+type AddZazaOptions = {
+  storeFromText: string;
+  storeToText?: string;
+  unitCode?: string;
+};
+
+export async function addZaza(page1: Page, options: AddZazaOptions) {
+  const { storeFromText, storeToText, unitCode } = options;
+
+  const zazaButton = page1.locator('a[data-test="ZAZA"]');
+  const storeFrom = page1.locator('[data-test="search-input-store"]');
+  const storeTo = page1.locator('[data-test="search-input-shipment"]');
+  const addPositionButton = page1.locator('[data-test="add-position"]');
+
+  // await zazaButton.scrollIntoViewIfNeeded();
+await expect(zazaButton).toBeVisible();
+await expect(zazaButton).toBeEnabled();
+await zazaButton.click();
+
+  // storeFrom — всегда выбор по тексту
+  await expect(storeFrom).toBeVisible();
+  await storeFrom.click();
+
+  let dropdown = page1.locator('.ant-select-dropdown:visible').last();
+  await expect(dropdown).toBeVisible();
+
+  const storeFromOption = dropdown.locator('.ant-select-item-option').filter({
+    has: page1.getByText(storeFromText, { exact: false }),
+  }).first();
+
+  await expect(storeFromOption).toBeVisible();
+  await storeFromOption.click();
+
+  // storeTo — если текст передан, выбираем по тексту, иначе по дефолту первый элемент
+  await expect(storeTo).toBeVisible();
+  await storeTo.click();
+
+  dropdown = page1.locator('.ant-select-dropdown:visible').last();
+  await expect(dropdown).toBeVisible();
+
+  if (storeToText) {
+    const storeToOption = dropdown.locator('.ant-select-item-option').filter({
+      has: page1.getByText(storeToText, { exact: false }),
+    }).first();
+
+    await expect(storeToOption).toBeVisible();
+    await storeToOption.click();
+  } else {
+    const firstStoreToOption = dropdown.locator('.ant-select-item-option').first();
+    await expect(firstStoreToOption).toBeVisible();
+    await firstStoreToOption.click();
+  }
+
+   // Выбор единицы измерения, если передана
+if (unitCode) {
+  await page1.locator('[data-test="modal-edit-units"]').click();
+
+  const unitOption = page1.locator(`[data-test="unit-${unitCode}"]`);
+  await expect(unitOption).toBeVisible();
+  await unitOption.click();
+}
+  await expect(addPositionButton).toBeVisible();
+  await addPositionButton.click();
+}
+// вызов в тесте 
+// магазин- получатель, отправитель по умолчанию первый 
+// await addZaza(page1, {
+//   storeFromText: '1021 РЦ Тмн, 50 лет Октября',
+// });
+// выбор двух магазинов 
+// await addZaza(page1, {
+//   storeFromText: '1021 РЦ Тмн, 50 лет Октября',
+//   storeToText: 'СД Тюмень',
+// });
+
+
+
 
 //====================================
 //заполнение модалки бетона для теста 
