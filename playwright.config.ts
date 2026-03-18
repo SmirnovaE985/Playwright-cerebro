@@ -13,9 +13,10 @@ export default defineConfig({
   workers: process.env.CI ? 3 : undefined,
 
   reporter: [
-    ['list'],
-    ['allure-playwright', { outputFolder: 'allure-results' }],
-  ],
+  ['list'],
+  ['html', { outputFolder: 'playwright-report', open: 'never' }],
+  ['allure-playwright', { outputFolder: 'allure-results' }],
+],
 
   use: {
     baseURL: process.env.BASE_URL,

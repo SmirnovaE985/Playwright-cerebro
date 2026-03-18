@@ -94,7 +94,7 @@ await expect(page1.getByText('Успешно сохранено')).toBeVisible()
 async ({page}) => { 
 label('tag', 'regress');   
 feature('Auth');
-const page1 = await fillLoginForm(page);
+const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
   .locator('[data-test="select-appeal"] li')
@@ -391,7 +391,7 @@ await expect(page1.getByText('TVT Y356')).toBeVisible();
 await deleteAllPositions(page1);
 });
 
-// https://allure.itlabs.io/project/28/test-cases/5927
+// https://allure.itlabs.io/project/28/test-cases/7345?treeId=58
 test('#5927 создание и изменение в заказе с несколькими колеровками',
 { tag: ['@regress'] }, 
 async ({page}) => { 
@@ -430,5 +430,10 @@ await expect(page.locator('.ant-modal')).toBeHidden({ timeout: 5000 });
 await expect(page1.locator('[data-test="save-order"]')).toBeEnabled();
 await expect(page1.getByText('TVT Y356')).toBeVisible();
 await expect(page1.getByText('BM OC-46')).toBeVisible();
-await deleteAllPositions(page1);
+await expect(page1.locator('.ant-spin-spinning')).toHaveCount(0);
+await page1.locator('[data-icon="format-painter"]').nth(0).click();
+await page1.getByRole('textbox', { name: 'Код', exact: true }).click();
+await page1.getByRole('textbox', { name: 'Код', exact: true }).fill('TVT K441');
+await page1.locator('[data-test="colors-item"]').click();
+await page1.getByRole('button', { name: 'Сохранить', exact: true }).click();
 });
