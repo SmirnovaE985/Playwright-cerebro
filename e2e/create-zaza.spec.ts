@@ -1,6 +1,7 @@
 // '#5411 Создание ЗаЗы межгород'
 // '#5652 Создать ЗаЗу, добавить вторую'
 // '#6404 Создание ЗАЗы на отрезной материал'
+// '#4249 Нельзя оформить ЗаЗу на бетон'
 
 import { test, expect } from "@playwright/test";
 import { createAppeal } from "../helpers/commands";
@@ -98,7 +99,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/6404?treeId=58
 test(
-  "##6404 Создание ЗАЗы на отрезной материал",
+  "#6404 Создание ЗАЗы на отрезной материал",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
@@ -127,3 +128,5 @@ test(
     await deleteAllPositions(page1);
   },
 );
+
+// https://allure.itlabs.io/project/28/test-cases/4249?treeId=58
