@@ -40,6 +40,15 @@ export class OrderCreatePage {
   private readonly notificationCloseButton = () =>
     this.page.locator(".ant-notification-notice-close").first();
 
+  private readonly coloringButton = () =>
+    this.page.locator('[data-icon="format-painter"]');
+
+  private readonly goInSearchButton = () =>
+    this.page.locator('[data-test="btn-go-in-search"]');
+
+  private readonly saveOrderButton = () =>
+    this.page.locator('[data-test="save-order"]');
+
   async selectObject(objectName: string) {
     await this.objectSelect().click();
     await this.page.getByText(objectName).click();
@@ -97,5 +106,25 @@ export class OrderCreatePage {
 
   async closeNotification() {
     await this.notificationCloseButton().click();
+  }
+
+  async openColoring() {
+    await this.coloringButton().click();
+  }
+
+  async openSearchFromOrder() {
+    await this.goInSearchButton().click();
+  }
+
+  async saveOrder() {
+    await this.saveOrderButton().click();
+  }
+
+  async expectOrderSavedSuccess() {
+    await expect(this.page.getByText("Успешно сохранено")).toBeVisible();
+  }
+
+  async expectColorCodeVisible(code: string) {
+    await expect(this.page.getByText(code)).toBeVisible();
   }
 }
