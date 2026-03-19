@@ -94,7 +94,7 @@ await expect(page1.getByText('Успешно сохранено')).toBeVisible()
 async ({page}) => { 
 label('tag', 'regress');   
 feature('Auth');
-const page1 = await fillLoginForm(page);
+const page1 = await createAppeal(page);
 await page1.locator('[data-test="select-appeal"]').click();
 await page1
   .locator('[data-test="select-appeal"] li')
@@ -391,60 +391,7 @@ await expect(page1.getByText('TVT Y356')).toBeVisible();
 await deleteAllPositions(page1);
 });
 
-// https://allure.itlabs.io/project/28/test-cases/5927
-// test('#5927 создание и изменение в заказе с несколькими колеровками',
-//   { tag: ['@regress'] },
-//   async ({ page }) => {
-//     label('tag', 'regress');
-//     feature('Auth');
-
-//     const page1 = await createAppeal(page);
-
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: 'Новый заказ' })
-//       .click();
-
-//     await page1.locator('.ant-select-selection-overflow').click();
-//     await page1.getByText('РЦ Тмн, 50 лет Октября, 109 ко').click();
-
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill('краска');
-//     await page1.locator('[data-test="search-button"]').click();
-
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.getByRole('button', { name: 'Добавить' }).click();
-
-//     await page1.locator('[data-test="shopping-card-button"]').nth(1).click();
-//     await page1.getByRole('button', { name: 'Добавить' }).click();
-
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-
-//     await expect(page1.getByText('Заказ успешно создан')).toBeVisible();
-//     await page1.locator('.ant-notification-notice-close').first().click();
-
-//     await page1.locator('[data-icon="format-painter"]').first().click();
-//     await addColoring(page1, 'TVT Y356');
-//     await expect(page1.getByText('Услуга успешно добавлена')).toBeVisible();
-
-//     await page1.locator('[data-icon="format-painter"]').nth(1).click();
-//     await addColoring(page1, 'BM OC-46');
-//     await expect(page1.getByText('TVT Y356')).toBeVisible();
-//     await expect(page1.getByText('BM OC-46')).toBeVisible();
-
-//     await page1.locator('[data-icon="format-painter"]').nth(0).click();
-//     await addColoring(page1, 'TVT K441');
-//     await expect(page1.getByText('TVT K441')).toBeVisible();
-//     await expect(page1.getByText('BM OC-46')).toBeVisible();
-
-//     await page1.locator('[data-test="save-order"]').click();
-//     await expect(page1.getByText('Успешно сохранено')).toBeVisible();
-
-//     await deleteAllPositions(page1);
-//   }
-// );
+// https://allure.itlabs.io/project/28/test-cases/7345?treeId=58
 test('#5927 создание и изменение в заказе с несколькими колеровками',
 { tag: ['@regress'] }, 
 async ({page}) => { 
@@ -458,34 +405,35 @@ await page1.locator('[data-test="select-appeal"]').click();
   .click();
   await page1.locator('.ant-select-selection-overflow').click();
   await page1.getByText('РЦ Тмн, 50 лет Октября, 109 ко').click();
+await page1.locator('[data-test="remain-switch"]').click();
 await page1.locator('[data-test="search-input"]').click();
 await page1.locator('[data-test="search-input"]').fill('краска');
 await page1.locator('[data-test="search-button"]').click();
-await page1.locator('[data-test="shopping-card-button"]').first().click();
-await page1.getByRole('button', { name: 'Добавить' }).click();
 await page1.locator('[data-test="shopping-card-button"]').nth(2).click();
+await page1.getByRole('button', { name: 'Добавить' }).click();
+await page1.locator('[data-test="shopping-card-button"]').nth(3).click();
 await page1.getByRole('button', { name: 'Добавить' }).click();
 await page1.locator('[data-test="to-cart-button"]').click();
 await page1.locator('[data-test="make-order"]').click();
 await page1.locator('.ant-notification-notice-close').first().click();
 await expect(page1.getByText('Заказ успешно создан')).toBeVisible();
 await page1.locator('.ant-notification-notice-close').first().click();
-
-await page1.locator('[data-icon="format-painter"]').first().click();
-    await addColoring(page1, 'TVT Y356');
-    await expect(page1.getByText('Услуга успешно добавлена')).toBeVisible();
-
-    await page1.locator('[data-icon="format-painter"]').nth(0).click();
-    await addColoring(page1, 'BM OC-46');
-   await expect(page1.getByText('TVT Y356')).toBeVisible();
+// добавляем первую услугу колеровки
+await page1.locator('[data-icon="format-painter"]').nth(0).click();
+await addColoring(page1, 'TVT Y356');
+await expect(page.locator('.ant-modal')).toBeHidden({ timeout: 5000 });
+// добавляем вторую услугу колеровки
+await page1.locator('[data-icon="format-painter"]').nth(1).click();
+await addColoring(page1, 'BM OC-46');
+await expect(page.locator('.ant-modal')).toBeHidden({ timeout: 5000 });
+// проверка добавленных услуг в корзине заказа
+await expect(page1.locator('[data-test="save-order"]')).toBeEnabled();
+await expect(page1.getByText('TVT Y356')).toBeVisible();
 await expect(page1.getByText('BM OC-46')).toBeVisible();
 await expect(page1.locator('.ant-spin-spinning')).toHaveCount(0);
 await page1.locator('[data-icon="format-painter"]').nth(0).click();
-
-// await page1.locator('.anticon.anticon-format-painter > svg').first().click();
 await page1.getByRole('textbox', { name: 'Код', exact: true }).click();
 await page1.getByRole('textbox', { name: 'Код', exact: true }).fill('TVT K441');
 await page1.locator('[data-test="colors-item"]').click();
 await page1.getByRole('button', { name: 'Сохранить', exact: true }).click();
-
 });

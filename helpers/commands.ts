@@ -375,7 +375,7 @@ await zazaButton.click();
   await expect(storeFromOption).toBeVisible();
   await storeFromOption.click();
 
-  // storeTo — если текст передан, выбираем по тексту, иначе по дефолту первый элемент
+  // storeTo — если текст передан, выбираем по тексту, иначе первый элемент
   await expect(storeTo).toBeVisible();
   await storeTo.click();
 
