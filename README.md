@@ -5,7 +5,7 @@
 ---
 #### Описание проекта
 Основная цель проекта — проверка ключевых пользовательских сценариев, снижение рисков при изменениях и поддержка регрессионного тестирования.  
-В репозитории содержатся только e2e-тесты, реализованные на **Playwright**. Тесты охватывают ключевые сценарии взаимодействия с пользовательским интерфейсом, включая:
+В репозитории содержатся e2e-тесты, реализованные на **Playwright**. Тесты охватывают ключевые сценарии взаимодействия с пользовательским интерфейсом, включая:
 
 1. проверку аутентификации и авторизации;
 2. тестирование CRUD‑операций с основными сущностями системы;
@@ -68,16 +68,21 @@ npx playwright show-report
 .
 playwright/
 │
-├── .github/                     # конфигурация GitHub (CI, workflows)
+├── .github/
+│ └── workflows/ │
+│      └── playwright.yml
+├── allure-results/              # Результаты Allure отчетов                     
 │
 ├── e2e/                         # E2E тесты
-│   ├── api/                     # API smoke / API тесты
-│   │   └── api-smoke.spec.ts
+│   ├── api/                     
+│   │   └── api-smoke.spec.ts    # API smoke / API тесты
+│   ├── pom/                     # Тесты с использованием Page Object Model (POM)
+│   │ └── create-order.pom.spec.ts
 │   │
 │   ├── auth/                    # авторизация и подготовка
 │   │   └── auth.setup.ts
 │   │
-│   ├── create-appeal.spec.ts          # тесты создания заказов
+│   ├── create-appeal.spec.ts          # тесты
 │   ├── create-order-debitor.spec.ts
 │   ├── create-order-concrete.spec.ts
 │   ├── create-order.spec.ts
@@ -86,28 +91,30 @@ playwright/
 │
 ├── helpers/                     # хелперы и кастомные команды
 │   └── commands.ts
+├── pages/
+│   ├── appeal/
+│   │    └── AppealStartPage.ts
+│   │
+│   ├── components/             # Общие UI-компоненты (если будут)
+│   │
+│   └── order/
+│         └── OrderCreatePage.ts
 │
 ├── playwright/.auth/            # сохранённые состояния авторизации
 │
-├── test-results/                # результаты тестов (падения, логи)
-├── playwright-report/           # HTML отчёт Playwright
-├── allure-results/              # результаты для Allure
+├── playwright-report/           # HTML отчёты Playwright
+├── test-results/                # Результаты тестов
 │
 ├── .env                         # переменные окружения
 ├── .env.example                 # пример env файла
 ├── .gitignore
-│
+├── .gitlab-ci.yml
+├── allurectl.exe
 ├── package.json
 ├── package-lock.json
-├── yarn.lock
-│
-├── playwright.config.ts         # конфигурация Playwright
-│
-├── README.md
-│
-├── .gitlab-ci.yml               # CI (если используется GitLab)
-│
-└── devops/                      # (опционально) скрипты/конфиги для CI/CD
+├── playwright.config.ts
+└── README.md
+
 ```
 
 ### Установка:
