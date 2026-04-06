@@ -14,7 +14,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
@@ -45,7 +45,7 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);

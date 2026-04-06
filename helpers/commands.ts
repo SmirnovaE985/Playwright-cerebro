@@ -1,4 +1,20 @@
-import { Page, expect } from "@playwright/test";
+// #авторизация в наумен
+// #создание обращения и открытие страницы
+// #создание простого заказа
+// #быстрое добавление товара ( с опциями)
+// #удаление всех позиций в заказе
+// #создание заказа \ добавление в корзину без создания, с проверками промо и цен
+// ( если меняем количество в карточке)
+// #добавление колеровки
+// #добавление ЗАЗЫ
+// #заполнение модалки бетона для теста
+// #Получение бонусов из общего чека
+// #Проверка бонусов в общем чеке
+// #применение списания баллов через телеграмм бот
+// #применение промокода
+// #применение сертификата
+
+import { expect, Page, request } from "@playwright/test";
 
 function getLogin(): string {
   const login = process.env.USER_LOGIN;
@@ -32,6 +48,7 @@ export async function fillLoginForm(page: Page): Promise<Page> {
 // ======================================
 // создание обращения и открытие страницы
 //=======================================
+
 type ContactType = "Телефон" | "E-mail" | "Мессенджер";
 
 interface CreateAppealOptions {
@@ -39,14 +56,20 @@ interface CreateAppealOptions {
   contactValue?: string;
 }
 
+interface CreateAppealResult {
+  page: Page;
+  contactType: ContactType;
+  contactValue: string;
+  phoneNumber: string | null;
+}
+
 export async function createAppeal(
   page: Page,
   options: CreateAppealOptions = {},
-): Promise<Page> {
+): Promise<CreateAppealResult> {
   const { contactType = "Телефон", contactValue = "(900)-000-00-66" } = options;
 
   await fillLoginForm(page);
-
   await page.getByText("Клиенты").hover({ force: true });
   await page.getByText("Клиенты").click();
 
@@ -68,27 +91,59 @@ export async function createAppeal(
     .click();
 
   await expect(page1).toHaveURL(/\/appeal/);
-  return page1;
+
+  const phoneNumber =
+    contactType === "Телефон" ? `+7${contactValue.replace(/\D/g, "")}` : null;
+
+  return {
+    page: page1,
+    contactType,
+    contactValue,
+    phoneNumber,
+  };
 }
 
-//========================
+// =======================
 //создание простого заказа
 // =======================
+
+interface CreateOrderOptions {
+  contactType?: ContactType;
+  contactValue?: string;
+  makeOrder?: boolean;
+  searchText?: string;
+  quantity?: number;
+}
+
+interface CreateOrderResult {
+  page: Page;
+  contactType: ContactType;
+  contactValue: string;
+  phoneNumber: string | null;
+}
+
 export async function createOrder(
   page: Page,
-  options?: { makeOrder?: boolean; searchText?: string },
-): Promise<Page> {
-  const { makeOrder = true, searchText = "цемент" } = options ?? {};
+  options: CreateOrderOptions = {},
+): Promise<CreateOrderResult> {
+  const {
+    contactType = "Телефон",
+    contactValue = "(900)-000-00-66",
+    makeOrder = true,
+    searchText = "цемент",
+    quantity,
+  } = options;
 
   await fillLoginForm(page);
-  // Находим пункт "Клиенты"
   await page.getByText("Клиенты").hover({ force: true });
   await page.getByText("Клиенты").click();
+
   const newAppeal = page.getByRole("link", { name: "Новое обращение" });
-  // Ждём пока элемент будет доступен
   await expect(newAppeal).toBeVisible();
   await newAppeal.click();
-  await page.getByRole("textbox", { name: "Телефон" }).fill("(900)-000-00-66");
+
+  await page.getByText(contactType, { exact: true }).click();
+  await page.getByRole("textbox").fill(contactValue);
 
   const page1Promise = page.waitForEvent("popup");
   await page.getByRole("button", { name: "Создать новое обращение" }).click();
@@ -108,19 +163,67 @@ export async function createOrder(
 
   await page1.locator(".ant-select-selection-overflow").click();
   await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
+
   await page1.locator('[data-test="search-input"]').fill(searchText);
   await page1.locator('[data-test="search-button"]').click();
+
   await page1.locator('[data-test="shopping-card-button"]').first().click();
+
+  if (quantity !== undefined) {
+    await page1
+      .locator('[data-test="add-quantity-input"]')
+      .fill(String(quantity));
+  }
+
   await page1.getByRole("button", { name: "Добавить" }).click();
   await page1.locator('[data-test="to-cart-button"]').click();
-  //  опциональный шаг
+
   if (makeOrder) {
     await page1.locator('[data-test="make-order"]').click();
     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
   }
 
-  return page1;
+  const phoneNumber =
+    contactType === "Телефон" ? `+7${contactValue.replace(/\D/g, "")}` : null;
+
+  return {
+    page: page1,
+    contactType,
+    contactValue,
+    phoneNumber,
+  };
 }
+// использование в тестах (без списания баллов)
+/*test('создание заказа', async ({ page }) => {
+  const { page: page1, phoneNumber } = await createOrder(page, {
+    contactType: 'Телефон',
+    contactValue: '(900)-000-00-66',
+    makeOrder: true,
+    searchText: 'цемент',
+    quantity: 3,
+  });
+});
+*/
+
+// если используем списание баллов
+// test('создание заказа и получение промокода', async ({ page }) => {
+//   const { page: page1, phoneNumber } = await createOrder(page, {
+//     contactType: 'Телефон',
+//     contactValue: '(900)-000-00-66',
+//     makeOrder: true,
+//     searchText: 'цемент',
+//     quantity: 3,
+//   });
+
+//   if (!phoneNumber) {
+//     throw new Error('Не удалось получить номер телефона');
+//   }
+
+//   const promoCode = await getPromoCodeFromChatRosaMessage(phoneNumber);
+
+//   await expect(page1.getByText('Заказ успешно создан')).toBeVisible();
+//   expect(promoCode).toMatch(/^\d{4}$/);
+// });
 
 // ======================================
 // быстрое добавление товара ( с опциями)
@@ -166,25 +269,6 @@ export async function addProductToCart(
 //   quantity: 2,
 //   price: 170,
 // });
-
-//====================================
-//выбор даты и времени внутри доставки
-//====================================
-export async function pickFirstAvailableDate(page: Page) {
-  await page.getByText("Выберите дату").click();
-
-  const datepicker = page.locator(
-    'div[class^="_container"] > div[class^="_datepicker"]',
-  );
-  await datepicker.locator('div[class^="_month-changer"]').last().click();
-  await datepicker.locator('div[data-test="available-day"]').first().click();
-
-  await page
-    .locator('[class^="_valuepicker-body"]')
-    .locator('[class^="_value_"]')
-    .first()
-    .click();
-}
 
 //==============================
 //удаление всех позиций в заказе
@@ -451,7 +535,7 @@ export async function addZaza(page1: Page, options: AddZazaOptions) {
 // });
 
 //====================================
-//заполнение модалки бетона для теста
+//заполнение модалки бетона
 //====================================
 export async function addConcrete(page1: Page) {
   await page1.locator('[data-test="search-button"]').click();
@@ -577,3 +661,244 @@ export async function expectCartTotalBonus(
   const bonusLocator = page.locator('[data-test="cart-total-bonus-total"]');
   await expect(bonusLocator).toBeVisible({ timeout });
 }
+
+// ==============================================
+// забираем смс-код через телеграмм бот
+// ===============================================
+type TelegramUpdate = {
+  update_id: number;
+  message?: {
+    text?: string;
+  };
+  channel_post?: {
+    text?: string;
+  };
+};
+
+type TelegramResponse = {
+  ok: boolean;
+  result: TelegramUpdate[];
+};
+
+export async function getPromoCodeFromChatRosaMessage(
+  phoneNumber: string,
+): Promise<string> {
+  const botUrl =
+    process.env.TG_BOT_ROSA_MESSAGE ||
+    process.env.CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY;
+
+  if (!botUrl) {
+    throw new Error(
+      "Не задана переменная окружения TG_BOT_ROSA_MESSAGE или CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY",
+    );
+  }
+
+  const apiUrl = `${botUrl}/getUpdates`;
+  const apiContext = await request.newContext();
+
+  try {
+    const initialResponse = await apiContext.get(apiUrl);
+    const initialBody = (await initialResponse.json()) as TelegramResponse;
+    const oldUpdates = initialBody.result || [];
+
+    const lastUpdateId = oldUpdates.reduce(
+      (max, update) => (update.update_id > max ? update.update_id : max),
+      0,
+    );
+
+    let promoCode: string | null = null;
+
+    await expect
+      .poll(
+        async () => {
+          const response = await apiContext.get(
+            `${apiUrl}?offset=${lastUpdateId + 1}`,
+          );
+          const body = (await response.json()) as TelegramResponse;
+          const updates = body.result || [];
+
+          const latestMatchingMessage = [...updates].reverse().find((u) => {
+            const text = u.message?.text || u.channel_post?.text || "";
+            return text.includes(phoneNumber);
+          });
+
+          const text =
+            latestMatchingMessage?.message?.text ||
+            latestMatchingMessage?.channel_post?.text ||
+            "";
+
+          if (!text) {
+            return null;
+          }
+
+          const codeMatch = text.match(
+            /Последние\s*4\s*цифры[\s\S]*?списания\s*баллов\s*-\s*(\d{4})/i,
+          );
+
+          promoCode = codeMatch?.[1] ?? null;
+          return promoCode;
+        },
+        {
+          timeout: 60000,
+          intervals: [1000, 2000, 3000, 5000],
+          message: `Не удалось найти код подтверждения для номера ${phoneNumber}`,
+        },
+      )
+      .not.toBeNull();
+
+    if (!promoCode) {
+      throw new Error(
+        `Не удалось получить код подтверждения для номера ${phoneNumber}`,
+      );
+    }
+
+    return promoCode;
+  } finally {
+    await apiContext.dispose();
+  }
+}
+
+//
+interface CreateOrderOptions {
+  contactType?: ContactType;
+  contactValue?: string;
+  makeOrder?: boolean;
+  searchText?: string;
+  quantity?: number;
+}
+
+interface CreateOrderResult {
+  page: Page;
+  contactType: ContactType;
+  contactValue: string;
+  phoneNumber: string | null;
+}
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// применение баллов и ввод кода внутри корзины
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+export async function applyBonusesWithTelegramCode(
+  page: Page,
+  phoneNumber: string,
+  amount: string = "1",
+): Promise<string> {
+  const bonusesInput = page.getByRole("textbox", { name: "Укажите баллы" });
+  await expect(bonusesInput).toBeVisible();
+  await bonusesInput.fill(amount);
+
+  const bonusesCheck = page.locator('[data-test="bonuses-check"]');
+  await expect(bonusesCheck).toBeVisible();
+  await bonusesCheck.click();
+
+  const applyingBonusesButton = page.locator('[data-test="applying-bonuses"]');
+  await expect(applyingBonusesButton).toBeVisible();
+  await applyingBonusesButton.click();
+
+  await expect(page.getByText("Списание баллов")).toBeVisible();
+
+  const promoCodeInput = page.locator('input[placeholder="____"]');
+  await expect(promoCodeInput).toBeVisible();
+
+  const promoCode = await getPromoCodeFromChatRosaMessage(phoneNumber);
+  await promoCodeInput.fill(promoCode);
+
+  const submitButton = page.locator('[data-test="submit-modal-btn"]');
+  await expect(submitButton).toBeVisible();
+  await submitButton.click();
+
+  await expect(page.getByText("Баллы подтверждены")).toBeVisible();
+
+  return promoCode;
+}
+
+// ==============================
+//  манульные цены и возврат ИМКЦ
+// ==============================
+export async function setManualPriceForFirstCartPosition(
+  page: Page,
+  price: string,
+): Promise<void> {
+  const firstCartPosition = page.locator('[data-test="cart-position"]').first();
+  const modalPriceInput = page.locator('[data-test="modal-edit-input-price"]');
+  const saveBtnInModal = page.locator(
+    '[data-test="save-btn-in-modal-edit-position"]',
+  );
+  const editModal = page.locator('[data-test="cart-position-edit-modal"]');
+
+  await expect(firstCartPosition).toBeVisible();
+  await firstCartPosition.click();
+
+  await expect(editModal).toBeVisible();
+  await expect(modalPriceInput).toBeVisible();
+
+  await modalPriceInput.clear();
+  await modalPriceInput.fill(price);
+
+  await expect(saveBtnInModal).toBeVisible();
+  await saveBtnInModal.click();
+
+  await expect(editModal).toBeHidden();
+}
+
+// вернуть цену ИМКЦ
+export async function restoreImkcPriceForFirstCartPosition(
+  page: Page,
+): Promise<void> {
+  const firstCartPosition = page.locator('[data-test="cart-position"]').first();
+  const imkcPriceButton = page.locator('[data-test="price-imkc-edit-modal"]');
+  const saveBtnInModal = page.locator(
+    '[data-test="save-btn-in-modal-edit-position"]',
+  );
+  const editModal = page.locator('[data-test="cart-position-edit-modal"]');
+
+  await expect(firstCartPosition).toBeVisible();
+  await firstCartPosition.click();
+
+  await expect(editModal).toBeVisible();
+  await expect(imkcPriceButton).toBeVisible();
+  await imkcPriceButton.click();
+
+  await expect(saveBtnInModal).toBeVisible();
+  await saveBtnInModal.click();
+
+  await expect(editModal).toBeHidden();
+}
+
+// =====================
+//  применение промокода
+// =====================
+export async function applyPromoCode(
+  page: Page,
+  promoCode: string = "CALLCENTER1",
+): Promise<void> {
+  await page.locator('[data-test="promocode-block-title"]').click();
+  await page.locator('[data-test="promocode"]').fill(promoCode);
+  await page.locator('[data-test="promocode-apply"]').click();
+  await expect(
+    page
+      .locator('[data-test="promocode-aprove"]')
+      .filter({ hasText: "Применено" }),
+  ).toBeVisible();
+}
+
+// =======================
+//  применение сертификата
+// =======================
+export async function applyCertificate(
+  page: Page,
+  amount: string,
+  certificateCode: string = "CERTCALLCENTER",
+): Promise<void> {
+  await page.locator('[data-test="promocode-block-title"]').click();
+  await page.getByText("Сертификат").click();
+  await page.locator('[data-test="sertificat"]').fill(certificateCode);
+  await page.locator('[data-test="use-sertificat"]').click();
+  await page.locator('[data-test="certificate-value"]').fill(amount);
+  await page.locator('[data-test="use"]').click();
+}
+
+// если используем дефолтный сертификат
+// await applyCertificate(page1, "10");
+
+// если нужен другой сертификат
+// await applyCertificate(page1, "10", "MY_CERT_123");

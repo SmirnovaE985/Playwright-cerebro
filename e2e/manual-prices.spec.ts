@@ -22,7 +22,7 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
@@ -92,7 +92,7 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
@@ -155,7 +155,7 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
@@ -229,7 +229,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createOrder(page, {
+    const { page: page1 } = await createOrder(page, {
       searchText: "631179",
       makeOrder: true,
     });
