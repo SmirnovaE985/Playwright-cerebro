@@ -10,10 +10,6 @@ import { addZaza } from "../helpers/commands";
 import { deleteAllPositions } from "../helpers/commands";
 import { label, feature } from "allure-js-commons";
 import { addColoring } from "../helpers/commands";
-// import {
-//   label as allureLabel,
-//   feature as allureFeature,
-// } from "allure-js-commons";
 
 // https://allure.itlabs.io/project/28/test-cases/5411?treeId=58
 test(
@@ -22,7 +18,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
@@ -53,7 +49,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
@@ -106,7 +102,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
@@ -138,7 +134,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
@@ -162,7 +158,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
     // постепенный скрол до появления нужного элемента
     await page1.locator('[data-test="sale-orgs"]').click();
     const holder = page1.locator(
