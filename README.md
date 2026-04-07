@@ -129,34 +129,39 @@ npx playwright install
 ## Запуск тестов
 ### Все тесты:
 
-```bash
+```
 npx playwright test e2e
 ```
 
-#### Все тесты из e2e в браузере
+#### Все тесты из e2e в браузере:
 ```
 npx playwright test e2e --headed
 ```
 
+#### Для запуска по очереди:
+```
+npx playwright test e2e --headed --workers=1
+```
+
 #### Только regress:
 
-```bash
+```
 npx playwright test regress
 ```
 
 #### Конкретный файл:
 
-```bash
+```
 npx playwright test e2e/create-order.spec.ts
 ```
 
 #### По названию теста:
 
-```bash
+```
 npx playwright test -g "Создать заказ"
 ```
 
-#### С html-отчетом
+#### С html-отчетом:
 
 ```
 npx playwright test e2e --reporter=html
