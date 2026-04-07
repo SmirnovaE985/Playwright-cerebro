@@ -130,13 +130,18 @@ npx playwright install
 ### Все тесты:
 
 ```bash
-npm run test:e2e
+npx playwright test e2e
+```
+
+#### Все тесты из e2e в браузере
+```
+npx playwright test e2e --headed
 ```
 
 #### Только regress:
 
 ```bash
-npm run test:regress
+npx playwright test regress
 ```
 
 #### Конкретный файл:
@@ -149,6 +154,13 @@ npx playwright test e2e/create-order.spec.ts
 
 ```bash
 npx playwright test -g "Создать заказ"
+```
+
+#### С html-отчетом
+
+```
+npx playwright test e2e --reporter=html
+npx playwright show-report
 ```
 
 ### Allure
