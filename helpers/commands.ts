@@ -275,7 +275,10 @@ export async function addProductToCart(
 // =============================
 export async function deleteAllPositions(page: Page) {
   const deleteAllButton = page.locator('[data-test="delete-all-position"]');
-
+  await page
+    .locator(".ant-notification-notice-close")
+    .click()
+    .catch(() => {});
   await deleteAllButton.waitFor({ state: "visible" });
   await deleteAllButton.scrollIntoViewIfNeeded();
   await deleteAllButton.click();

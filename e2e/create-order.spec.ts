@@ -10,7 +10,7 @@
 
 import { test, expect } from "@playwright/test";
 import { fillLoginForm } from "../helpers/commands";
-import { createAppeal } from "../helpers/commands";
+import { createAppeal, createOrder } from "../helpers/commands";
 import { deleteAllPositions } from "../helpers/commands";
 import { label, feature } from "allure-js-commons";
 import {
@@ -32,6 +32,12 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
+
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -57,21 +63,13 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("цемент");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="shopping-card-button"]').first().click();
-    await page1.getByRole("button", { name: "Добавить" }).click();
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
+
+    const { page: page1, phoneNumber } = await createOrder(page, {
+      makeOrder: true,
+      searchText: "цемент",
+      quantity: 1,
+    });
+
     await page1.locator(".ant-notification-notice-close").first().click();
     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
     await page1.locator('[data-test="close-order-btn"]').click();
@@ -107,6 +105,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -209,6 +212,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.getByText("БМ Ожогина Садовая 3А").click();
@@ -253,6 +261,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -307,6 +320,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("БМ Ожогина Садовая 3А").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -356,6 +374,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -396,6 +419,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -433,6 +461,12 @@ test(
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
     await page1.locator('[data-test="select-appeal"]').click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
+
     await page1
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
