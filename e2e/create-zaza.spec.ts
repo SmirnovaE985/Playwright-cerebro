@@ -24,6 +24,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("лопата");
     await page1.locator('[data-test="search-button"]').click();
@@ -55,6 +60,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("лопата");
     await page1.locator('[data-test="search-button"]').click();
@@ -108,6 +118,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("геотекстиль");
     await page1.locator('[data-test="search-button"]').click();

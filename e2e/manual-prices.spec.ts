@@ -29,6 +29,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
 
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
@@ -99,7 +104,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
-
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
 
@@ -162,7 +171,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
-
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
 

@@ -137,7 +137,7 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
   await page1
     .getByPlaceholder("Опишите претензию")
     .fill("нахамили и водой облили");
-  await page1.getByRole("button", { name: "Отправить претензию" }).click();
+  await page1.getByText("Отправить претензию").click();
   await expect(page1.getByText("Успешно зарегистрирована")).toBeVisible({
     timeout: 10000,
   });

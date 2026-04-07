@@ -31,9 +31,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
-    // выбрать сбытовую
+    // выбираем сбытовую
     await page1.locator('[data-test="sale-orgs"]').click();
-    await page1.locator('[data-test="1000"]').getByText("СД Тюмень").click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
     await page1.locator('[data-test="search-input"]').click();
@@ -71,6 +73,7 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("бетон");
     await page1.locator('[data-test="search-button"]').click();
@@ -113,7 +116,7 @@ test(
   },
 );
 
-//allure.itlabs.io/project/28/test-cases/4345?treeId=58
+// allure.itlabs.io/project/28/test-cases/4345?treeId=58
 test(
   "#4345 Создать заказ с дробным числом",
   { tag: ["@regress"] },
@@ -126,6 +129,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("бетон");
     await page1.locator('[data-test="search-button"]').click();
@@ -182,6 +190,7 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("бетон");
     await page1.locator('[data-test="search-button"]').click();
@@ -244,6 +253,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("бетон");
     await page1.locator('[data-test="search-button"]').click();
@@ -317,6 +331,7 @@ test("#4232 Создать заказ бетона с изменением об�
     .locator('[data-test="select-appeal"] li')
     .filter({ hasText: "Новый заказ" })
     .click();
+
   await page1.locator('[data-test="search-input"]').click();
   await page1.locator('[data-test="search-input"]').fill("бетон");
   await page1.locator('[data-test="search-button"]').click();
@@ -384,6 +399,11 @@ test(
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Консультация Материалы / Услуги" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator('[data-test="search-input"]').click();
     await page1.locator('[data-test="search-input"]').fill("бетон");
     await page1.locator('[data-test="search-button"]').click();
@@ -437,6 +457,7 @@ test("#4245 Создать заказ бетона с изменением це�
     .locator('[data-test="select-appeal"] li')
     .filter({ hasText: "Новый заказ" })
     .click();
+
   // закрыть подсказку "здравствуйте меня зовут ....."
   await page1.locator(".ant-notification-notice-close").click();
   await page1.locator('[data-test="search-input"]').click();
