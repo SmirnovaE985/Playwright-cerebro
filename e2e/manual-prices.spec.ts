@@ -22,13 +22,18 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
 
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
@@ -92,14 +97,18 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
-
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
 
@@ -155,14 +164,18 @@ test(
     label("tag", "regress");
     feature("Auth");
 
-    const page1 = await createAppeal(page);
+    const { page: page1 } = await createAppeal(page);
 
     await page1.locator('[data-test="select-appeal"]').click();
     await page1
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
       .click();
-
+    // выбираем сбытовую
+    await page1.locator('[data-test="sale-orgs"]').click();
+    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
 
@@ -229,7 +242,7 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createOrder(page, {
+    const { page: page1 } = await createOrder(page, {
       searchText: "631179",
       makeOrder: true,
     });
