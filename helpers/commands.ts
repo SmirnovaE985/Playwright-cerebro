@@ -273,18 +273,19 @@ export async function addProductToCart(
 //==============================
 //удаление всех позиций в заказе
 // =============================
-export async function deleteAllPositions(page: Page) {
-  const deleteAllButton = page.locator('[data-test="delete-all-position"]');
-  await page
-    .locator(".ant-notification-notice-close")
-    .click()
-    .catch(() => {});
+export async function deleteAllPositions(page1: Page) {
+  const deleteAllButton = page1.locator('[data-test="delete-all-position"]');
+  const closeBtn = page1.locator(".ant-notification-notice-close");
+
+  if ((await closeBtn.count()) > 0 && (await closeBtn.first().isVisible())) {
+    await closeBtn.first().click();
+  }
   await deleteAllButton.waitFor({ state: "visible" });
   await deleteAllButton.scrollIntoViewIfNeeded();
   await deleteAllButton.click();
 
-  await page.locator('[data-test="delete-all-position-ok-button"]').click();
-  await page
+  await page1.locator('[data-test="delete-all-position-ok-button"]').click();
+  await page1
     .locator('[data-test="save-order"], [data-test="save-offer"]')
     .click();
 }
