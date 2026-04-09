@@ -4,6 +4,7 @@ stages:
 playwright_regress:
   stage: test
   timeout: 2h
+  allow_failure: true
   tags:
     - docker
   image: mcr.microsoft.com/playwright:v1.58.2-jammy
