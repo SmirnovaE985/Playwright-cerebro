@@ -21,4 +21,15 @@ export class AppealStartPage {
     await this.openAppealSelector();
     await this.chooseNewOrder();
   }
+
+  async selectSaleOrg(saleOrgId: string) {
+    await this.page.locator('[data-test="sale-orgs"]').click();
+
+    const option = this.page.locator(
+      `.ant-select-dropdown [data-test="${saleOrgId}"]`,
+    );
+    await option.waitFor({ state: "visible" });
+    await option.scrollIntoViewIfNeeded();
+    await option.click();
+  }
 }

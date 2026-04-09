@@ -180,7 +180,7 @@ test(
     expect(code).toHaveLength(4);
     await applyCertificate(page1, "10");
     await expect(
-      page
+      page1
         .locator('[data-test="certificate-aprove"]')
         .filter({ hasText: "Применено" }),
     ).toBeVisible();
@@ -299,7 +299,11 @@ test(
       searchText: "цемент",
       quantity: 3,
     });
-    await page1.locator(".ant-notification-notice-close").click();
+    const closeBtn = page1.locator(".ant-notification-notice-close");
+
+    if ((await closeBtn.count()) > 0 && (await closeBtn.first().isVisible())) {
+      await closeBtn.first().click();
+    }
     await applyCertificate(page1, "10", "SERTIFICATAUTO");
     await expect(page1.getByText("Сертификат не применен")).toBeVisible();
     await page1.locator('[data-test="save-order"]').click();
