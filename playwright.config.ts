@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: isCI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 3 : undefined,
+  workers: process.env.CI ? 1 : undefined,
 
   reporter: [
     ["list"],

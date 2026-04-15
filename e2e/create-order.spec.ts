@@ -1,512 +1,357 @@
-// // #4609 Перевод предложения в заказ
-// // #5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск
-// // #4605 Отмена позиции до и после создания заказа
-// // #5664 Создание стандартного заказа через мессенджер, со сменой ЕИ
-// // #4584 Создание заказа с нескольких магазинов
-// // #4608 Создание заказа с отрезным материалом с БМ или МОК
-// // #6290 Создание заказа с отрезным материалом с РЦ  (POM)
-// // #5929 создание заказа с колеровкой, другим товаром (POM)
-// // #5927 создание и изменение в заказе с несколькими колеровками  (POM)
+// #4609 Перевод предложения в заказ (POM)
+// #5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск (POM)
+// #4605 Отмена позиции до и после создания заказа (POM)
+// #5664 Создание стандартного заказа через мессенджер, со сменой ЕИ (POM)
+// #4584 Создание заказа с нескольких магазинов (POM)
+// #4608 Создание заказа с отрезным материалом с БМ или МОК (POM)
+// #6290 Создание заказа с отрезным материалом с РЦ  (POM)
+// #5929 создание заказа с колеровкой, другим товаром (POM)
+// #5927 создание и изменение в заказе с несколькими колеровками  (POM)
 
-// import { test, expect } from "@playwright/test";
-// import { fillLoginForm } from "../helpers/commands";
-// import { createAppeal, createOrder } from "../helpers/commands";
-// import { deleteAllPositions } from "../helpers/commands";
-// import { label, feature } from "allure-js-commons";
-// import {
-//   label as allureLabel,
-//   feature as allureFeature,
-// } from "allure-js-commons";
-// import { addColoring } from "../helpers/commands";
+import { label, feature } from "allure-js-commons";
+import {
+  createAppeal,
+  deleteAllPositions,
+  createOrder,
+} from "../helpers/commands";
+import { AppealStartPage } from "../pages/appeal/AppealStartPage";
+import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+import { test, expect } from "@playwright/test";
 
-// // https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
-// test(
-//   "#4609 Перевод предложения в заказ",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
+// https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
+test(
+  "#4609 Перевод предложения в заказ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1, phoneNumber } = await createOrder(page, {
+      makeOrder: false,
+      searchText: "цемент",
+      quantity: 1,
+    });
 
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("молоток");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="product-link"]').first().click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-offer"]').click();
-//     await page1.locator('[data-test="offer-to-order"]').click();
-//     await expect(
-//       page1.getByText("Предложение переведено в заказ успешно!"),
-//     ).toBeVisible();
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//   },
-// );
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.makeOffer();
+  },
+);
 
-// // https://allure.itlabs.io/project/28/test-cases/5301?treeId=58
-// test(
-//   "#5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
+// https://allure.itlabs.io/project/28/test-cases/5301?treeId=58
+test(
+  "#5301 Создание нового заказа, после закрытия старого заказа и возврата в поиск",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1, phoneNumber } = await createOrder(page, {
+      makeOrder: true,
+      searchText: "цемент",
+      quantity: 1,
+    });
 
-//     const { page: page1, phoneNumber } = await createOrder(page, {
-//       makeOrder: true,
-//       searchText: "цемент",
-//       quantity: 1,
-//     });
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
 
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     await page1.locator('[data-test="close-order-btn"]').click();
-//     await page1.getByText("OK").click();
-//     await page1.getByText("Перейти в поиск").click();
-//     await page1.locator('[data-test="search-input"]').fill("кисть");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await expect(page1.getByRole("button", { name: "Добавить" })).toBeEnabled();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     await page1.locator('[data-test="delete-all-position"]').click();
-//     await page1.locator('[data-test="delete-all-position-ok-button"]').click();
-//     await page1
-//       .locator('[data-test="save-order"], [data-test="save-offer"]')
-//       .click();
-//     await expect(page1.getByText("Успешно сохранено")).toBeVisible();
-//   },
-// );
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.closeOrder();
+    await page1.getByText("Перейти в поиск").click();
+    await orderCreatePage.searchProduct("кисть");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
 
-// //https://allure.itlabs.io/project/28/test-cases/4605?treeId=58
-// test(
-//   "#4605 Отмена позиции до и после создания заказа",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("цемент");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     //
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("ведро");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     // проверяем кол-во товаров до создания заказа
-//     const elements = page1.locator("[data-test=cart-position]");
-//     await expect(elements).toHaveCount(2);
-//     await expect(elements.first()).toBeVisible();
-//     await expect(elements.last()).toBeVisible();
-//     await page1.locator('[data-test="delete-position"]').first().click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     // и после
-//     const elementsAfterDelete = page1.locator("[data-test=cart-position]");
-//     await expect(elementsAfterDelete).toHaveCount(1);
-//     await expect(elementsAfterDelete).toBeVisible();
-//     await page1.locator('[data-test="delete-position"]').first().click();
-//     await page1.locator('[data-test="save-order"]').click();
-//     await expect(page1.getByText("Успешно сохранено")).toBeVisible();
-//   },
-// );
+    await orderCreatePage.addToCart();
+    await orderCreatePage.makeOrder();
 
-// // https://allure.itlabs.io/project/28/test-cases/5664?treeId=58
-// test(
-//   "#5664 Создание стандартного заказа через мессенджер, со сменой ЕИ",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     function normalizePrice(value: string | null | undefined): string {
-//       return String(value ?? "").replace(/[^0-9]/g, "");
-//     }
-//     const { page: page1, phoneNumber } = await createAppeal(page, {
-//       contactType: "Мессенджер",
-//       contactValue: "(910)0000056",
-//     });
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("цемент");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator(".ant-notification-notice-close").first().click();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await deleteAllPositions(page1);
+  },
+);
 
-//     const totalCostBeforeEdit = normalizePrice(
-//       await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//     );
-//     await page1.locator('[data-test="cart-position"]').click();
-//     await page1.locator('[data-test="modal-edit-units"]').click();
-//     await page1.getByText("т. = 20меш.").click();
-//     await expect(page1.locator('[data-test="modal-edit-units"]')).toContainText(
-//       "т",
-//     );
-//     await page1
-//       .locator('[data-test="save-btn-in-modal-edit-position"]')
-//       .click();
-//     await expect
-//       .poll(async () => {
-//         return normalizePrice(
-//           await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//         );
-//       })
-//       .not.toBe(totalCostBeforeEdit);
-//     const totalCostAfterEdit = normalizePrice(
-//       await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//     );
-//     expect(totalCostAfterEdit).not.toBe(totalCostBeforeEdit);
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//   },
-// );
+//https://allure.itlabs.io/project/28/test-cases/4605?treeId=58
+test(
+  "#4605 Отмена позиции до и после создания заказа",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
 
-// // https://allure.itlabs.io/project/28/test-cases/4584
-// test(
-//   "#4584 Создание заказа с нескольких магазинов",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.getByText("БМ Ожогина Садовая 3А").click();
-//     await page1.getByText("БМ Тмн Московский тракт 5 км").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("перчатки");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
 
-//     await page1.locator('[data-test="add-quantity-input"]').first().click();
-//     await page1.locator('[data-test="add-quantity-input"]').first().fill("1");
-//     await page1.locator('[data-test="add-quantity-input"]').nth(1).click();
-//     await page1.locator('[data-test="add-quantity-input"]').nth(1).fill("1");
-//     await page1.locator('[data-test="add-quantity-input"]').nth(2).click();
-//     await page1.locator('[data-test="add-quantity-input"]').nth(2).fill("1");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     await expect(
-//       page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко"),
-//     ).toBeVisible();
-//     await expect(page1.getByText("БМ Ожогина Садовая 3А")).toBeVisible();
-//     await expect(page1.getByText("БМ Тмн Московский тракт 5 км")).toBeVisible();
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//   },
-// );
+    await orderCreatePage.searchProduct("цемент");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    //
+    await orderCreatePage.searchProduct("ведро");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
 
-// // https://allure.itlabs.io/project/28/test-cases/4584
-// test(
-//   "#4875 При создании заказа, где товара несколько штук, корректно считается итог",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     function normalizePrice(value: string | null | undefined): string {
-//       return String(value ?? "").replace(/[^0-9]/g, "");
-//     }
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("перчатки");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     page1.locator('[data-test="add-quantity-input"]').first().click();
-//     await page1.locator('[data-test="add-quantity-input"]').first().fill("3");
-//     // запоминаем значение в инпуте карточки
-//     const productCardTotal = normalizePrice(
-//       await page1.locator('[data-test="modal-position-cost"]').textContent(),
-//     );
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     // сверяем его с чеком после сохранения заказа
-//     await expect
-//       .poll(async () => {
-//         return normalizePrice(
-//           await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//         );
-//       })
-//       .toBe(productCardTotal);
+    await orderCreatePage.addToCart();
+    await orderCreatePage.closeNotification();
 
-//     const cartTotalCost = normalizePrice(
-//       await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//     );
+    const positionsCountBeforeDelete =
+      await orderCreatePage.getCartPositionsCount();
 
-//     expect(cartTotalCost).toBe(productCardTotal);
+    await orderCreatePage.deleteCartPosition(0);
 
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//   },
-// );
+    const positionsCountAfterDelete =
+      await orderCreatePage.getCartPositionsCount();
+    await orderCreatePage.makeOrder();
 
-// // https://allure.itlabs.io/project/28/test-cases/4608
-// test(
-//   "#4608 Создание заказа с отрезным материалом с БМ или МОК",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     function normalizePrice(value: string | null | undefined): string {
-//       return String(value ?? "").replace(/[^0-9]/g, "");
-//     }
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("БМ Ожогина Садовая 3А").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("87745");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     // запоминаем значение в инпуте карточки
-//     const productCardTotal = normalizePrice(
-//       await page1.locator('[data-test="modal-position-cost"]').textContent(),
-//     );
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     // сверяем его с чеком после сохранения заказа
-//     await expect
-//       .poll(async () => {
-//         return normalizePrice(
-//           await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//         );
-//       })
-//       .toBe(productCardTotal);
+    await orderCreatePage.expectOrderCreatedSuccess();
 
-//     const cartTotalCost = normalizePrice(
-//       await page1.locator('[data-test="cart-total-cost"]').textContent(),
-//     );
+    await orderCreatePage.expectCartPositionsCountToBe(
+      positionsCountAfterDelete,
+    );
+    await orderCreatePage.saveOrder();
+    await deleteAllPositions(page1);
+  },
+);
 
-//     expect(cartTotalCost).toBe(productCardTotal);
+// https://allure.itlabs.io/project/28/test-cases/5664?treeId=58
+test(
+  "#5664 Создание стандартного заказа через мессенджер, со сменой ЕИ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    function normalizePrice(value: string | null | undefined): string {
+      return String(value ?? "").replace(/[^0-9]/g, "");
+    }
+    const { page: page1, phoneNumber } = await createAppeal(page, {
+      contactType: "Мессенджер",
+      contactValue: "(910)0000056",
+    });
 
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//   },
-// );
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
 
-// // https://allure.itlabs.io/project/28/test-cases/6290
-// test(
-//   "#6290 Создание заказа с отрезным материалом с РЦ",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("геотекстиль");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.locator('[data-test="modal-edit-units"]').click();
-//     await page1.locator('[data-test="unit-PM"]').click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(
-//       page1.getByText("Произошла ошибка, заказ не сохранен"),
-//     ).toBeVisible();
-//     await page1.locator('[data-test="cart-position"]').click();
-//     await page1.locator('[data-test="modal-edit-units"]').click();
-//     await page1.locator('[data-test="unit-ROL"]').click();
-//     await page1
-//       .locator('[data-test="save-btn-in-modal-edit-position"]')
-//       .click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await deleteAllPositions(page1);
-//   },
-// );
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-// // https://allure.itlabs.io/project/28/test-cases/5929
-// test(
-//   "#5929 создание заказа с колеровкой, другим товаром",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     const { page: page1 } = await createAppeal(page);
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("краска");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await page1.locator('[data-icon="format-painter"]').click();
-//     await addColoring(page1, "TVT Y356");
-//     await expect(page1.getByText("Услуга успешно добавлена")).toBeVisible();
-//     await page1.locator('[data-test="btn-go-in-search"]').click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("кисть");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').first().click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="save-order"]').click();
-//     await expect(page1.getByText("Успешно сохранено")).toBeVisible();
-//     await expect(page1.getByText("TVT Y356")).toBeVisible();
-//     await deleteAllPositions(page1);
-//   },
-// );
+    await orderCreatePage.searchProduct("цемент");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.addToCart();
+    await orderCreatePage.closeNotification();
 
-// // https://allure.itlabs.io/project/28/test-cases/7345?treeId=58
-// test(
-//   "#5927 создание и изменение в заказе с несколькими колеровками",
-//   { tag: ["@regress"] },
-//   async ({ page }) => {
-//     label("tag", "regress");
-//     feature("Auth");
-//     const { page: page1 } = await createAppeal(page);
+    await orderCreatePage.openCartPosition();
+    const priceBeforeUnitChange =
+      await orderCreatePage.getModalEditInputPriceNormalized();
+    await orderCreatePage.changeUnit("т. = 20меш.");
+    await orderCreatePage.waitModalEditInputPriceChanged(priceBeforeUnitChange);
+    const expectedTotalCost =
+      await orderCreatePage.getModalEditInputPriceNormalized();
+    await orderCreatePage.saveEditedPosition();
 
-//     // выбираем сбытовую
-//     await page1.locator('[data-test="sale-orgs"]').click();
-//     const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-//     await option.scrollIntoViewIfNeeded();
-//     await option.click();
-//     await page1.locator('[data-test="select-appeal"]').click();
-//     await page1
-//       .locator('[data-test="select-appeal"] li')
-//       .filter({ hasText: "Новый заказ" })
-//       .click();
-//     await page1.locator(".ant-select-selection-overflow").click();
-//     await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-//     await page1.locator('[data-test="remain-switch"]').click();
-//     await page1.locator('[data-test="search-input"]').click();
-//     await page1.locator('[data-test="search-input"]').fill("краска");
-//     await page1.locator('[data-test="search-button"]').click();
-//     await page1.locator('[data-test="shopping-card-button"]').nth(2).click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="shopping-card-button"]').nth(3).click();
-//     await page1.getByRole("button", { name: "Добавить" }).click();
-//     await page1.locator('[data-test="to-cart-button"]').click();
-//     await page1.locator('[data-test="make-order"]').click();
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
-//     await page1.locator(".ant-notification-notice-close").first().click();
-//     // добавляем первую услугу колеровки
-//     await page1.locator('[data-icon="format-painter"]').nth(0).click();
-//     await addColoring(page1, "TVT Y356");
-//     await expect(page.locator(".ant-modal")).toBeHidden({ timeout: 5000 });
-//     // добавляем вторую услугу колеровки
-//     await page1.locator('[data-icon="format-painter"]').nth(1).click();
-//     await addColoring(page1, "BM OC-46");
-//     await expect(page.locator(".ant-modal")).toBeHidden({ timeout: 5000 });
-//     // проверка добавленных услуг в корзине заказа
-//     await expect(page1.locator('[data-test="save-order"]')).toBeEnabled();
-//     await expect(page1.getByText("TVT Y356")).toBeVisible();
-//     await expect(page1.getByText("BM OC-46")).toBeVisible();
-//     await expect(page1.locator(".ant-spin-spinning")).toHaveCount(0);
-//     await page1.locator('[data-icon="format-painter"]').nth(0).click();
-//     await page1.getByRole("textbox", { name: "Код", exact: true }).click();
-//     await page1
-//       .getByRole("textbox", { name: "Код", exact: true })
-//       .fill("TVT K441");
-//     await page1.locator('[data-test="colors-item"]').click();
-//     await page1.getByRole("button", { name: "Сохранить", exact: true }).click();
-//   },
-// );
+    await orderCreatePage.makeOrder();
+
+    await orderCreatePage.expectCartTotalCostToBe(expectedTotalCost);
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/4584
+test(
+  "#4584 Создание заказа с нескольких магазинов",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+
+    await orderCreatePage.selectObject([
+      "БМ Ожогина Садовая 3А",
+      "РЦ Тмн, 50 лет Октября, 109 ко",
+      "БМ Тмн Московский тракт 5 км",
+    ]);
+    await orderCreatePage.searchProduct("перчатки");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.fillQuantityForAllInputs("1");
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.addToCart();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
+    await expect(
+      page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко"),
+    ).toBeVisible();
+    await expect(page1.getByText("БМ Ожогина Садовая 3А")).toBeVisible();
+    await expect(page1.getByText("БМ Тмн Московский тракт 5 км")).toBeVisible();
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/4608
+test(
+  "#6290 Создание заказа с отрезным материалом РЦ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.searchProduct("87745");
+    await orderCreatePage.openFirstProductCard();
+
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.addToCart();
+    await orderCreatePage.openCartPosition();
+
+    await orderCreatePage.changeUnit("пм.");
+
+    await orderCreatePage.saveEditedPosition();
+
+    await orderCreatePage.makeOrder();
+    await expect(
+      page1.getByText("Произошла ошибка, заказ не сохранен"),
+    ).toBeVisible();
+    await orderCreatePage.closeNotification();
+
+    await orderCreatePage.openCartPosition();
+    await orderCreatePage.changeUnit("1бух. = 50м.");
+    await orderCreatePage.saveEditedPosition();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await orderCreatePage.expectOrderCreatedSuccess();
+
+    await orderCreatePage.closeNotification();
+    await deleteAllPositions(page1);
+    await orderCreatePage.closeNotification();
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/6290
+test(
+  "#4608 Создание заказа с отрезным материалом с БМ или МОК",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.selectNewOrder();
+    await orderCreatePage.selectObject("БМ Ожогина Садовая 3А");
+    await orderCreatePage.searchProduct("геотекстиль");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.addToCart();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await orderCreatePage.closeNotification();
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/5929
+test(
+  " #5929 создание заказа с колеровкой, другим товаром",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.selectNewOrder();
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+
+    await orderCreatePage.searchProduct("краска");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+
+    await orderCreatePage.addToCart();
+
+    await orderCreatePage.makeOrder();
+
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.addColoring("TVT Y356");
+
+    await orderCreatePage.openSearchFromOrder();
+    await orderCreatePage.searchProduct("кисть");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.addToCart();
+
+    await orderCreatePage.saveOrder();
+    await orderCreatePage.expectOrderSavedSuccess();
+    await orderCreatePage.expectColorCodeVisible("TVT Y356");
+
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7345?treeId=58
+test(
+  "#5927 создание и изменение в заказе с несколькими колеровками",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.selectNewOrder();
+
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.toggleRemainSwitch();
+    await orderCreatePage.searchProduct("краска");
+
+    await orderCreatePage.openProductCardByIndex(2);
+    await orderCreatePage.addButtonInCart();
+
+    await orderCreatePage.openProductCardByIndex(3);
+    await orderCreatePage.addButtonInCart();
+
+    await orderCreatePage.addToCart();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.addColoringByIndex(0, "TVT Y356");
+    await orderCreatePage.addColoringByIndex(1, "BM OC-46");
+
+    await orderCreatePage.expectSaveOrderEnabled();
+    await orderCreatePage.expectColorCodeVisible("TVT Y356");
+    await orderCreatePage.expectColorCodeVisible("BM OC-46");
+    await orderCreatePage.waitForSpinnerHidden();
+
+    await orderCreatePage.editColoringByIndex(0, "TVT K441");
+    await deleteAllPositions(page1);
+  },
+);
