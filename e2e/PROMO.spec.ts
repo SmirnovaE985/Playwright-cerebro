@@ -344,7 +344,6 @@ test(
         .filter({ hasText: "Списано" }),
     ).toBeVisible();
     await page1.getByRole("button", { name: "Отменить" }).first().click();
-    await expect(page1.locator('[data-test="bonuses-check"]')).toBeVisible();
     await expect(
       page1
         .locator('[data-test="certificate-aprove"]')

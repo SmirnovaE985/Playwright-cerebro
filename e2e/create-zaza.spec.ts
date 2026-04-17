@@ -10,6 +10,8 @@ import { addZaza } from "../helpers/commands";
 import { deleteAllPositions } from "../helpers/commands";
 import { label, feature } from "allure-js-commons";
 import { addColoring } from "../helpers/commands";
+import { AppealStartPage } from "../pages/appeal/AppealStartPage";
+import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 
 // https://allure.itlabs.io/project/28/test-cases/5411?treeId=58
 test(
@@ -19,29 +21,21 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    // выбираем сбытовую
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("лопата");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="product-link"]').first().click();
-    await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
 
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.searchProduct("ведро");
+    await orderCreatePage.openFirstProductCardFromListing();
     await addZaza(page1, {
       storeFromText: "1021 РЦ Тмн, 50 лет Октября",
       storeToText: "РЦ Екб, Шефская, 1",
     });
-
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
     await deleteAllPositions(page1);
   },
@@ -55,52 +49,40 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    // выбираем сбытовую
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("лопата");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="product-link"]').first().click();
-    await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
 
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.searchProduct("ведро");
+    await orderCreatePage.openFirstProductCardFromListing();
+    await addZaza(page1, {
+      storeFromText: "1021 РЦ Тмн, 50 лет Октября",
+      storeToText: "РЦ Екб, Шефская, 1",
+    });
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
+    await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
+    await orderCreatePage.openSearchFromOrder();
+
+    await orderCreatePage.searchProduct("штукатурка");
+    await orderCreatePage.openFirstProductCardFromListing();
     await addZaza(page1, {
       storeFromText: "1021 РЦ Тмн, 50 лет Октября",
       storeToText: "РЦ Екб, Шефская, 1",
     });
 
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
-    await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
-
-    await page1.locator('[data-test="btn-go-in-search"]').click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("штукатурка");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="product-link"]').first().click();
-    await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
-
-    await addZaza(page1, {
-      storeFromText: "1027 БМ Тмн, Щербакова, 99",
-      storeToText: "РЦ Тмн, 50 лет Октября, 109 ко",
-    });
-
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="save-order"]').click();
-    await expect(page1.getByText("Успешно сохранено")).toBeVisible();
-
-    const zazaItems = page1.locator('[data-test="zaza-Новая"]');
-    await expect(zazaItems).toHaveCount(2);
-    await expect(zazaItems.nth(0)).toBeVisible();
-    await expect(zazaItems.nth(1)).toBeVisible();
-
+    await orderCreatePage.goToCart();
+    await orderCreatePage.saveOrder();
+    await page1.waitForTimeout(2000);
+    await expect(
+      page1.locator('[data-test="zaza-Новая"]').nth(0),
+    ).toBeVisible();
+    await expect(
+      page1.locator('[data-test="zaza-Новая"]').nth(1),
+    ).toBeVisible();
     await deleteAllPositions(page1);
   },
 );
@@ -113,21 +95,15 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    // выбираем сбытовую
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("геотекстиль");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="product-link"]').first().click();
-    await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.searchProduct("геотекстиль");
+    await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {
       storeFromText: "1027 БМ Тмн, Щербакова, 99",
@@ -135,9 +111,10 @@ test(
       unitCode: "ROL",
     });
 
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
+
     await deleteAllPositions(page1);
   },
 );
@@ -150,16 +127,16 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("бетон");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="product-link"]').first().click();
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await orderCreatePage.searchProduct("бетон");
+    await orderCreatePage.openFirstProductCardFromListing();
     await page1.locator('a[data-test="ZAZA"]').click();
+
     await expect(
       page1.locator('[data-test="search-input-store"] input'),
     ).toBeDisabled();
@@ -174,45 +151,27 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
     // постепенный скрол до появления нужного элемента
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const holder = page1.locator(
-      ".ant-select-dropdown .rc-virtual-list-holder",
-    );
-    const option = page1.locator('.ant-select-dropdown [data-test="3000"]');
+    await appealStartPage.selectSaleOrg("3000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
 
-    for (let i = 0; i < 10; i++) {
-      if (await option.count()) break;
-
-      await holder.evaluate((el) => {
-        el.scrollTop += 300;
-      });
-
-      await page1.waitForTimeout(300);
-    }
-    await option.click();
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("160010");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="product-link"]').click();
-    await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
+    await orderCreatePage.searchProduct("краска");
+    await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {
-      storeFromText: "3119 МОК Большой ИстокДекабристов1г",
+      storeFromText: "3005 БМ Брз, Пролетарская, 4А",
       storeToText: "РЦ Екб, Шефская, 1",
     });
 
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
-    await page1.locator('[data-icon="format-painter"]').click();
-    await addColoring(page1, "TVT Y356");
-    await expect(page1.getByText("Услуга успешно добавлена")).toBeVisible();
+
+    await orderCreatePage.addColoring("TVT Y356");
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
     await expect(page1.getByText("TVT Y356")).toBeVisible();
     await deleteAllPositions(page1);

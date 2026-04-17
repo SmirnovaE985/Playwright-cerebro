@@ -5,7 +5,7 @@
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.58.2",
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.12.2",
     "allure-commandline": "^2.38.0",
     "allure-js-commons": "^3.4.5",
     "allure-playwright": "^3.4.5"

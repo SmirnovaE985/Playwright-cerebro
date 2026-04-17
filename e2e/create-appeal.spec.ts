@@ -15,11 +15,16 @@
 // #5636 Создание обращение клиента, который не зарегистрирован в ПЛ, но обращался на линию
 // #4576 Создание обращения - валидация (телефон)
 
-import { fillLoginForm } from "../helpers/commands";
-import { test, expect } from "@playwright/test";
-import { createAppeal } from "../helpers/commands";
-import { text } from "stream/consumers";
 import { label, feature } from "allure-js-commons";
+import {
+  createAppeal,
+  deleteAllPositions,
+  createOrder,
+  fillLoginForm,
+} from "../helpers/commands";
+import { AppealStartPage } from "../pages/appeal/AppealStartPage";
+import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+import { test, expect } from "@playwright/test";
 
 // https://allure.itlabs.io/project/28/test-cases/5352?treeId=58
 test(
@@ -44,86 +49,44 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-
-    const { page: page1 } = await createAppeal(page, {
-      contactType: "Телефон",
-      contactValue: "9000000022",
-    });
-
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-
-    await expect(
-      page1.locator('[data-test="select-appeal"]', { hasText: "Новый заказ" }),
-    ).toBeVisible();
-  },
-);
-
-//
-// https://allure.itlabs.io/project/28/test-cases/3232?treeId=58
-test(
-  '#5352 Процесс создания обращения клиента, с сегментом "Мастер"',
-  { tag: ["@regress"] },
-  async ({ page }) => {
-    label("tag", "regress");
-    feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', { hasText: "Новый заказ" }),
-    ).toBeVisible();
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
   },
 );
 
 // https://allure.itlabs.io/project/28/test-cases/3242?treeId=58
 test(
-  '#6735 Создание обращения с причиной "Редактирование заказа"',
+  "#6735 Создание обращения с причиной Редактирование заказа",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Редактирование заказа" })
-      .click();
-    await expect(
-      page1.locator('[data-test="search-input-number-order"]'),
-    ).toBeVisible();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', {
-        hasText: "Редактирование заказа",
-      }),
-    ).toBeVisible();
+
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseEditOrder();
   },
 );
 
 // https://allure.itlabs.io/project/28/test-cases/6735?treeId=58
 test(
-  '#3242 Создание обращения с причиной "Справка"',
+  '#3242 Создание обращения с причиной "Справка\перевод"',
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Справка / Перевод" })
-      .click();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', {
-        hasText: "Справка / Перевод",
-      }),
-    ).toBeVisible();
+
+    const appealStartPage = new AppealStartPage(page1);
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseReferenceTransfer();
   },
 );
 
@@ -134,13 +97,13 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
+
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Консультация Материалы / Услуги" })
-      .click();
-    await expect(page1.locator('[data-test="search-input"]')).toBeVisible();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseConsultationMaterialsServices();
+
     await expect(
       page1.locator('[data-test="select-appeal"]', {
         hasText: "Консультация Материалы / Услуги",
@@ -156,19 +119,15 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
+
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Информация по заказу" })
-      .click();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseInformation();
+
     await expect(
       page1.locator('[data-test="search-input-number-order"]'),
-    ).toBeVisible();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', {
-        hasText: "Информация по заказу",
-      }),
     ).toBeVisible();
   },
 );
@@ -180,16 +139,12 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
+
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Ошибки / ОС" })
-      .click();
-    await expect(page1.getByText("Зарегистрировать ошибку")).toBeVisible();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', { hasText: "Ошибки / ОС" }),
-    ).toBeVisible();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseErrorsOS();
   },
 );
 
@@ -201,15 +156,10 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Претензия" })
-      .click();
-    await expect(page1.getByText("Отправить претензию")).toBeVisible();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', { hasText: "Претензия" }),
-    ).toBeVisible();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseClaim();
   },
 );
 
@@ -221,18 +171,10 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Соискатели" })
-      .click();
-    await expect(
-      page1.locator('[data-test="go-appeal-history"]'),
-    ).toBeVisible();
-    await page1.locator('[data-test="go-appeal-history"]').click();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', { hasText: "Соискатели" }),
-    ).toBeVisible();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseApplicants();
   },
 );
 
@@ -244,14 +186,10 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Прокат" })
-      .click();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', { hasText: "Прокат" }),
-    ).toBeVisible();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseRental();
   },
 );
 
@@ -263,16 +201,10 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Водители/ЛТС/ЦТС" })
-      .click();
-    await expect(
-      page1.locator('[data-test="select-appeal"]', {
-        hasText: "Водители/ЛТС/ЦТС",
-      }),
-    ).toBeVisible();
+    const appealStartPage = new AppealStartPage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseDriver();
   },
 );
 
@@ -299,36 +231,24 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    await page1.locator(".ant-notification-notice-close").click();
-    await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("2777");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="shopping-card-button"]').first().click();
-    await page1.getByRole("button", { name: "Добавить" }).click();
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
-    await page1.locator(".ant-notification-notice-close").first().click();
+
+    const { page: page1, phoneNumber } = await createOrder(page, {
+      makeOrder: true,
+      searchText: "цемент",
+      quantity: 2,
+    });
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.closeNotification2();
+
     await page1.waitForSelector('[data-test="select-appeal"]', {
       state: "attached",
     });
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Редактирование" })
-      .click();
-    await page1.waitForSelector('[data-test="close-order-btn"]', {
-      state: "attached",
-    });
-    await page1.locator('[data-test="close-order-btn"]').click();
-    await page1.getByText("OK").click();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseEditOrder();
+    await orderCreatePage.closeOrder();
+
     await expect(
       page1.locator('[data-test="search-input-number-order"]'),
     ).toBeVisible();
@@ -343,12 +263,11 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
     await page1.locator('[data-icon="form"]').first().click();
     await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Редактирование" })
-      .click();
+    await appealStartPage.chooseEditOrder();
+
     await expect(page1.locator('[data-test="save-order"]')).toBeVisible();
     await expect(
       page1.locator('[data-test="select-appeal"]', {

@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: isCI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 3 : undefined,
+  workers: process.env.CI ? 1 : undefined,
 
   reporter: [
     ["list"],
@@ -18,7 +18,7 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL,
-    trace: "off",
+    trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "off",
     viewport: { width: 1920, height: 1200 },
