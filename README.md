@@ -65,55 +65,58 @@ allure open ./allure-report
 
 ```text
 .
-playwright/
+playwrite/
 │
 ├── .github/
-│ └── workflows/ │
-│      └── playwright.yml
-├── allure-results/              # Результаты Allure отчетов                     
+│   └── workflows/
+│       └── playwright.yml
 │
-├── e2e/                         # E2E тесты
-│   ├── api/                     
-│   │   └── api-smoke.spec.ts    # API smoke / API тесты
-│   ├── pom/                     # Тесты с использованием Page Object Model (POM)
-│   │ └── create-order.pom.spec.ts
+├── allure-results/                 # результаты Allure отчетов
+│
+├── e2e/                            # E2E и API тесты
+│   ├── API/
+│   │   ├── assignments-e2e.spec.ts
+│   │   └── assignments.spec.ts
 │   │
-│   ├── auth/                    # авторизация и подготовка
-│   │   └── auth.setup.ts
-│   │
-│   ├── create-appeal.spec.ts          # тесты
+│   ├── auth.setup.ts               # подготовка/авторизация
+│   ├── create-appeal.spec.ts
 │   ├── create-order-debitor.spec.ts
 │   ├── create-order-concrete.spec.ts
 │   ├── create-order.spec.ts
+│   ├── create-zaza.spec.ts
+│   ├── manual-prices.spec.ts
 │   ├── other-cases.spec.ts
-│   └── example.spec.ts
+│   └── PROMO.spec.ts
 │
-├── helpers/                     # хелперы и кастомные команды
+├── helpers/                        # хелперы и кастомные команды
 │   └── commands.ts
-├── pages/
+│
+├── pages/                          # Page Object Model
 │   ├── appeal/
-│   │    └── AppealStartPage.ts
+│   │   └── AppealStartPage.ts
 │   │
-│   ├── components/             # Общие UI-компоненты (если будут)
+│   ├── components/                 # общие UI-компоненты
 │   │
 │   └── order/
-│         └── OrderCreatePage.ts
+│       └── OrderCreatePage.ts
 │
-├── playwright/.auth/            # сохранённые состояния авторизации
+├── playwright/                     # служебные файлы Playwright
 │
-├── playwright-report/           # HTML отчёты Playwright
-├── test-results/                # Результаты тестов
+├── playwright-report/              # HTML отчеты Playwright
+├── test-results/                   # результаты прогонов тестов
 │
-├── .env                         # переменные окружения
-├── .env.example                 # пример env файла
+├── .env                            # переменные окружения
+├── .env.example                    # пример env-файла
 ├── .gitignore
 ├── .gitlab-ci.yml
 ├── allurectl.exe
 ├── package.json
 ├── package-lock.json
+├── playwright.code-workspace
 ├── playwright.config.ts
+├── tsconfig.json
+├── yarn.lock
 └── README.md
-
 ```
 
 ### Установка:
