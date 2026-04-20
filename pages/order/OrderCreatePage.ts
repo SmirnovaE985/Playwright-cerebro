@@ -91,6 +91,9 @@ export class OrderCreatePage {
   private readonly notificationCloseButton2 = () =>
     this.page.locator(".ant-notification-notice-close").last();
 
+  // скопировать номер заказа
+  private readonly copyButton = () => this.page.locator('[data-icon="copy"]');
+
   // перейти в поиск из корзины
   private readonly goInSearchButton = () =>
     this.page.locator('[data-test="btn-go-in-search"]');
@@ -128,7 +131,10 @@ export class OrderCreatePage {
   private readonly modalEditInputPrice = () =>
     this.page.locator('[data-test="modal-edit-input-price"]');
 
-  // private readonly unitRol = () => this.page.locator('[data-test="unit-ROL"]');
+  // вернуть цену ИМКЦ
+  private readonly IMKSprice = () =>
+    this.page.locator('[data-test="price-imkc-edit-modal"]');
+
   // сохранить изменения в модалке редактирования товара
   private readonly saveEditPositionButton = () =>
     this.page.locator('[data-test="save-btn-in-modal-edit-position"]');
@@ -167,6 +173,20 @@ export class OrderCreatePage {
   // кнопка удаления всех позиций
   private readonly deleteAllPositionsButton = () =>
     this.page.locator('[data-test="delete-all-position"]');
+
+  // ПРОМО АКТИВНОСТИ В КОРЗИНЕ ЗАКАЗА
+
+  // раскрыть блок промокод
+  private readonly promocodeOpen = () =>
+    this.page.locator('[data-test="promocode-block-title"]');
+
+  // ввести промокод в инпут
+  private readonly promocodeInput = () =>
+    this.page.locator('[data-test="promocode"]');
+
+  // подтвердить ввод
+  private readonly promocodeApply = () =>
+    this.page.locator('[data-test="promocode-apply"]');
 
   /////////
   // БЕТОН
@@ -328,6 +348,19 @@ export class OrderCreatePage {
     await this.confirmOkButton().click();
   }
 
+  // скопировать номер заказа и сохранить его в буфер
+  async getCopiedOrderNumber(): Promise<string> {
+    await this.page
+      .context()
+      .grantPermissions(["clipboard-read", "clipboard-write"]);
+
+    await this.copyButton().click();
+
+    return (
+      await this.page.evaluate(() => navigator.clipboard.readText())
+    ).trim();
+  }
+
   // Получить текущее количество позиций в корзине
   async getCartPositionsCount() {
     return await this.cartPositions().count();
@@ -350,6 +383,24 @@ export class OrderCreatePage {
     await expect(this.page.getByText("Заказ успешно создан")).toBeVisible();
   }
 
+  // открыть поиск из корзины заказа
+  async openSearchFromOrder() {
+    await this.goInSearchButton().click();
+  }
+  // дождаться загрузки
+  async waitForSpinnerHidden() {
+    await expect(this.spinner()).toHaveCount(0);
+  }
+
+  /////////////////////////////
+  // ПРОМО АКТИВНОСТИ В КОРЗИНЕ
+  /////////////////////////////
+  // промокод
+  async applyPromocode(promocode: string) {
+    await this.promocodeOpen().click();
+    await this.promocodeInput().fill(promocode);
+    await this.promocodeApply().click();
+  }
   // ==================
   // ОТПРАВКА SMS
   // ==================
@@ -397,8 +448,14 @@ export class OrderCreatePage {
   // =============================================
 
   // открыть модалку редактирования товара внутри корзины
-  async openCartPosition() {
-    await this.cartPosition().click();
+  async openCartPosition(index: number) {
+    await this.cartPosition().nth(index).click();
+  }
+
+  // вернуть цену ИМКЦ
+
+  async saveIMKS() {
+    await this.IMKSprice().click();
   }
 
   // смена ЕИ (выбор по тексту ЕИ)
@@ -551,15 +608,6 @@ export class OrderCreatePage {
 
   async expectColorCodeVisible(code: string) {
     await expect(this.page.getByText(code)).toBeVisible();
-  }
-
-  // открыть поиск из корзины заказа
-  async openSearchFromOrder() {
-    await this.goInSearchButton().click();
-  }
-  // дождаться загрузки
-  async waitForSpinnerHidden() {
-    await expect(this.spinner()).toHaveCount(0);
   }
 
   /////////

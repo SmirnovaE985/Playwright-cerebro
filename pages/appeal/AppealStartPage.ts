@@ -153,15 +153,4 @@ export class AppealStartPage {
 
     throw new Error(`Sale org with id "${saleOrgId}" not found in dropdown`);
   }
-  // async selectSaleOrg(saleOrgId: string) {
-  //   await this.page.locator('[data-test="sale-orgs"]').click();
-
-  //   const option = this.page.locator(
-  //     `.ant-select-dropdown [data-test="${saleOrgId}"]`,
-  //   );
-
-  //   await option.waitFor({ state: "visible" });
-  //   await option.scrollIntoViewIfNeeded();
-  //   await option.click();
-  // }
 }
