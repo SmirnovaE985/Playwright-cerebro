@@ -1,5 +1,5 @@
-// #5376 Создание заказа с ручной ценой и товаром без ручной цены
-// #5362 Баллы ПЛ не начисляются при изменении ручной цены
+// #5376 Создание заказа с ручной ценой и товаром без ручной цены +
+// #5362 Баллы ПЛ не начисляются при изменении ручной цены +
 // #5368 Применение ручной цены ДО СОЗДАНИЯ заказа, с начислением баллов ПЛ
 // #5374 Нельзя применять промокод на ручные цены
 
@@ -13,6 +13,8 @@ import {
   expectCartTotalBonus,
   createOrder,
 } from "../helpers/commands";
+import { AppealStartPage } from "../pages/appeal/AppealStartPage";
+import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 
 //https://allure.itlabs.io/project/28/test-cases/5376?treeId=58
 test(
@@ -24,52 +26,39 @@ test(
 
     const { page: page1 } = await createAppeal(page);
 
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    // выбираем сбытовую
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
 
-    await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.searchProduct("ведро");
+    await orderCreatePage.openFirstProductCard();
 
     // Добавляем товар с ручной ценой
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("кисть");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="shopping-card-button"]').first().click();
-
     const manualPriceInput = page1.locator('[data-test="input-price-modal-0"]');
     await manualPriceInput.clear();
-    await manualPriceInput.fill("170");
+    await manualPriceInput.fill("500");
 
     // Сохраняем введённую цену
     const expectedManualPrice = await manualPriceInput.inputValue();
-
-    await page1.getByRole("button", { name: "Добавить" }).click();
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
-    await page1.locator(".ant-notification-notice-close").first().click();
-    await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
+    await orderCreatePage.addButtonInCart();
 
     // Добавляем второй товар без ручной цены
-    await page1.locator('[data-test="btn-go-in-search"]').click();
+    await orderCreatePage.searchProduct("кисть");
+
     await addProductToCart(page1, {
-      productName: "ведро",
+      productName: "кисть",
     });
 
-    // Сохраняем заказ
-    await page1.locator('[data-test="save-order"]').click();
+    await orderCreatePage.makeOrder();
+    await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
 
-    // Проверяем, что цена у позиции с "кисть" равна введённой ручной цене
+    // Проверяем, что цена у позиции  "ведро" равна введённой ручной цене, после создания заказа
     const manualPricePosition = page1
       .locator('[data-test="cart-position"]')
-      .filter({ hasText: "кисть" });
+      .filter({ hasText: "ведро" });
 
     await expect(manualPricePosition.first()).toBeVisible();
 
@@ -89,7 +78,7 @@ test(
   },
 );
 
-// https://allure.itlabs.io/project/28/test-cases/5362?treeId=58
+// // https://allure.itlabs.io/project/28/test-cases/5362?treeId=58
 test(
   "#5362 Баллы ПЛ не начисляются при изменении ручной цены",
   { tag: ["@regress"] },
@@ -99,36 +88,26 @@ test(
 
     const { page: page1 } = await createAppeal(page);
 
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    // выбираем сбытовую
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
-    await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.searchProduct("кисть");
+    await orderCreatePage.openFirstProductCard();
 
     // Добавляем товар с ручной ценой
-    await page1.locator('[data-test="search-input"]').click();
-    await page1.locator('[data-test="search-input"]').fill("кисть");
-    await page1.locator('[data-test="search-button"]').click();
-    await page1.locator('[data-test="shopping-card-button"]').first().click();
-
     const manualPriceInput = page1.locator('[data-test="input-price-modal-0"]');
     await manualPriceInput.clear();
-    await manualPriceInput.fill("170");
+    await manualPriceInput.fill("200");
 
     // Сохраняем введённую цену
     const expectedManualPrice = await manualPriceInput.inputValue();
-
-    await page1.getByRole("button", { name: "Добавить" }).click();
-    await page1.locator('[data-test="to-cart-button"]').click();
-    await page1.locator('[data-test="make-order"]').click();
-    await page1.locator(".ant-notification-notice-close").first().click();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
     // Проверяем, что цена у позиции с "кисть" равна введённой ручной цене
     const manualPricePosition = page1
@@ -156,7 +135,7 @@ test(
   },
 );
 
-// https://allure.itlabs.io/project/28/test-cases/5368?treeId=58
+// // https://allure.itlabs.io/project/28/test-cases/5368?treeId=58
 test(
   "#5368 Применение ручной цены ДО СОЗДАНИЯ заказа, с начислением баллов ПЛ",
   { tag: ["@regress"] },
@@ -166,40 +145,31 @@ test(
 
     const { page: page1 } = await createAppeal(page);
 
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Новый заказ" })
-      .click();
-    // выбираем сбытовую
-    await page1.locator('[data-test="sale-orgs"]').click();
-    const option = page1.locator('.ant-select-dropdown [data-test="1000"]');
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
-    await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
 
-    await addProductToCart(page1, {
-      productName: "кисть",
-    });
-
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.searchProduct("кисть");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
     // Запоминаем бонусы ДО изменения цены
     const expectedBonus = await getCartTotalBonus(page1);
 
     // Открываем модалку редактирования позиции
-    await page1.locator('[data-test="cart-position"]').first().click();
-
+    await orderCreatePage.openCartPosition(0);
     // Меняем цену вручную
     const manualPriceInput = page1.locator(
       '[data-test="modal-edit-input-price"]',
     );
     await expect(manualPriceInput).toBeVisible();
     await manualPriceInput.clear();
-    await manualPriceInput.fill("170");
-    await expect(manualPriceInput).toHaveValue("170");
-    await page1
-      .locator('[data-test="save-btn-in-modal-edit-position"]')
-      .click();
+    await manualPriceInput.fill("150");
+    await expect(manualPriceInput).toHaveValue("150");
+    await orderCreatePage.saveEditedPosition();
 
     // Ждём возврата в корзину
     await expect(
@@ -207,14 +177,10 @@ test(
     ).toBeVisible();
 
     // Снова открываем модалку редактирования позиции
-    await page1.locator('[data-test="cart-position"]').first().click();
-
+    await orderCreatePage.openCartPosition(0);
     // Возвращаем цену ИМКЦ
-    await page1.locator('[data-test="price-imkc-edit-modal"]').click();
-    await page1
-      .locator('[data-test="save-btn-in-modal-edit-position"]')
-      .click();
-
+    await orderCreatePage.saveIMKS();
+    await orderCreatePage.saveEditedPosition();
     // Ждём возврата в корзину
     await expect(
       page1.locator('[data-test="cart-total-bonus-total"]'),
@@ -224,8 +190,11 @@ test(
     await expectCartTotalBonus(page1, {
       expected: expectedBonus,
     });
-    await page1.locator('[data-test="make-order"]').click();
-    await page1.locator(".ant-notification-notice-close").first().click();
+
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+
     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
     // После создания заказа бонусы тоже равны исходным
     await expectCartTotalBonus(page1, {
@@ -246,23 +215,26 @@ test(
       searchText: "631179",
       makeOrder: true,
     });
-    await page1.locator(".ant-notification-notice-close").first().click();
-    // Меняем цену вручную
-    await page1.locator('[data-test="cart-position"]').click();
-    await page1.locator('[data-test="modal-edit-input-price"]').clear();
-    await page1.locator('[data-test="modal-edit-input-price"]').fill("2700");
-    await page1
-      .locator('[data-test="save-btn-in-modal-edit-position"]')
-      .click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
 
+    // Меняем цену вручную
+    await orderCreatePage.openCartPosition(0);
+    // Меняем цену вручную
+    const manualPriceInput = page1.locator(
+      '[data-test="modal-edit-input-price"]',
+    );
+    await expect(manualPriceInput).toBeVisible();
+    await manualPriceInput.clear();
+    await manualPriceInput.fill("2000");
+    await orderCreatePage.saveEditedPosition();
     // Ждём возврата в корзину
     await expect(
       page1.locator('[data-test="cart-total-bonus-total"]'),
     ).toBeVisible();
-    await page1.locator('[data-test="save-order"]').click();
-    await page1.locator('[data-test="promocode-block-title"]').click();
-    await page1.locator('[data-test="promocode"]').fill("CALLCENTER1");
-    await page1.locator('[data-test="promocode-apply"]').click();
+    await orderCreatePage.saveOrder();
+    await orderCreatePage.applyPromocode("CALLCENTER1");
     await expect(
       page1.getByText(
         "Позиции для применения промокода CALLCENTER1 отсутствуют",

@@ -6,16 +6,13 @@
 
 import { test, expect } from "@playwright/test";
 import { createAppeal } from "../helpers/commands";
-import { deleteAllPositions } from "../helpers/commands";
 import { createOrder } from "../helpers/commands";
 import { createOrderCheckPromo } from "../helpers/commands";
 import { randomInt } from "crypto";
 import { label, feature } from "allure-js-commons";
-import {
-  label as allureLabel,
-  feature as allureFeature,
-} from "allure-js-commons";
 import { fillLoginForm } from "../helpers/commands";
+import { AppealStartPage } from "../pages/appeal/AppealStartPage";
+import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 
 // https://allure.itlabs.io/project/28/test-cases/4587?treeId=58
 test(
@@ -65,16 +62,17 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
     searchText: "цемент",
     quantity: 1,
   });
-  await page1.locator(".ant-notification-notice-close").first().click();
+  const appealStartPage = new AppealStartPage(page1);
+  const orderCreatePage = new OrderCreatePage(page1);
+
+  await orderCreatePage.closeNotification();
+  await orderCreatePage.closeNotification2();
   // дать доступ к буферу
   await page1.context().grantPermissions(["clipboard-read", "clipboard-write"]);
   await page1.locator('[data-icon="copy"]').click();
   // блок с претензией
-  await page1.locator('[data-test="select-appeal"]').click();
-  await page1
-    .locator('[data-test="select-appeal"] li')
-    .filter({ hasText: "Претензия" })
-    .click();
+  await appealStartPage.openAppealSelector();
+  await appealStartPage.chooseClaim();
   // забираем номер заказа из буфера и запоминаем
   const orderNumber = (
     await page1.evaluate(() => navigator.clipboard.readText())
@@ -134,10 +132,8 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
     .first();
   await selectShop.locator(".ant-select-selection-search").click();
   await page1.getByText("БМ Тмн Панфиловцев").click();
-  await page1
-    .getByPlaceholder("Опишите претензию")
-    .fill("нахамили и водой облили");
-  await page1.getByText("Отправить претензию").click();
+  await page1.getByPlaceholder("Опишите претензию").fill("нахамили 8 раз");
+  await page1.getByRole("button", { name: "Отправить претензию" }).click();
   await expect(page1.getByText("Успешно зарегистрирована")).toBeVisible({
     timeout: 10000,
   });
@@ -150,33 +146,25 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    // const page1 = await createOrder(page);
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
       searchText: "цемент",
       quantity: 1,
     });
-    await page1.locator(".ant-notification-notice-close").first().click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
+    await orderCreatePage.closeNotification2();
     // дать доступ к буферу
-    await page1
-      .context()
-      .grantPermissions(["clipboard-read", "clipboard-write"]);
-    await page1.locator('[data-icon="copy"]').click();
-    // меняем причину обращения
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: "Ошибки / ОС" })
-      .click();
+    const orderNumber = await orderCreatePage.getCopiedOrderNumber();
+
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseErrorsOS();
     // забираем номер заказа из буфера и запоминаем
-    const orderNumber = (
-      await page1.evaluate(() => navigator.clipboard.readText())
-    ).trim();
-    // вставляем в поле
     const orderInput = page1.locator('input[name="orderNumber"]');
     await orderInput.click();
     await orderInput.press("Control+A");
-    await page1.keyboard.type(orderNumber);
+    await orderInput.fill(orderNumber);
     await page1.locator(".ant-select-selection-overflow").click();
     await page1.getByText("РЦ Тимберленд 50летОктября").nth(1).click();
     await page1
@@ -204,20 +192,42 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator('[data-test="select-appeal"]').click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: " Соискатели " })
-      .click();
-    await page.waitForTimeout(5000);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseApplicants();
+    await orderCreatePage.closeNotification();
+
     const shop = page1.locator("span.ant-select-selection-placeholder", {
       hasText: "Укажите населенный пункт",
     });
+
     const selectShop = shop
       .locator('xpath=ancestor::div[contains(@class,"ant-select")]')
       .first();
+
+    const input = selectShop.locator("input.ant-select-selection-search-input");
+
     await selectShop.locator(".ant-select-selection-search").click();
-    await page1.getByText("Боровский").first().click();
+    await input.fill("Екатеринбург");
+    await input.press("ArrowDown");
+    await input.press("Enter");
+
+    const vacancy = page1.locator("span.ant-select-selection-placeholder", {
+      hasText: "Укажите вакансию",
+    });
+
+    const selectVacancy = vacancy
+      .locator('xpath=ancestor::div[contains(@class,"ant-select")]')
+      .first();
+
+    await selectVacancy.locator(".ant-select-selection-search").click();
+    await page1.getByText("Водитель без авто").first().click();
+
+    await page1.getByText("Записать в таблицу").click();
+    await expect(
+      page1.getByText("Информация отправлена в гугл-таблицу"),
+    ).toBeVisible();
   },
 );
 
@@ -229,13 +239,12 @@ test(
     label("tag", "regress");
     feature("Auth");
     const { page: page1 } = await createAppeal(page);
-    await page1.locator("[data-test=select-appeal]").click();
-    await page1
-      .locator('[data-test="select-appeal"] li')
-      .filter({ hasText: " Новый заказ " })
-      .click();
-    // закрываем анимацию
-    await page1.locator(".ant-notification-notice-close").click();
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await orderCreatePage.closeNotification();
+
     const btn = page1.getByRole("button", { name: "Отправить СМС" });
     await btn.waitFor({ state: "visible" });
     await btn.click();

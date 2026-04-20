@@ -175,7 +175,7 @@ test(
     await orderCreatePage.goToCart();
     await orderCreatePage.makeOrder();
     await orderCreatePage.expectOrderCreatedSuccess();
-    await orderCreatePage.openCartPosition();
+    await orderCreatePage.openCartPosition(0);
     await orderCreatePage.expectCarCommentToHaveValue("тестовый комментарий");
   },
 );
@@ -278,7 +278,7 @@ test(
     await orderCreatePage.goToCart();
     await orderCreatePage.makeOrder();
     await orderCreatePage.expectOrderCreatedSuccess();
-    await orderCreatePage.openCartPosition();
+    await orderCreatePage.openCartPosition(0);
     await orderCreatePage.fillQuickAddQuantity("5");
     await orderCreatePage.selectTomorrowDeliveryDate();
     // Нажимаем "Добавить машину"

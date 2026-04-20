@@ -145,7 +145,7 @@ test(
     await orderCreatePage.goToCart();
     await orderCreatePage.closeNotification();
 
-    await orderCreatePage.openCartPosition();
+    await orderCreatePage.openCartPosition(0);
     const priceBeforeUnitChange =
       await orderCreatePage.getModalEditInputPriceNormalized();
     await orderCreatePage.changeUnit("т. = 40меш.");
@@ -222,7 +222,7 @@ test(
 
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
-    await orderCreatePage.openCartPosition();
+    await orderCreatePage.openCartPosition(0);
 
     await orderCreatePage.changeUnit("пм.");
 
@@ -234,7 +234,7 @@ test(
     ).toBeVisible();
     await orderCreatePage.closeNotification();
 
-    await orderCreatePage.openCartPosition();
+    await orderCreatePage.openCartPosition(0);
     await orderCreatePage.changeUnit("1бух. = 50м.");
     await orderCreatePage.saveEditedPosition();
     await orderCreatePage.makeOrder();
