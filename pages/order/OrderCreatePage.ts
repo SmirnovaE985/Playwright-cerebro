@@ -54,6 +54,14 @@ export class OrderCreatePage {
   private readonly toCartButton = () =>
     this.page.locator('[data-test="to-cart-button"]');
 
+  // поле "Номер заказа" при причине обращениия "Редактирование"
+  private readonly searchInputEditOrder = () =>
+    this.page.locator('[data-test="search-input-number-order"]');
+
+  // кликнуть найти
+  private readonly addButtonSearch = () =>
+    this.page.getByRole("button", { name: " Найти " });
+
   // ===============
   // КОРЗИНА ЗАКАЗА
   // ===============
@@ -81,7 +89,8 @@ export class OrderCreatePage {
   // закрыть заказ
   private readonly closeOrderButton = () =>
     this.page.locator('[data-test="close-order-btn"]');
-  private readonly confirmOkButton = () => this.page.getByText("OK");
+  private readonly confirmOkButton = () =>
+    this.page.getByRole("button", { name: " OK " });
 
   // закрыть первую нотификашку
   private readonly notificationCloseButton = () =>
@@ -174,19 +183,12 @@ export class OrderCreatePage {
   private readonly deleteAllPositionsButton = () =>
     this.page.locator('[data-test="delete-all-position"]');
 
+  /////////////////////////////////////
   // ПРОМО АКТИВНОСТИ В КОРЗИНЕ ЗАКАЗА
-
-  // раскрыть блок промокод
-  private readonly promocodeOpen = () =>
-    this.page.locator('[data-test="promocode-block-title"]');
-
-  // ввести промокод в инпут
-  private readonly promocodeInput = () =>
-    this.page.locator('[data-test="promocode"]');
-
-  // подтвердить ввод
-  private readonly promocodeApply = () =>
-    this.page.locator('[data-test="promocode-apply"]');
+  /////////////////////////////////////
+  // отменить списание баллов
+  private readonly cancelPoints = () =>
+    this.page.getByRole("button", { name: "Отменить" });
 
   /////////
   // БЕТОН
@@ -258,6 +260,7 @@ export class OrderCreatePage {
   }
 
   // ОТКРЫТЬ КАРТОЧКУ (НАЖАВ НА КОРЗИНУ У ТОВАРА)
+
   // открыть карточку первого товара (корзина)
   async openFirstProductCard() {
     await this.firstShoppingCardButton().click();
@@ -339,6 +342,7 @@ export class OrderCreatePage {
     await this.deletePositionButtons().nth(index).click();
   }
 
+  // закрыть заказ
   async closeOrder() {
     await this.closeOrderButton().waitFor({ state: "visible" });
     await this.closeOrderButton().scrollIntoViewIfNeeded();
@@ -348,7 +352,7 @@ export class OrderCreatePage {
     await this.confirmOkButton().click();
   }
 
-  // скопировать номер заказа и сохранить его в буфер
+  //скопировать и запомнить номер заказа и сохранить его в буфер
   async getCopiedOrderNumber(): Promise<string> {
     await this.page
       .context()
@@ -359,6 +363,22 @@ export class OrderCreatePage {
     return (
       await this.page.evaluate(() => navigator.clipboard.readText())
     ).trim();
+  }
+
+  // ввести номер заказа в причине обращения "Редактирование"
+  async searchInputEditOrderBtn(orderNumber?: string | number) {
+    const input = this.searchInputEditOrder();
+
+    await input.waitFor({ state: "visible" });
+    await input.click();
+
+    if (orderNumber !== undefined && orderNumber !== null) {
+      await input.press("Control+A");
+      await input.press("Backspace");
+      await input.type(String(orderNumber));
+      await expect(input).toHaveValue(String(orderNumber));
+      await this.addButtonSearch().click();
+    }
   }
 
   // Получить текущее количество позиций в корзине
@@ -395,12 +415,15 @@ export class OrderCreatePage {
   /////////////////////////////
   // ПРОМО АКТИВНОСТИ В КОРЗИНЕ
   /////////////////////////////
-  // промокод
-  async applyPromocode(promocode: string) {
-    await this.promocodeOpen().click();
-    await this.promocodeInput().fill(promocode);
-    await this.promocodeApply().click();
+
+  // отменить списанные баллы ПЛ
+  async cancelPL() {
+    await this.cancelPoints().click();
+    await expect(
+      this.page.getByText("Применение баллов отменено"),
+    ).toBeVisible();
   }
+
   // ==================
   // ОТПРАВКА SMS
   // ==================

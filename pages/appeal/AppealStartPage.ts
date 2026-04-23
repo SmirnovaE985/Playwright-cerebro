@@ -10,14 +10,14 @@ export class AppealStartPage {
   private readonly appealOptions = () =>
     this.page.locator('[data-test="select-appeal"] li');
 
-  async openAppealSelector() {
-    await this.selectAppealButton().click();
-  }
-
   // ///////
   // МЕТОДЫ
   // ///////
 
+  // выбрать причину обращения
+  async openAppealSelector() {
+    await this.selectAppealButton().click();
+  }
   // новый заказ
   async chooseNewOrder() {
     await this.appealOptions().filter({ hasText: "Новый заказ" }).click();

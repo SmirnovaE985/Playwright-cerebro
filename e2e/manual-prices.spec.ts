@@ -12,6 +12,7 @@ import {
   getCartTotalBonus,
   expectCartTotalBonus,
   createOrder,
+  applyPromoCode,
 } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
@@ -234,7 +235,7 @@ test(
       page1.locator('[data-test="cart-total-bonus-total"]'),
     ).toBeVisible();
     await orderCreatePage.saveOrder();
-    await orderCreatePage.applyPromocode("CALLCENTER1");
+    await applyPromoCode(page1, "CALLCENTER1");
     await expect(
       page1.getByText(
         "Позиции для применения промокода CALLCENTER1 отсутствуют",
