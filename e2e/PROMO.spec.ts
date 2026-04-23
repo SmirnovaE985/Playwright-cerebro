@@ -5,6 +5,8 @@
 // #5980 Нельзя дополнительно списать баллы в заказе, в котором уже было списание
 // #5383 Нельзя использовать недействующий сертификат
 // #5375 Списание и отмена списания баллов ПЛ с применением сертификата
+// #5363 Редактирование заказа с баллами ПЛ
+//
 
 import { test, expect } from "@playwright/test";
 import { label, feature } from "allure-js-commons";
@@ -161,7 +163,12 @@ test(
         .locator('[data-test="certificate-aprove"]')
         .filter({ hasText: "Применено" }),
     ).toBeVisible();
-    await applyPromoCode(page1);
+    await applyPromoCode(page1, "CALLCENTER1");
+    await expect(
+      page
+        .locator('[data-test="promocode-aprove"]')
+        .filter({ hasText: "Применено" }),
+    ).toBeVisible();
 
     await expect(
       page1
@@ -250,6 +257,7 @@ test(
       productName: "кисть",
       quantity: 2,
     });
+    await page1.waitForTimeout(2000);
     await orderCreatePage.saveOrder();
     await expect(
       page1.locator('button[type="button"]').filter({ hasText: "Отменить" }),
@@ -320,6 +328,89 @@ test(
       page1
         .locator('[data-test="certificate-aprove"]')
         .filter({ hasText: "Применено" }),
+    ).toBeVisible();
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/5363?treeId=58
+test(
+  "#5363 Редактирование заказа с баллами ПЛ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+
+    const { page: page1, phoneNumber } = await createOrder(page, {
+      makeOrder: true,
+      searchText: "штукатурка",
+      quantity: 1,
+    });
+
+    if (!phoneNumber) {
+      throw new Error("Не удалось получить номер телефона");
+    }
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    expect(code).toHaveLength(4);
+
+    await expect(
+      page1
+        .locator('[data-test="bonuses-container"]')
+        .filter({ hasText: "Списано" }),
+    ).toBeVisible();
+
+    // копируем и запоминаем номер заказа
+    const orderNumber = await orderCreatePage.getCopiedOrderNumber();
+    await orderCreatePage.closeOrder();
+
+    await orderCreatePage.searchInputEditOrderBtn(orderNumber);
+    await orderCreatePage.cancelPL();
+    await deleteAllPositions(page1);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/5531?treeId=58
+test(
+  "#5531 Применение баллов с ошибкой промокода",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+
+    const { page: page1, phoneNumber } = await createOrder(page, {
+      makeOrder: true,
+      searchText: "кисть",
+      quantity: 1,
+    });
+
+    if (!phoneNumber) {
+      throw new Error("Не удалось получить номер телефона");
+    }
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    expect(code).toHaveLength(4);
+
+    await expect(
+      page1
+        .locator('[data-test="bonuses-container"]')
+        .filter({ hasText: "Списано" }),
+    ).toBeVisible();
+
+    await applyPromoCode(page1, "CALLCENTER1");
+    await expect(
+      page1.getByText("Промокод не применен по условиям акции"),
+    ).toBeVisible();
+    await expect(
+      page1
+        .locator('[data-test="bonuses-container"]')
+        .filter({ hasText: "Списано" }),
     ).toBeVisible();
     await deleteAllPositions(page1);
   },

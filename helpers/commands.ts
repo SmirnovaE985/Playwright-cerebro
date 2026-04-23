@@ -161,6 +161,12 @@ export async function createOrder(
     .filter({ hasText: "Новый заказ" })
     .click();
 
+  await page1.locator('[data-test="sale-orgs"]').click();
+
+  const option1000 = page1.locator('[data-test="1000"]');
+  await option1000.scrollIntoViewIfNeeded();
+  await option1000.click();
+
   await page1.locator(".ant-select-selection-overflow").click();
   await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
 
@@ -684,6 +690,10 @@ type TelegramResponse = {
   result: TelegramUpdate[];
 };
 
+function normalizePhone(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
 export async function getPromoCodeFromChatRosaMessage(
   phoneNumber: string,
 ): Promise<string> {
@@ -699,6 +709,7 @@ export async function getPromoCodeFromChatRosaMessage(
 
   const apiUrl = `${botUrl}/getUpdates`;
   const apiContext = await request.newContext();
+  const normalizedPhone = normalizePhone(phoneNumber);
 
   try {
     const initialResponse = await apiContext.get(apiUrl);
@@ -723,7 +734,7 @@ export async function getPromoCodeFromChatRosaMessage(
 
           const latestMatchingMessage = [...updates].reverse().find((u) => {
             const text = u.message?.text || u.channel_post?.text || "";
-            return text.includes(phoneNumber);
+            return normalizePhone(text).includes(normalizedPhone);
           });
 
           const text =
@@ -735,9 +746,9 @@ export async function getPromoCodeFromChatRosaMessage(
             return null;
           }
 
-          const codeMatch = text.match(
-            /Последние\s*4\s*цифры[\s\S]*?списания\s*баллов\s*-\s*(\d{4})/i,
-          );
+          console.log("Telegram matched text:", text);
+
+          const codeMatch = text.match(/списания\s*баллов\s*[-:]\s*(\d{4})/i);
 
           promoCode = codeMatch?.[1] ?? null;
           return promoCode;
@@ -761,6 +772,115 @@ export async function getPromoCodeFromChatRosaMessage(
     await apiContext.dispose();
   }
 }
+// type TelegramUpdate = {
+//   update_id: number;
+//   message?: {
+//     text?: string;
+//   };
+//   channel_post?: {
+//     text?: string;
+//   };
+// };
+
+// type TelegramResponse = {
+//   ok: boolean;
+//   result: TelegramUpdate[];
+// };
+// type TelegramUpdate = {
+//   update_id: number;
+//   message?: {
+//     text?: string;
+//   };
+//   channel_post?: {
+//     text?: string;
+//   };
+// };
+
+// type TelegramResponse = {
+//   ok: boolean;
+//   result: TelegramUpdate[];
+// };
+
+// function normalizePhone(value: string): string {
+//   return value.replace(/\D/g, "");
+// }
+// export async function getPromoCodeFromChatRosaMessage(
+//   phoneNumber: string,
+// ): Promise<string> {
+//   const botUrl =
+//     process.env.TG_BOT_ROSA_MESSAGE ||
+//     process.env.CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY;
+
+//   if (!botUrl) {
+//     throw new Error(
+//       "Не задана переменная окружения TG_BOT_ROSA_MESSAGE или CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY",
+//     );
+//   }
+
+//   const apiUrl = `${botUrl}/getUpdates`;
+//   const apiContext = await request.newContext();
+
+//   try {
+//     const initialResponse = await apiContext.get(apiUrl);
+//     const initialBody = (await initialResponse.json()) as TelegramResponse;
+//     const oldUpdates = initialBody.result || [];
+
+//     const lastUpdateId = oldUpdates.reduce(
+//       (max, update) => (update.update_id > max ? update.update_id : max),
+//       0,
+//     );
+
+//     let promoCode: string | null = null;
+
+//     await expect
+//       .poll(
+//         async () => {
+//           const response = await apiContext.get(
+//             `${apiUrl}?offset=${lastUpdateId + 1}`,
+//           );
+//           const body = (await response.json()) as TelegramResponse;
+//           const updates = body.result || [];
+
+//           const latestMatchingMessage = [...updates].reverse().find((u) => {
+//             const text = u.message?.text || u.channel_post?.text || "";
+//             return text.includes(phoneNumber);
+//           });
+
+//           const text =
+//             latestMatchingMessage?.message?.text ||
+//             latestMatchingMessage?.channel_post?.text ||
+//             "";
+
+//           if (!text) {
+//             return null;
+//           }
+
+//           const codeMatch = text.match(
+//             /Последние\s*4\s*цифры[\s\S]*?списания\s*баллов\s*-\s*(\d{4})/i,
+//           );
+
+//           promoCode = codeMatch?.[1] ?? null;
+//           return promoCode;
+//         },
+//         {
+//           timeout: 60000,
+//           intervals: [1000, 2000, 3000, 5000],
+//           message: `Не удалось найти код подтверждения для номера ${phoneNumber}`,
+//         },
+//       )
+//       .not.toBeNull();
+
+//     if (!promoCode) {
+//       throw new Error(
+//         `Не удалось получить код подтверждения для номера ${phoneNumber}`,
+//       );
+//     }
+
+//     return promoCode;
+//   } finally {
+//     await apiContext.dispose();
+//   }
+// }
 
 //
 interface CreateOrderOptions {
@@ -869,20 +989,15 @@ export async function restoreImkcPriceForFirstCartPosition(
 }
 
 // =====================
-//  применение промокода
+//  применение валидного промокода
 // =====================
 export async function applyPromoCode(
   page: Page,
-  promoCode: string = "CALLCENTER1",
+  promoCode: string,
 ): Promise<void> {
   await page.locator('[data-test="promocode-block-title"]').click();
   await page.locator('[data-test="promocode"]').fill(promoCode);
   await page.locator('[data-test="promocode-apply"]').click();
-  await expect(
-    page
-      .locator('[data-test="promocode-aprove"]')
-      .filter({ hasText: "Применено" }),
-  ).toBeVisible();
 }
 
 // =======================
