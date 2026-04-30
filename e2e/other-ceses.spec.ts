@@ -57,13 +57,21 @@ test(
 test("#4592 Создание претензии", { tag: ["@regress"] }, async ({ page }) => {
   label("tag", "regress");
   feature("Auth");
-  const { page: page1, phoneNumber } = await createOrder(page, {
-    makeOrder: true,
-    searchText: "цемент",
-    quantity: 1,
-  });
+
+  const { page: page1 } = await createAppeal(page);
+
   const appealStartPage = new AppealStartPage(page1);
   const orderCreatePage = new OrderCreatePage(page1);
+
+  await appealStartPage.selectNewOrder();
+  await appealStartPage.selectSaleOrg("1000");
+
+  await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+  await orderCreatePage.searchProduct("638318");
+  await orderCreatePage.openFirstProductCard();
+  await orderCreatePage.addButtonInCart();
+  await orderCreatePage.goToCart();
+  await orderCreatePage.makeOrder();
 
   await orderCreatePage.closeNotification();
   await orderCreatePage.closeNotification2();
@@ -78,6 +86,7 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
     await page1.evaluate(() => navigator.clipboard.readText())
   ).trim();
   // вставляем в поле
+  await page1.waitForTimeout(2000);
   const orderInput = page1.locator('input[name="orderNumber"]');
   await orderInput.click();
   await orderInput.press("Control+A");
@@ -134,9 +143,9 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
   await page1.getByText("БМ Тмн Панфиловцев").click();
   await page1.getByPlaceholder("Опишите претензию").fill("нахамили 8 раз");
   await page1.getByRole("button", { name: "Отправить претензию" }).click();
-  await expect(page1.getByText("Успешно зарегистрирована")).toBeVisible({
-    timeout: 10000,
-  });
+  await expect(
+    page1.getByRole("button", { name: "Зарегистрировать еще" }),
+  ).toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/4964?treeId=58
@@ -146,13 +155,21 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const { page: page1, phoneNumber } = await createOrder(page, {
-      makeOrder: true,
-      searchText: "цемент",
-      quantity: 1,
-    });
+    const { page: page1 } = await createAppeal(page);
+
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.selectNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.searchProduct("638318");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
+
     await orderCreatePage.closeNotification();
     await orderCreatePage.closeNotification2();
     // дать доступ к буферу
@@ -166,7 +183,7 @@ test(
     await orderInput.press("Control+A");
     await orderInput.fill(orderNumber);
     await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тимберленд 50летОктября").nth(1).click();
+    await page1.getByText("РЦ Тимберленд 50летОктября").click();
     await page1
       .getByRole("button", { name: "Зарегистрировать ошибку" })
       .click();
@@ -225,6 +242,7 @@ test(
     await page1.getByText("Водитель без авто").first().click();
 
     await page1.getByText("Записать в таблицу").click();
+    await page1.waitForTimeout(4000);
     await expect(
       page1.getByText("Информация отправлена в гугл-таблицу"),
     ).toBeVisible();

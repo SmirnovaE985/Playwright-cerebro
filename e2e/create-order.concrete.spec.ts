@@ -1,6 +1,5 @@
 // #6240 создание стандартного заказа для товара, который имеет признак ГТР
 // #4141 Создать заказ на бетон через быстрое добавление в корзину
-// #4251 Создать заказ бетона с несколькими машинами
 // #4345 Создать заказ с дробным числом
 // #4346 Создать заказ с комментарием к ТТН  (не использовать)
 // #4130 Создать заказ бетона с через карточку товара с ручной ценой
@@ -325,8 +324,8 @@ test(
     await orderCreatePage.fillDeliveryAddress("Агеева");
     await orderCreatePage.selectTomorrowDeliveryDate();
     // Нажимаем "Добавить машину"
+    await page.waitForTimeout(3000);
     await page1.locator('[data-test="add-car-concrete"]').click();
-    //
     await page1.locator('[data-test="cars-type"]').click();
     await page1.getByText("Бетоновоз 12м3").click();
     //выбрать время
