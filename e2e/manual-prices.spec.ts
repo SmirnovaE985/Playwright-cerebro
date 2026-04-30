@@ -32,7 +32,6 @@ test(
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
     await orderCreatePage.searchProduct("ведро");
     await orderCreatePage.openFirstProductCard();
@@ -94,7 +93,6 @@ test(
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
     await orderCreatePage.searchProduct("кисть");
     await orderCreatePage.openFirstProductCard();
@@ -151,7 +149,6 @@ test(
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
     await orderCreatePage.searchProduct("кисть");
     await orderCreatePage.openFirstProductCard();
@@ -212,12 +209,21 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const { page: page1 } = await createOrder(page, {
-      searchText: "631179",
-      makeOrder: true,
-    });
+
+    const { page: page1 } = await createAppeal(page);
+
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+
+    await appealStartPage.selectNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+
+    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await orderCreatePage.searchProduct("638318");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
     await orderCreatePage.closeNotification();
 
     // Меняем цену вручную

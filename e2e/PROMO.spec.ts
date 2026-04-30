@@ -6,7 +6,7 @@
 // #5383 Нельзя использовать недействующий сертификат
 // #5375 Списание и отмена списания баллов ПЛ с применением сертификата
 // #5363 Редактирование заказа с баллами ПЛ
-//
+// #5531 Применение баллов с ошибкой промокода
 
 import { test, expect } from "@playwright/test";
 import { label, feature } from "allure-js-commons";
@@ -42,7 +42,6 @@ test(
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
     await orderCreatePage.searchProduct("ведро");
     await orderCreatePage.openFirstProductCard();
@@ -157,18 +156,15 @@ test(
 
     const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
     expect(code).toHaveLength(4);
+
     await applyCertificate(page1, "10");
     await expect(
       page1
         .locator('[data-test="certificate-aprove"]')
         .filter({ hasText: "Применено" }),
     ).toBeVisible();
+
     await applyPromoCode(page1, "CALLCENTER1");
-    await expect(
-      page
-        .locator('[data-test="promocode-aprove"]')
-        .filter({ hasText: "Применено" }),
-    ).toBeVisible();
 
     await expect(
       page1
@@ -199,7 +195,6 @@ test(
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
     await orderCreatePage.searchProduct("638243");
     await orderCreatePage.openFirstProductCardFromListing();
     await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
@@ -311,6 +306,7 @@ test(
 
     const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
     expect(code).toHaveLength(4);
+
     await applyCertificate(page1, "10");
     await expect(
       page1

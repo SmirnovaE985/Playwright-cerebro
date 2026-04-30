@@ -103,6 +103,83 @@ export async function createAppeal(
   };
 }
 
+//========================================
+//создание обращения с рандомным телефоном
+//========================================
+
+type ClientType = "Физическое лицо" | "Юридическое лицо";
+
+interface CreateAppealWithClientOptions {
+  clientType?: ClientType;
+  clientName?: string;
+}
+
+interface CreateAppealWithClientResult {
+  page: Page;
+  phoneNumber: string;
+  clientType: ClientType;
+  clientName: string;
+}
+
+function generateRandomPhoneNumber(): string {
+  const length = Math.floor(Math.random() * 3) + 10;
+  let phone = "9";
+
+  for (let i = 1; i < length; i++) {
+    phone += Math.floor(Math.random() * 10).toString();
+  }
+
+  return phone;
+}
+
+function generateRandomClientName(): string {
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `Иван Васильевич ${random}`;
+}
+
+export async function createAppealWithRandomPhoneAndClient(
+  page: Page,
+  options: CreateAppealWithClientOptions = {},
+): Promise<CreateAppealWithClientResult> {
+  const {
+    clientType = "Физическое лицо",
+    clientName = generateRandomClientName(),
+  } = options;
+
+  const phoneNumber = generateRandomPhoneNumber();
+
+  await fillLoginForm(page);
+  await page.getByText("Клиенты").hover({ force: true });
+  await page.getByText("Клиенты").click();
+
+  const newAppeal = page.getByRole("link", { name: "Новое обращение" });
+  await expect(newAppeal).toBeVisible();
+  await newAppeal.click();
+
+  await page.getByText("Телефон", { exact: true }).click();
+  await page.getByRole("textbox").fill(phoneNumber);
+
+  const page1Promise = page.waitForEvent("popup");
+  await page.getByRole("button", { name: "Создать новое обращение" }).click();
+  const page1 = await page1Promise;
+
+  await page1.getByRole("combobox", { name: "* Тип клиента :" }).click();
+  await page1.getByText(clientType, { exact: true }).click();
+
+  const nameInput = page1.getByRole("textbox", { name: "* Имя/Название :" });
+  await nameInput.click();
+  await nameInput.fill(clientName);
+
+  await page1.getByRole("button", { name: "Создать" }).click();
+
+  return {
+    page: page1,
+    phoneNumber,
+    clientType,
+    clientName,
+  };
+}
+
 // =======================
 //создание простого заказа
 // =======================
@@ -164,7 +241,7 @@ export async function createOrder(
   await page1.locator('[data-test="sale-orgs"]').click();
 
   const option1000 = page1.locator('[data-test="1000"]');
-  await option1000.scrollIntoViewIfNeeded();
+  // await option1000.scrollIntoViewIfNeeded();
   await option1000.click();
 
   await page1.locator(".ant-select-selection-overflow").click();
@@ -1004,16 +1081,15 @@ export async function applyPromoCode(
 //  применение сертификата
 // =======================
 export async function applyCertificate(
-  page: Page,
+  page1: Page,
   amount: string,
   certificateCode: string = "CERTCALLCENTER",
 ): Promise<void> {
-  await page.locator('[data-test="promocode-block-title"]').click();
-  await page.getByText("Сертификат").click();
-  await page.locator('[data-test="sertificat"]').fill(certificateCode);
-  await page.locator('[data-test="use-sertificat"]').click();
-  await page.locator('[data-test="certificate-value"]').fill(amount);
-  await page.locator('[data-test="use"]').click();
+  await page1.locator('[data-test="certificate-title"]').click();
+  await page1.locator('[data-test="sertificat"]').fill(certificateCode);
+  await page1.locator('[data-test="use-sertificat"]').click();
+  await page1.locator('[data-test="certificate-value"]').fill(amount);
+  await page1.locator('[data-test="use"]').click();
 }
 
 // если используем дефолтный сертификат

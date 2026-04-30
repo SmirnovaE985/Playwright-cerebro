@@ -148,7 +148,7 @@ test(
     await orderCreatePage.openCartPosition(0);
     const priceBeforeUnitChange =
       await orderCreatePage.getModalEditInputPriceNormalized();
-    await orderCreatePage.changeUnit("т. = 40меш.");
+    await orderCreatePage.changeUnit("1пар. = 2меш.");
     await orderCreatePage.waitModalEditInputPriceChanged(priceBeforeUnitChange);
     const expectedTotalCost =
       await orderCreatePage.getModalEditInputPriceNormalized();
