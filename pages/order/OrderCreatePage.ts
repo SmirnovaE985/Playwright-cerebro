@@ -62,6 +62,23 @@ export class OrderCreatePage {
   private readonly addButtonSearch = () =>
     this.page.getByRole("button", { name: " Найти " });
 
+  // регистрация в ПЛ
+  private readonly registerInLoyaltyButton = () =>
+    this.page.getByRole("button", { name: "Регистрация в ПЛ" });
+
+  // модальное окно регистрации в ПЛ
+  private readonly loyaltyRegistrationModal = () =>
+    this.page.getByRole("dialog").filter({
+      hasText: "Регистрация клиента в программе лояльности",
+    });
+
+  // кнопка "Отправить" в модальном окне регистрации в ПЛ
+  private readonly loyaltyRegistrationSendButton = () =>
+    this.loyaltyRegistrationModal().getByRole("button", {
+      name: "Отправить",
+      exact: true,
+    });
+
   // ===============
   // КОРЗИНА ЗАКАЗА
   // ===============
@@ -226,6 +243,7 @@ export class OrderCreatePage {
   // ======
 
   // ГЛАВНЫЙ ЛИСТИНГ
+
   // выбираем магазин (один или несколько)
   async selectObject(objectName: string | string[]) {
     const objects = Array.isArray(objectName) ? objectName : [objectName];
@@ -250,6 +268,28 @@ export class OrderCreatePage {
   // скрыть нулевые остатки
   async toggleRemainSwitch() {
     await this.remainSwitch().click();
+  }
+
+  // РЕГИСТРАЦИЯ В ПЛ
+  async clickRegisterInLoyaltyProgram() {
+    await this.registerInLoyaltyButton().click();
+  }
+
+  // модальное окно регистрации в ПЛ должно быть открыто
+  async expectLoyaltyRegistrationModalVisible() {
+    await expect(this.loyaltyRegistrationModal()).toBeVisible();
+  }
+
+  // отправить в модальном окне регистрации в ПЛ
+  async clickSendInLoyaltyRegistrationModal() {
+    await expect(this.loyaltyRegistrationModal()).toBeVisible();
+    await this.loyaltyRegistrationSendButton().click();
+  }
+
+  // полная регистрация в ПЛ
+  async registerInLoyaltyProgram() {
+    await this.clickRegisterInLoyaltyProgram();
+    await this.clickSendInLoyaltyRegistrationModal();
   }
 
   // поиск товара (добавить намбер)
