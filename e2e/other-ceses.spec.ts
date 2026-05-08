@@ -5,9 +5,7 @@
 // #3350 Шаблоны СМС из хэдра/корзины [ok]
 
 import { test, expect } from "@playwright/test";
-import { createAppeal } from "../helpers/commands";
-import { createOrder } from "../helpers/commands";
-import { createOrderCheckPromo } from "../helpers/commands";
+import { createAppeal, sendSms } from "../helpers/commands";
 import { randomInt } from "crypto";
 import { label, feature } from "allure-js-commons";
 import { fillLoginForm } from "../helpers/commands";
@@ -259,56 +257,31 @@ test(
     const { page: page1 } = await createAppeal(page);
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await orderCreatePage.closeNotification();
 
-    const btn = page1.getByRole("button", { name: "Отправить СМС" });
-    await btn.waitFor({ state: "visible" });
-    await btn.click();
-    await page1.waitForTimeout(3000);
-    await expect(page1.locator('input[placeholder*="Телефон"]')).toBeEnabled;
-    await page1.locator('input[placeholder*="Телефон"]').fill("9000000033");
+    await sendSms(page1, {
+      customMessage: "sdfghjkl; lkkkkd9",
+    });
 
-    await page1.locator("[data-test=empty-form]").fill("sdfghjkl; lkkkkd9");
-    await page1.locator("[data-test=send-sms-for]").click();
-    await expect(page1.getByText("Сообщение успешно отправлено")).toBeVisible();
+    await sendSms(page1, {
+      templateText: "Заказ. Номер, сумма, доставка в течение дня",
+    });
+
+    await sendSms(page1, {
+      templateText: "Заказ. Номер, сумма, доставка в течение дня",
+      customMessage: "Дополнительный текст",
+    });
     //
-    await page1.getByText("Отправить СМС").first().click();
-    await page1.waitForTimeout(3000);
-    await page1.locator("[data-test=pattern-sms]").click();
-    await page1
-      .getByText("Заказ. Номер, сумма, доставка в течение дня")
-      .click();
-    await page1.locator("[data-test=send-sms-for]").click();
-    await expect(page1.getByText("Сообщение успешно отправлено")).toBeVisible();
-    //
-    await page1.getByText("Отправить СМС").first().click();
-    await page1.locator("[data-test=pattern-sms]").click();
-    // Ждём, пока появится dropdown
-    const option = page1.locator(
-      '.ant-select-dropdown [data-test="Контакт. Для физических лиц"]',
-    );
-    await option.waitFor({ state: "visible" });
-    //Скроллим к нужному элементу
-    await option.scrollIntoViewIfNeeded();
-    await option.click();
-    await page1.locator("[data-test=send-sms-for]").click();
-    await expect(page1.getByText("Сообщение успешно отправлено")).toBeHidden();
-    //
-    await page1.getByText("Отправить СМС").first().click();
-    await page1.waitForTimeout(3000);
-    await page1.locator("[data-test=pattern-sms]").click();
-    // Ждём, пока появится dropdown
-    const option1 = page1.locator(
-      '.ant-select-dropdown [data-test="Интернет заказ. Доставка."]',
-    );
-    await option1.waitFor({ state: "visible" });
-    //Скроллим к нужному элементу
-    await option1.scrollIntoViewIfNeeded();
-    await option1.click();
-    await page1.locator("[data-icon=close-circle]").click();
-    const select = page1.locator('[data-test="pattern-sms"]');
-    await expect(select).toContainText("Выберите шаблон");
+    await sendSms(page1, {
+      templateText: "Контакт. Для физических лиц",
+      needScrollToTemplate: true,
+    });
+
+    await sendSms(page1, {
+      templateText: "Интернет заказ. Доставка.",
+      needScrollToTemplate: true,
+    });
   },
 );

@@ -233,16 +233,17 @@ export async function createOrder(
     .click();
 
   await page1.locator('[data-test="select-appeal"]').click();
-  await page1
-    .locator('[data-test="select-appeal"] li')
-    .filter({ hasText: "Новый заказ" })
-    .click();
 
   await page1.locator('[data-test="sale-orgs"]').click();
 
   const option1000 = page1.locator('[data-test="1000"]');
-  // await option1000.scrollIntoViewIfNeeded();
+  await option1000.scrollIntoViewIfNeeded();
   await option1000.click();
+  await page1.locator('[data-test="select-appeal"]').click();
+  await page1
+    .locator('[data-test="select-appeal"] li')
+    .filter({ hasText: "Новый заказ" })
+    .click();
 
   await page1.locator(".ant-select-selection-overflow").click();
   await page1.getByText("РЦ Тмн, 50 лет Октября, 109 ко").click();
@@ -1097,3 +1098,46 @@ export async function applyCertificate(
 
 // если нужен другой сертификат
 // await applyCertificate(page1, "10", "MY_CERT_123");
+
+// отправить смс из шапки страницы
+type SendSmsOptions = {
+  templateText?: string;
+  templateSelector?: string;
+  needScrollToTemplate?: boolean;
+  customMessage?: string;
+  successMessage?: string;
+};
+
+export async function sendSms(page1: Page, options: SendSmsOptions = {}) {
+  const {
+    templateText,
+    templateSelector = "[data-test=pattern-sms]",
+    needScrollToTemplate = false,
+    customMessage,
+    successMessage = "Сообщение успешно отправлено",
+  } = options;
+
+  await page1.locator("button.ant-dropdown-trigger").nth(1).click();
+  await page1.getByRole("menuitem", { name: "Отправить СМС" }).click();
+
+  await page1.locator(templateSelector).click();
+
+  if (templateText) {
+    const templateOption = page1.getByText(templateText);
+
+    await templateOption.waitFor({ state: "visible" });
+
+    if (needScrollToTemplate) {
+      await templateOption.scrollIntoViewIfNeeded();
+    }
+
+    await templateOption.click();
+  }
+
+  if (customMessage) {
+    await page1.locator("[data-test=empty-form]").fill(customMessage);
+  }
+
+  await page1.locator("[data-test=send-sms-for]").click();
+  await expect(page1.getByText(successMessage)).toBeVisible();
+}

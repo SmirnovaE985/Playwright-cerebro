@@ -124,6 +124,10 @@ export class OrderCreatePage {
   private readonly goInSearchButton = () =>
     this.page.locator('[data-test="btn-go-in-search"]');
 
+  // отправить смс из корзины заказа
+  private readonly sendSmsFromCart = () =>
+    this.page.locator('[data-test="send-sms"]');
+
   // услуги внутри корзины
 
   // признак колеровки у товара
