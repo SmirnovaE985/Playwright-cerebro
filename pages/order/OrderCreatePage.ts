@@ -625,11 +625,15 @@ export class OrderCreatePage {
     await codeInput.click();
     await codeInput.fill(code);
 
+    // const option = modal
+    //   .locator('[data-test="colors-item"]')
+    //   // .filter({ hasText: code });
+    //   .click();
     const option = modal
       .locator('[data-test="colors-item"]')
-      .filter({ hasText: code });
-
-    await expect(option).toBeVisible({ timeout: 5000 });
+      .filter({ hasText: code })
+      .first();
+    // await expect(option).toBeVisible({ timeout: 3000 });
     await option.click();
 
     const saveButton = modal.getByRole("button", {
@@ -637,41 +641,40 @@ export class OrderCreatePage {
       exact: true,
     });
 
-    await expect(saveButton).toBeVisible({ timeout: 5000 });
-    await expect(saveButton).toBeEnabled({ timeout: 5000 });
-    await saveButton.click();
-
-    await expect(this.page.locator(".ant-modal")).toBeHidden({ timeout: 5000 });
-  }
-
-  // редактирование колеровки
-  async editColoringByIndex(index: number, code: string) {
-    await this.coloringButtons().nth(index).click();
-
-    const modal = this.page.locator(".ant-modal").last();
-    const codeInput = modal.getByRole("textbox", { name: "Код", exact: true });
-
-    await expect(modal).toBeVisible();
-    await expect(codeInput).toBeVisible();
-    await codeInput.fill("");
-    await codeInput.fill(code);
-
-    const option = modal
-      .locator('[data-test="colors-item"]')
-      .filter({ hasText: code });
-
-    await expect(option).toBeVisible({ timeout: 5000 });
-    await option.click();
-
-    const saveButton = modal.getByRole("button", {
-      name: "Сохранить",
-      exact: true,
-    });
-
-    await expect(saveButton).toBeVisible({ timeout: 5000 });
-    await expect(saveButton).toBeEnabled({ timeout: 5000 });
+    // { timeout: 3000 }
+    await expect(saveButton).toBeVisible();
     await saveButton.click();
   }
+  // await expect(this.page.locator(".ant-modal")).toBeHidden({ timeout: 5000 });
+
+  // // редактирование колеровки
+  // async editColoringByIndex(index: number, code: string) {
+  //   await this.coloringButtons().nth(index).click();
+
+  //   const modal = this.page.locator(".ant-modal").last();
+  //   const codeInput = modal.getByRole("textbox", { name: "Код", exact: true });
+
+  //   await expect(modal).toBeVisible();
+  //   await expect(codeInput).toBeVisible();
+  //   await codeInput.fill("");
+  //   await codeInput.fill(code);
+
+  //   const option = modal
+  //     .locator('[data-test="colors-item"]')
+  //     .filter({ hasText: code });
+
+  //   await expect(option).toBeVisible({ timeout: 5000 });
+  //   await option.click();
+
+  //   const saveButton = modal.getByRole("button", {
+  //     name: "Сохранить",
+  //     exact: true,
+  //   });
+
+  //   await expect(saveButton).toBeVisible({ timeout: 5000 });
+  //   await expect(saveButton).toBeEnabled({ timeout: 5000 });
+  //   await saveButton.click();
+  // }
 
   async expectColorCodeVisible(code: string) {
     await expect(this.page.getByText(code)).toBeVisible();

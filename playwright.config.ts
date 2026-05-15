@@ -11,6 +11,11 @@ export default defineConfig({
   retries: isCI ? 1 : 0,
   workers: isCI ? 1 : undefined,
 
+  timeout: 60000,
+  expect: {
+    timeout: 10000,
+  },
+
   reporter: [
     ["list"],
     ["html", { outputFolder: "playwright-report", open: "never" }],

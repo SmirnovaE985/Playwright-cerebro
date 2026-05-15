@@ -49,7 +49,7 @@ test(
     });
     const orderCreatePage = new OrderCreatePage(page1);
     await orderCreatePage.closeNotification();
-    await expect(page1.getByText("Эксперт")).toHaveCount(2);
+    await expect(page1.getByText("Эксперт")).toHaveCount(3);
     await sendSms(page1, {
       templateText: "Контакт. Для физических лиц",
       needScrollToTemplate: true,

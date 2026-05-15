@@ -311,7 +311,7 @@ test(
     await page1.waitForLoadState("networkidle");
 
     const regBtn = page1.locator("button.ant-btn", {
-      hasText: "Регистрация в ПЛ",
+      hasText: "Зарегистрируй клиента в ПЛ",
     });
 
     await expect(regBtn).toBeVisible({ timeout: 10000 });

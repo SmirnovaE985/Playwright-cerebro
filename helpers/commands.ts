@@ -325,7 +325,7 @@ export async function addProductToCart(
 ): Promise<void> {
   const { productName, quantity, price } = options;
 
-  await page1.locator('[data-test="search-input"]').click();
+  // await page1.locator('[data-test="search-input"]').click();
   await page1.locator('[data-test="search-input"]').fill(productName);
   await page1.locator('[data-test="search-button"]').click();
 
@@ -333,12 +333,14 @@ export async function addProductToCart(
 
   if (quantity !== undefined) {
     const quantityInput = page1.locator('[data-test="add-quantity-input"]');
+    await quantityInput.waitFor({ state: "visible" });
     await quantityInput.clear();
     await quantityInput.fill(String(quantity));
   }
 
   if (price !== undefined) {
     const priceInput = page1.locator('[data-test="input-price-modal-0"]');
+    await priceInput.waitFor({ state: "visible" });
     await priceInput.clear();
     await priceInput.fill(String(price));
   }
@@ -359,16 +361,15 @@ export async function addProductToCart(
 // =============================
 export async function deleteAllPositions(page1: Page) {
   const deleteAllButton = page1.locator('[data-test="delete-all-position"]');
-  const closeBtn = page1.locator(".ant-notification-notice-close");
 
-  if ((await closeBtn.count()) > 0 && (await closeBtn.first().isVisible())) {
-    await closeBtn.first().click();
-  }
+  await expect(page1.locator(".ant-spin-spinning")).toHaveCount(0);
+
   await deleteAllButton.waitFor({ state: "visible" });
   await deleteAllButton.scrollIntoViewIfNeeded();
   await deleteAllButton.click();
 
   await page1.locator('[data-test="delete-all-position-ok-button"]').click();
+  await expect(page1.locator(".ant-spin-spinning")).toHaveCount(0);
   await page1
     .locator('[data-test="save-order"], [data-test="save-offer"]')
     .click();
@@ -850,115 +851,6 @@ export async function getPromoCodeFromChatRosaMessage(
     await apiContext.dispose();
   }
 }
-// type TelegramUpdate = {
-//   update_id: number;
-//   message?: {
-//     text?: string;
-//   };
-//   channel_post?: {
-//     text?: string;
-//   };
-// };
-
-// type TelegramResponse = {
-//   ok: boolean;
-//   result: TelegramUpdate[];
-// };
-// type TelegramUpdate = {
-//   update_id: number;
-//   message?: {
-//     text?: string;
-//   };
-//   channel_post?: {
-//     text?: string;
-//   };
-// };
-
-// type TelegramResponse = {
-//   ok: boolean;
-//   result: TelegramUpdate[];
-// };
-
-// function normalizePhone(value: string): string {
-//   return value.replace(/\D/g, "");
-// }
-// export async function getPromoCodeFromChatRosaMessage(
-//   phoneNumber: string,
-// ): Promise<string> {
-//   const botUrl =
-//     process.env.TG_BOT_ROSA_MESSAGE ||
-//     process.env.CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY;
-
-//   if (!botUrl) {
-//     throw new Error(
-//       "Не задана переменная окружения TG_BOT_ROSA_MESSAGE или CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY",
-//     );
-//   }
-
-//   const apiUrl = `${botUrl}/getUpdates`;
-//   const apiContext = await request.newContext();
-
-//   try {
-//     const initialResponse = await apiContext.get(apiUrl);
-//     const initialBody = (await initialResponse.json()) as TelegramResponse;
-//     const oldUpdates = initialBody.result || [];
-
-//     const lastUpdateId = oldUpdates.reduce(
-//       (max, update) => (update.update_id > max ? update.update_id : max),
-//       0,
-//     );
-
-//     let promoCode: string | null = null;
-
-//     await expect
-//       .poll(
-//         async () => {
-//           const response = await apiContext.get(
-//             `${apiUrl}?offset=${lastUpdateId + 1}`,
-//           );
-//           const body = (await response.json()) as TelegramResponse;
-//           const updates = body.result || [];
-
-//           const latestMatchingMessage = [...updates].reverse().find((u) => {
-//             const text = u.message?.text || u.channel_post?.text || "";
-//             return text.includes(phoneNumber);
-//           });
-
-//           const text =
-//             latestMatchingMessage?.message?.text ||
-//             latestMatchingMessage?.channel_post?.text ||
-//             "";
-
-//           if (!text) {
-//             return null;
-//           }
-
-//           const codeMatch = text.match(
-//             /Последние\s*4\s*цифры[\s\S]*?списания\s*баллов\s*-\s*(\d{4})/i,
-//           );
-
-//           promoCode = codeMatch?.[1] ?? null;
-//           return promoCode;
-//         },
-//         {
-//           timeout: 60000,
-//           intervals: [1000, 2000, 3000, 5000],
-//           message: `Не удалось найти код подтверждения для номера ${phoneNumber}`,
-//         },
-//       )
-//       .not.toBeNull();
-
-//     if (!promoCode) {
-//       throw new Error(
-//         `Не удалось получить код подтверждения для номера ${phoneNumber}`,
-//       );
-//     }
-
-//     return promoCode;
-//   } finally {
-//     await apiContext.dispose();
-//   }
-// }
 
 //
 interface CreateOrderOptions {
@@ -1070,12 +962,12 @@ export async function restoreImkcPriceForFirstCartPosition(
 //  применение валидного промокода
 // =====================
 export async function applyPromoCode(
-  page: Page,
+  page1: Page,
   promoCode: string,
 ): Promise<void> {
-  await page.locator('[data-test="promocode-block-title"]').click();
-  await page.locator('[data-test="promocode"]').fill(promoCode);
-  await page.locator('[data-test="promocode-apply"]').click();
+  await page1.locator('[data-test="promocode-block-title"]').click();
+  await page1.locator('[data-test="promocode"]').fill(promoCode);
+  await page1.locator('[data-test="promocode-apply"]').click();
 }
 
 // =======================
