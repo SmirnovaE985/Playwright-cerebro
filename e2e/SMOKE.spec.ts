@@ -18,7 +18,7 @@ import { test, expect } from "@playwright/test";
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
 test(
   "#6021 Создание нового обращения и регистрация клиента в ПЛ",
-  { tag: ["@regress"] },
+  { tag: ["@smoke"] },
   async ({ page }) => {
     label("tag", "smoke");
     feature("Auth");
@@ -44,7 +44,7 @@ test(
 // https://allure.itlabs.io/project/28/test-cases/6034?treeId=58
 test(
   "#6034 Создание заказа с ЗАЗОЙ c услугой колеровки",
-  { tag: ["@regress"] },
+  { tag: ["@smoke"] },
   async ({ page }) => {
     label("tag", "smoke");
     feature("Auth");
@@ -79,7 +79,7 @@ test(
 // https://allure.itlabs.io/project/28/test-cases/6734?treeId=58
 test(
   "#6734 Списание и отмена списания баллов",
-  { tag: ["@regress"] },
+  { tag: ["@smoke"] },
   async ({ page }) => {
     label("tag", "smoke");
     feature("Auth");

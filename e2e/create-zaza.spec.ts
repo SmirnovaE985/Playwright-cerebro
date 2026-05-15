@@ -154,17 +154,17 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
-    // постепенный скрол до появления нужного элемента
-    await appealStartPage.selectSaleOrg("3000");
+
+    await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.searchProduct("краска");
+    await orderCreatePage.searchProduct("570060");
     await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {
-      storeFromText: "3005 БМ Брз, Пролетарская, 4А",
-      storeToText: "РЦ Екб, Шефская, 1",
+      storeFromText: "1027 БМ Тмн, Щербакова, 99",
+      storeToText: "РЦ Тмн, 50 лет Октября, 109 ко",
     });
 
     await orderCreatePage.goToCart();

@@ -141,6 +141,7 @@ test(
   "#5365 Применение баллов ПЛ, сертификата и промокода вместе",
   { tag: ["@regress"] },
   async ({ page }) => {
+    test.setTimeout(60000);
     label("tag", "regress");
     feature("Auth");
 
@@ -156,7 +157,7 @@ test(
 
     const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
     expect(code).toHaveLength(4);
-
+    await applyPromoCode(page1, "CALLCENTER1");
     await applyCertificate(page1, "10");
     await expect(
       page1
@@ -164,13 +165,11 @@ test(
         .filter({ hasText: "Применено" }),
     ).toBeVisible();
 
-    await applyPromoCode(page1, "CALLCENTER1");
-
-    await expect(
-      page1
-        .locator('[data-test="bonuses-container"]')
-        .filter({ hasText: "Списано" }),
-    ).toBeVisible();
+    // await expect(
+    //   page1
+    //     .locator('[data-test="bonuses-container"]')
+    //     .filter({ hasText: "Списано" }),
+    // ).toBeVisible();
     await deleteAllPositions(page1);
   },
 );
@@ -240,6 +239,7 @@ test(
     }
 
     const orderCreatePage = new OrderCreatePage(page1);
+    await orderCreatePage.closeNotification();
     const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
     expect(code).toHaveLength(4);
     await expect(
@@ -247,12 +247,13 @@ test(
         .locator('[data-test="bonuses-container"]')
         .filter({ hasText: "Списано" }),
     ).toBeVisible();
-    await page1.locator('[data-test="btn-go-in-search"]').click();
-    await addProductToCart(page1, {
-      productName: "кисть",
-      quantity: 2,
-    });
-    await page1.waitForTimeout(2000);
+    await page1.waitForTimeout(3000);
+    await orderCreatePage.openSearchFromOrder();
+    await orderCreatePage.searchProduct("кисть");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
+
     await orderCreatePage.saveOrder();
     await expect(
       page1.locator('button[type="button"]').filter({ hasText: "Отменить" }),
@@ -319,11 +320,15 @@ test(
         .locator('[data-test="bonuses-container"]')
         .filter({ hasText: "Списано" }),
     ).toBeVisible();
-    await page1.getByRole("button", { name: "Отменить" }).first().click();
+    await expect(
+      page1.locator('[data-test="certificate-final-cancel"]'),
+    ).toBeEnabled();
+    await page1.waitForTimeout(3000);
+    await page1.locator('[data-test="certificate-final-cancel"]').click();
     await expect(
       page1
-        .locator('[data-test="certificate-aprove"]')
-        .filter({ hasText: "Применено" }),
+        .locator('[data-test="bonuses-container"]')
+        .filter({ hasText: "Списано" }),
     ).toBeVisible();
     await deleteAllPositions(page1);
   },

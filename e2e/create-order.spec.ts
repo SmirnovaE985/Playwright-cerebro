@@ -325,9 +325,9 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
-    await appealStartPage.openAppealSelector();
     await appealStartPage.selectSaleOrg("1000");
-    await appealStartPage.selectNewOrder();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
 
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
     await orderCreatePage.toggleRemainSwitch();
@@ -348,9 +348,11 @@ test(
 
     await orderCreatePage.expectColorCodeVisible("TVT Y356");
     await orderCreatePage.expectColorCodeVisible("BM OC-46");
-    await orderCreatePage.waitForSpinnerHidden();
+    // await orderCreatePage.waitForSpinnerHidden();
 
-    await orderCreatePage.editColoringByIndex(0, "TVT K441");
+    // await orderCreatePage.editColoringByIndex(0, "TVT K441");
+    // модалка открывается, но не вводит код
+    await orderCreatePage.addColoringByIndex(0, "TVT K441");
     await deleteAllPositions(page1);
   },
 );

@@ -25,7 +25,6 @@ export class AppealStartPage {
 
   async selectNewOrder() {
     await this.openAppealSelector();
-    await this.chooseNewOrder();
   }
 
   // редактирование заказа
@@ -135,20 +134,36 @@ export class AppealStartPage {
       `.ant-select-dropdown [data-test="${saleOrgId}"]`,
     );
 
-    const maxScrolls = 10;
+    // Ждём появления списка
+    await holder.waitFor({ state: "visible" });
+
+    // Сбрасываем скролл в начало
+    await holder.evaluate((el) => {
+      el.scrollTop = 0;
+    });
+
+    await this.page.waitForTimeout(200);
+
+    // Сначала ищем без скролла
+    if (await option.isVisible().catch(() => false)) {
+      await option.click();
+      return;
+    }
+
+    const maxScrolls = 15;
 
     for (let i = 0; i < maxScrolls; i++) {
-      if (await option.count()) {
-        await option.scrollIntoViewIfNeeded();
-        await option.click();
-        return;
-      }
-
       await holder.evaluate((el) => {
         el.scrollTop += 300;
       });
 
-      await this.page.waitForTimeout(300);
+      await this.page.waitForTimeout(200);
+
+      if (await option.isVisible().catch(() => false)) {
+        await option.scrollIntoViewIfNeeded();
+        await option.click();
+        return;
+      }
     }
 
     throw new Error(`Sale org with id "${saleOrgId}" not found in dropdown`);
