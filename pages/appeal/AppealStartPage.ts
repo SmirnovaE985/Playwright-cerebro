@@ -88,11 +88,7 @@ export class AppealStartPage {
   async chooseApplicants() {
     await this.appealOptions().filter({ hasText: "Соискатели" }).click();
 
-    await expect(
-      this.page.locator('[data-test="go-appeal-history"]'),
-    ).toBeVisible();
-
-    await this.page.locator('[data-test="go-appeal-history"]').click();
+    await this.page.locator('[data-icon="user"]').click();
 
     await expect(
       this.page.locator('[data-test="select-appeal"]', {

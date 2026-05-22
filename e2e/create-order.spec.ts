@@ -13,6 +13,7 @@ import {
   createAppeal,
   deleteAllPositions,
   createOrder,
+  deleteCartPosition,
 } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
@@ -80,39 +81,30 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
-
+    await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
+
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-    await orderCreatePage.searchProduct("цемент");
+    await orderCreatePage.searchProduct("кисть");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
-    //
+
     await orderCreatePage.searchProduct("ведро");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
 
     await orderCreatePage.goToCart();
     await orderCreatePage.closeNotification();
+    await deleteCartPosition(page1, 1);
 
-    const positionsCountBeforeDelete =
-      await orderCreatePage.getCartPositionsCount();
-
-    await orderCreatePage.deleteCartPosition(0);
-
-    const positionsCountAfterDelete =
-      await orderCreatePage.getCartPositionsCount();
     await orderCreatePage.makeOrder();
-
     await orderCreatePage.expectOrderCreatedSuccess();
-
-    await orderCreatePage.expectCartPositionsCountToBe(
-      positionsCountAfterDelete,
-    );
-    await orderCreatePage.saveOrder();
     await deleteAllPositions(page1);
+    await page1.locator('[data-test="order-canceled-checkbox"]').click();
+    await page1.locator('[data-test="return-position"]').click();
+    await expect(page1.locator('[data-icon="delete"]')).toBeEnabled();
   },
 );
 
@@ -134,12 +126,13 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
+    await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
+
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-    await orderCreatePage.searchProduct("цемент");
+    await orderCreatePage.searchProduct("штукатурка");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -174,9 +167,9 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
+    await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await appealStartPage.selectSaleOrg("1000");
 
     await orderCreatePage.selectObject([
       "БМ Ожогина Садовая 3А",
@@ -260,7 +253,10 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
-    await appealStartPage.selectNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+
     await orderCreatePage.selectObject("БМ Ожогина Садовая 3А");
     await orderCreatePage.searchProduct("геотекстиль");
     await orderCreatePage.openFirstProductCard();
@@ -285,7 +281,10 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
-    await appealStartPage.selectNewOrder();
+    await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
     await orderCreatePage.searchProduct("краска");

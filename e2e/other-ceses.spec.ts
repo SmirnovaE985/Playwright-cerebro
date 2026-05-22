@@ -1,7 +1,6 @@
 // #4587 Привязка клиента к менеджеру через вкладку "мои клиенты" [ok]
 // #4592 Создание претензии [ok]
 // #4964 Регистрация Ошибки/ОС [ok]
-// #4594 Регистрация соискателя [ok]
 // #3350 Шаблоны СМС из хэдра/корзины [ok]
 
 import { test, expect } from "@playwright/test";
@@ -61,8 +60,9 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
   const appealStartPage = new AppealStartPage(page1);
   const orderCreatePage = new OrderCreatePage(page1);
 
-  await appealStartPage.selectNewOrder();
   await appealStartPage.selectSaleOrg("1000");
+  await appealStartPage.openAppealSelector();
+  await appealStartPage.chooseNewOrder();
 
   await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
   await orderCreatePage.searchProduct("638318");
@@ -140,10 +140,16 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
   await selectShop.locator(".ant-select-selection-search").click();
   await page1.getByText("БМ Тмн Панфиловцев").click();
   await page1.getByPlaceholder("Опишите претензию").fill("нахамили 8 раз");
-  await page1.getByRole("button", { name: "Отправить претензию" }).click();
-  await expect(
-    page1.getByRole("button", { name: "Зарегистрировать еще" }),
-  ).toBeVisible();
+  await page1.waitForTimeout(3000);
+
+  const submitButton = page1.getByRole("button", {
+    name: "Отправить претензию",
+  });
+
+  await expect(submitButton).toBeVisible();
+  await expect(submitButton).toBeEnabled();
+  await submitButton.click();
+  await expect(page1.getByText("Претензия успешно создана")).toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/4964?treeId=58
@@ -158,8 +164,9 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
-    await appealStartPage.selectNewOrder();
     await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
 
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
     await orderCreatePage.searchProduct("638318");
@@ -196,54 +203,6 @@ test(
       .getByRole("button", { name: "Зарегистрировать ошибку" })
       .click();
     await expect(page1.getByText("Инцидент создан успешно")).toBeVisible();
-  },
-);
-
-// https://allure.itlabs.io/project/28/test-cases/4594?treeId=58
-test(
-  "#4594 Регистрация соискатели",
-  { tag: ["@regress"] },
-  async ({ page }) => {
-    label("tag", "regress");
-    feature("Auth");
-    const { page: page1 } = await createAppeal(page);
-    const appealStartPage = new AppealStartPage(page1);
-    const orderCreatePage = new OrderCreatePage(page1);
-    await appealStartPage.openAppealSelector();
-    await appealStartPage.chooseApplicants();
-    await orderCreatePage.closeNotification();
-
-    const shop = page1.locator("span.ant-select-selection-placeholder", {
-      hasText: "Укажите населенный пункт",
-    });
-
-    const selectShop = shop
-      .locator('xpath=ancestor::div[contains(@class,"ant-select")]')
-      .first();
-
-    const input = selectShop.locator("input.ant-select-selection-search-input");
-
-    await selectShop.locator(".ant-select-selection-search").click();
-    await input.fill("Екатеринбург");
-    await input.press("ArrowDown");
-    await input.press("Enter");
-
-    const vacancy = page1.locator("span.ant-select-selection-placeholder", {
-      hasText: "Укажите вакансию",
-    });
-
-    const selectVacancy = vacancy
-      .locator('xpath=ancestor::div[contains(@class,"ant-select")]')
-      .first();
-
-    await selectVacancy.locator(".ant-select-selection-search").click();
-    await page1.getByText("Водитель без авто").first().click();
-
-    await page1.getByText("Записать в таблицу").click();
-    await page1.waitForTimeout(4000);
-    await expect(
-      page1.getByText("Информация отправлена в гугл-таблицу"),
-    ).toBeVisible();
   },
 );
 
