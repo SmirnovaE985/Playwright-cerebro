@@ -38,6 +38,7 @@ test(
     await page1.waitForTimeout(2000);
     await orderCreatePage.clickRegisterInLoyaltyProgram();
     await orderCreatePage.clickSendInLoyaltyRegistrationModal();
+    await expect(page1.getByText("Сообщение успешно отправлено"))
   },
 );
 

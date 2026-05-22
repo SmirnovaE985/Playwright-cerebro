@@ -3,6 +3,7 @@
 // #создание простого заказа
 // #быстрое добавление товара ( с опциями)
 // #удаление всех позиций в заказе
+// #удалить позицию из корзины заказа (по индексу)
 // #создание заказа \ добавление в корзину без создания, с проверками промо и цен
 // ( если меняем количество в карточке)
 // #добавление колеровки
@@ -375,6 +376,19 @@ export async function deleteAllPositions(page1: Page) {
     .click();
 }
 
+//===============================================
+// удалить позицию из корзины заказа (по индексу)
+//===============================================
+export async function deleteCartPosition(
+  page: Page,
+  index: number,
+): Promise<void> {
+  const button = page.locator('[data-icon="delete"]').nth(index);
+
+  await button.click();
+  await button.click();
+}
+
 //====================================================================
 // создание заказа \ добавление без создания, с проверками промо и цен
 // ( если меняем количество в карточке)
@@ -547,6 +561,37 @@ type AddZazaOptions = {
   unitCode?: string;
 };
 
+async function selectOptionFromDropdown(page: Page, text: string) {
+  const dropdown = page.locator(".ant-select-dropdown:visible").last();
+  await expect(dropdown).toBeVisible();
+
+  const option = dropdown
+    .locator(".ant-select-item-option")
+    .filter({
+      has: page.getByText(text, { exact: false }),
+    })
+    .first();
+
+  const scrollContainer = dropdown.locator(".rc-virtual-list-holder").first();
+
+  for (let i = 0; i < 20; i++) {
+    if (await option.count()) {
+      if (await option.isVisible()) {
+        await option.click();
+        return;
+      }
+    }
+
+    await scrollContainer.evaluate((el) => {
+      el.scrollTop += 200;
+    });
+
+    await page.waitForTimeout(200);
+  }
+
+  throw new Error(`Опция "${text}" не найдена в dropdown`);
+}
+
 export async function addZaza(page1: Page, options: AddZazaOptions) {
   const { storeFromText, storeToText, unitCode } = options;
 
@@ -559,41 +604,21 @@ export async function addZaza(page1: Page, options: AddZazaOptions) {
   await expect(zazaButton).toBeEnabled();
   await zazaButton.click();
 
-  // storeFrom — всегда выбор по тексту
+  // storeFrom
   await expect(storeFrom).toBeVisible();
   await storeFrom.click();
+  await selectOptionFromDropdown(page1, storeFromText);
 
-  let dropdown = page1.locator(".ant-select-dropdown:visible").last();
-  await expect(dropdown).toBeVisible();
-
-  const storeFromOption = dropdown
-    .locator(".ant-select-item-option")
-    .filter({
-      has: page1.getByText(storeFromText, { exact: false }),
-    })
-    .first();
-
-  await expect(storeFromOption).toBeVisible();
-  await storeFromOption.click();
-
-  // storeTo — если текст передан, выбираем по тексту, иначе первый элемент
+  // storeTo
   await expect(storeTo).toBeVisible();
   await storeTo.click();
 
-  dropdown = page1.locator(".ant-select-dropdown:visible").last();
-  await expect(dropdown).toBeVisible();
-
   if (storeToText) {
-    const storeToOption = dropdown
-      .locator(".ant-select-item-option")
-      .filter({
-        has: page1.getByText(storeToText, { exact: false }),
-      })
-      .first();
-
-    await expect(storeToOption).toBeVisible();
-    await storeToOption.click();
+    await selectOptionFromDropdown(page1, storeToText);
   } else {
+    const dropdown = page1.locator(".ant-select-dropdown:visible").last();
+    await expect(dropdown).toBeVisible();
+
     const firstStoreToOption = dropdown
       .locator(".ant-select-item-option")
       .first();
@@ -601,7 +626,7 @@ export async function addZaza(page1: Page, options: AddZazaOptions) {
     await firstStoreToOption.click();
   }
 
-  // Выбор единицы измерения, если передана
+  // единица измерения
   if (unitCode) {
     await page1.locator('[data-test="modal-edit-units"]').click();
 
@@ -609,6 +634,7 @@ export async function addZaza(page1: Page, options: AddZazaOptions) {
     await expect(unitOption).toBeVisible();
     await unitOption.click();
   }
+
   await expect(addPositionButton).toBeVisible();
   await addPositionButton.click();
 }

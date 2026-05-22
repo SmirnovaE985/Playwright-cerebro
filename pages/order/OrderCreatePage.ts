@@ -64,19 +64,18 @@ export class OrderCreatePage {
 
   // регистрация в ПЛ
   private readonly registerInLoyaltyButton = () =>
-    this.page.getByRole("button", { name: "Регистрация в ПЛ" });
+    this.page.getByRole("button", { name: "Зарегистрируй клиента в ПЛ" });
 
   // модальное окно регистрации в ПЛ
   private readonly loyaltyRegistrationModal = () =>
-    this.page.getByRole("dialog").filter({
-      hasText: "Регистрация клиента в программе лояльности",
-    });
+    this.page.getByRole('button', { name: 'Подтверждение кодом' });
 
   // кнопка "Отправить" в модальном окне регистрации в ПЛ
   private readonly loyaltyRegistrationSendButton = () =>
-    this.loyaltyRegistrationModal().getByRole("button", {
-      name: "Отправить",
-      exact: true,
+    this.page.getByRole('button', { name: 'Отправить'
+    // this.loyaltyRegistrationModal().getByRole("button", {
+    //   name: "Отправить",
+    //   exact: true,
     });
 
   // ===============
@@ -98,10 +97,6 @@ export class OrderCreatePage {
   // количество позиций в корзине (именно как сущностей)
   private readonly cartPositions = () =>
     this.page.locator('[data-test="cart-position"]');
-
-  // отмена позиции
-  private readonly deletePositionButtons = () =>
-    this.page.locator('[data-test="delete-position"]');
 
   // закрыть заказ
   private readonly closeOrderButton = () =>
@@ -286,7 +281,7 @@ export class OrderCreatePage {
 
   // отправить в модальном окне регистрации в ПЛ
   async clickSendInLoyaltyRegistrationModal() {
-    await expect(this.loyaltyRegistrationModal()).toBeVisible();
+    await this.loyaltyRegistrationModal().click();
     await this.loyaltyRegistrationSendButton().click();
   }
 
@@ -325,7 +320,7 @@ export class OrderCreatePage {
       await this.quantityInputs().nth(i).fill(value);
     }
   }
-
+ 
   // добавить в корзину из карточки (корзина)
   async addButtonInCart() {
     await this.addButton().click();
@@ -379,11 +374,6 @@ export class OrderCreatePage {
   // проверка "Успешно сохранено"
   async expectOrderSavedSuccess() {
     await expect(this.page.getByText("Успешно сохранено")).toBeVisible();
-  }
-
-  // отменить позицию (по индексу: await orderCreatePage.deleteCartPosition(0);)
-  async deleteCartPosition(index: number) {
-    await this.deletePositionButtons().nth(index).click();
   }
 
   // закрыть заказ
@@ -625,10 +615,7 @@ export class OrderCreatePage {
     await codeInput.click();
     await codeInput.fill(code);
 
-    // const option = modal
-    //   .locator('[data-test="colors-item"]')
-    //   // .filter({ hasText: code });
-    //   .click();
+
     const option = modal
       .locator('[data-test="colors-item"]')
       .filter({ hasText: code })
@@ -645,36 +632,7 @@ export class OrderCreatePage {
     await expect(saveButton).toBeVisible();
     await saveButton.click();
   }
-  // await expect(this.page.locator(".ant-modal")).toBeHidden({ timeout: 5000 });
-
-  // // редактирование колеровки
-  // async editColoringByIndex(index: number, code: string) {
-  //   await this.coloringButtons().nth(index).click();
-
-  //   const modal = this.page.locator(".ant-modal").last();
-  //   const codeInput = modal.getByRole("textbox", { name: "Код", exact: true });
-
-  //   await expect(modal).toBeVisible();
-  //   await expect(codeInput).toBeVisible();
-  //   await codeInput.fill("");
-  //   await codeInput.fill(code);
-
-  //   const option = modal
-  //     .locator('[data-test="colors-item"]')
-  //     .filter({ hasText: code });
-
-  //   await expect(option).toBeVisible({ timeout: 5000 });
-  //   await option.click();
-
-  //   const saveButton = modal.getByRole("button", {
-  //     name: "Сохранить",
-  //     exact: true,
-  //   });
-
-  //   await expect(saveButton).toBeVisible({ timeout: 5000 });
-  //   await expect(saveButton).toBeEnabled({ timeout: 5000 });
-  //   await saveButton.click();
-  // }
+  
 
   async expectColorCodeVisible(code: string) {
     await expect(this.page.getByText(code)).toBeVisible();
