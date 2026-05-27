@@ -165,11 +165,6 @@ test(
         .filter({ hasText: "Применено" }),
     ).toBeVisible();
 
-    // await expect(
-    //   page1
-    //     .locator('[data-test="bonuses-container"]')
-    //     .filter({ hasText: "Списано" }),
-    // ).toBeVisible();
     await deleteAllPositions(page1);
   },
 );
