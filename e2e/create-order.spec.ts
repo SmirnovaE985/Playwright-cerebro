@@ -126,13 +126,15 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
+    await page1.mouse.move(500, 300);
+    await page1.mouse.move(510, 305);
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-    await orderCreatePage.searchProduct("штукатурка");
+    await orderCreatePage.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -141,7 +143,7 @@ test(
     await orderCreatePage.openCartPosition(0);
     const priceBeforeUnitChange =
       await orderCreatePage.getModalEditInputPriceNormalized();
-    await orderCreatePage.changeUnit("1пар. = 2меш.");
+    await orderCreatePage.changeUnit("1пач. = 300пар.");
     await orderCreatePage.waitModalEditInputPriceChanged(priceBeforeUnitChange);
     const expectedTotalCost =
       await orderCreatePage.getModalEditInputPriceNormalized();
