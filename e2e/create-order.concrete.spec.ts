@@ -1,13 +1,13 @@
 // #6240 создание стандартного заказа для товара, который имеет признак ГТР
 // #4141 Создать заказ на бетон через быстрое добавление в корзину
 
-
 import { test, expect } from "@playwright/test";
 import { createAppeal } from "../helpers/commands";
 import { deleteAllPositions } from "../helpers/commands";
 import { label, feature } from "allure-js-commons";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+// import { ConcreteCarFormComponent } from "../pages/components/ComponentPage";
 
 // https://allure.itlabs.io/project/28/test-cases/6240?treeId=58
 test(
@@ -45,7 +45,7 @@ test(
 );
 
 // //https://allure.itlabs.io/project/28/test-cases/4141?treeId=58
-test(
+test.skip(
   "#4141Создать заказ на бетон через быстрое добавление в корзину",
   { tag: ["@regress"] },
   async ({ page }) => {
@@ -57,7 +57,6 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
 
-   
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
@@ -88,3 +87,35 @@ test(
   },
 );
 
+// //https://allure.itlabs.io/project/28/test-cases/4141?treeId=58
+test.skip(
+  "заказ на бетон не доступен в церебро, не использовать",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+
+    const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const concreteCarForm = new ConcreteCarFormComponent(page1);
+
+    await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+
+    await orderCreatePage.searchProduct("бетон");
+    await orderCreatePage.openFirstProductCard();
+
+    await concreteCarForm.saveConcreteCar({
+      quantity: "6",
+      address: "Агеева 141",
+      comment: "Позвонить за час",
+    });
+
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+  },
+);

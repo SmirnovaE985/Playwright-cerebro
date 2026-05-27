@@ -12,8 +12,10 @@
 // #Получение бонусов из общего чека
 // #Проверка бонусов в общем чеке
 // #применение списания баллов через телеграмм бот
+// #получения кода регистрации в ПЛ из Telegram
 // #применение промокода
 // #применение сертификата
+// #Регистрация нового пользователя в программе лояльности
 
 import { expect, Page, request } from "@playwright/test";
 
@@ -94,8 +96,9 @@ export async function createAppeal(
   await expect(page1).toHaveURL(/\/appeal/);
 
   const phoneNumber =
-    contactType === "Телефон" ? `+7${contactValue.replace(/\D/g, "")}` : null;
-
+    contactType === "Телефон" ? contactValue.replace(/\D/g, "") : null;
+  await page.mouse.move(500, 300);
+  await page.mouse.move(510, 305);
   return {
     page: page1,
     contactType,
@@ -113,6 +116,7 @@ type ClientType = "Физическое лицо" | "Юридическое ли
 interface CreateAppealWithClientOptions {
   clientType?: ClientType;
   clientName?: string;
+  phoneNumber?: string;
 }
 
 interface CreateAppealWithClientResult {
@@ -123,10 +127,9 @@ interface CreateAppealWithClientResult {
 }
 
 function generateRandomPhoneNumber(): string {
-  const length = Math.floor(Math.random() * 3) + 10;
   let phone = "9";
 
-  for (let i = 1; i < length; i++) {
+  for (let i = 1; i < 10; i++) {
     phone += Math.floor(Math.random() * 10).toString();
   }
 
@@ -145,9 +148,8 @@ export async function createAppealWithRandomPhoneAndClient(
   const {
     clientType = "Физическое лицо",
     clientName = generateRandomClientName(),
+    phoneNumber = generateRandomPhoneNumber(),
   } = options;
-
-  const phoneNumber = generateRandomPhoneNumber();
 
   await fillLoginForm(page);
   await page.getByText("Клиенты").hover({ force: true });
@@ -173,6 +175,8 @@ export async function createAppealWithRandomPhoneAndClient(
 
   await page1.getByRole("button", { name: "Создать" }).click();
 
+  await page1.mouse.move(500, 300);
+  await page1.mouse.move(510, 305);
   return {
     page: page1,
     phoneNumber,
@@ -233,6 +237,8 @@ export async function createOrder(
     .locator('[data-test="select-client"]')
     .click();
 
+  await page1.mouse.move(500, 300);
+  await page1.mouse.move(510, 305);
   await page1.locator('[data-test="select-appeal"]').click();
 
   await page1.locator('[data-test="sale-orgs"]').click();
@@ -408,8 +414,9 @@ export async function createOrderCheckPromo(
 ) {
   const { makeOrder = true, searchText = "цемент", quantity } = options ?? {};
 
+  // ================================
   // Авторизация и создание обращения
-
+  // ================================
   await fillLoginForm(page);
 
   await page.getByText("Клиенты").first().click();
@@ -778,7 +785,7 @@ export async function expectCartTotalBonus(
 }
 
 // ==============================================
-// забираем смс-код через телеграмм бот
+// забираем смс-код для списания баллов через телеграмм бот
 // ===============================================
 type TelegramUpdate = {
   update_id: number;
@@ -796,8 +803,19 @@ type TelegramResponse = {
 };
 
 function normalizePhone(value: string): string {
-  return value.replace(/\D/g, "");
+  const digits = value.replace(/\D/g, "");
+
+  if (
+    digits.length === 11 &&
+    (digits.startsWith("7") || digits.startsWith("8"))
+  ) {
+    return digits.slice(1);
+  }
+
+  return digits;
 }
+
+// получить последний код из чат-бота
 
 export async function getPromoCodeFromChatRosaMessage(
   phoneNumber: string,
@@ -853,7 +871,9 @@ export async function getPromoCodeFromChatRosaMessage(
 
           console.log("Telegram matched text:", text);
 
-          const codeMatch = text.match(/списания\s*баллов\s*[-:]\s*(\d{4})/i);
+          const codeMatch = text.match(
+            /(?:списания\s*баллов.*?|код\s*подтверждения)\s*[:\-]\s*(\d{4})/i,
+          );
 
           promoCode = codeMatch?.[1] ?? null;
           return promoCode;
@@ -894,9 +914,9 @@ interface CreateOrderResult {
   phoneNumber: string | null;
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ============================================
 // применение баллов и ввод кода внутри корзины
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ============================================
 export async function applyBonusesWithTelegramCode(
   page: Page,
   phoneNumber: string,
@@ -920,7 +940,13 @@ export async function applyBonusesWithTelegramCode(
   await expect(promoCodeInput).toBeVisible();
 
   const promoCode = await getPromoCodeFromChatRosaMessage(phoneNumber);
-  await promoCodeInput.fill(promoCode);
+
+  await promoCodeInput.click();
+  await page.keyboard.press("Control+A");
+  await page.keyboard.press("Backspace");
+  await promoCodeInput.pressSequentially(promoCode);
+
+  await expect(promoCodeInput).toHaveValue(promoCode);
 
   const submitButton = page.locator('[data-test="submit-modal-btn"]');
   await expect(submitButton).toBeVisible();
@@ -929,6 +955,138 @@ export async function applyBonusesWithTelegramCode(
   await expect(page.getByText("Баллы подтверждены")).toBeVisible();
 
   return promoCode;
+}
+
+// ============================================
+//  получения кода регистрации в ПЛ из Telegram
+// ============================================
+
+function extractRegistrationCode(text: string): string | null {
+  const normalizedText = text.replace(/\s+/g, " ").trim();
+
+  const patterns = [
+    /последние\s*4\s*цифры.*?[-:]\s*(\d{4})/i,
+    /подтверждения\s+регистрации.*?[-:]\s*(\d{4})/i,
+    /код(?:\s+подтверждения|\s+регистрации)?\s*[:\-]?\s*(\d{4})/i,
+    /(\d{4})/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = normalizedText.match(pattern);
+    if (match?.[1]) {
+      return match[1];
+    }
+  }
+
+  return null;
+}
+
+export async function getRegistrationCodeFromTelegramMessage(
+  phoneNumber: string,
+): Promise<string> {
+  const botUrl =
+    process.env.TG_BOT_ROSA_MESSAGE ||
+    process.env.CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY;
+
+  if (!botUrl) {
+    throw new Error(
+      "Не задана переменная окружения TG_BOT_ROSA_MESSAGE или CYPRESS_TELEGRAM_BOT_FOR_ROSA_MESSAGE_GATEWAY",
+    );
+  }
+
+  const apiUrl = `${botUrl}/getUpdates`;
+  const apiContext = await request.newContext();
+  const normalizedPhone = normalizePhone(phoneNumber);
+
+  try {
+    const initialResponse = await apiContext.get(apiUrl);
+    const initialBody = (await initialResponse.json()) as TelegramResponse;
+    const oldUpdates = initialBody.result || [];
+
+    const lastUpdateId = oldUpdates.reduce(
+      (max, update) => (update.update_id > max ? update.update_id : max),
+      0,
+    );
+
+    let registrationCode: string | null = null;
+
+    await expect
+      .poll(
+        async () => {
+          const response = await apiContext.get(
+            `${apiUrl}?offset=${lastUpdateId + 1}`,
+          );
+          const body = (await response.json()) as TelegramResponse;
+          const updates = body.result || [];
+
+          const latestMatchingMessage = [...updates].reverse().find((u) => {
+            const text = u.message?.text || u.channel_post?.text || "";
+            return normalizePhone(text).includes(normalizedPhone);
+          });
+
+          const text =
+            latestMatchingMessage?.message?.text ||
+            latestMatchingMessage?.channel_post?.text ||
+            "";
+
+          if (!text) {
+            return null;
+          }
+
+          console.log("Telegram matched registration text:", text);
+
+          registrationCode = extractRegistrationCode(text);
+          return registrationCode;
+        },
+        {
+          timeout: 60000,
+          intervals: [1000, 2000, 3000, 5000],
+          message: `Не удалось найти код регистрации для номера ${phoneNumber}`,
+        },
+      )
+      .not.toBeNull();
+
+    if (!registrationCode) {
+      throw new Error(
+        `Не удалось получить код регистрации для номера ${phoneNumber}`,
+      );
+    }
+
+    return registrationCode;
+  } finally {
+    await apiContext.dispose();
+  }
+}
+
+// ======================================
+// подтверждения регистрации в модалке ПЛ
+// ======================================
+export async function confirmLoyaltyRegistrationWithTelegramCode(
+  page: Page,
+  phoneNumber: string,
+): Promise<string> {
+  await expect(
+    page.getByText("Регистрация клиента в программе лояльности"),
+  ).toBeVisible();
+
+  const codeInput = page.locator('input[placeholder="____"]');
+  await expect(codeInput).toBeVisible();
+
+  const registrationCode =
+    await getRegistrationCodeFromTelegramMessage(phoneNumber);
+
+  await codeInput.click();
+  await codeInput.clear();
+  await codeInput.pressSequentially(registrationCode);
+
+  await expect(codeInput).toHaveValue(registrationCode);
+
+  const confirmButton = page.getByRole("button", { name: "Подтвердить" });
+  await expect(confirmButton).toBeVisible();
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
+
+  return registrationCode;
 }
 
 // ==============================

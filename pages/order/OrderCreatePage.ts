@@ -22,7 +22,7 @@ export class OrderCreatePage {
   private readonly firstShoppingCardButton = () =>
     this.page.locator('[data-test="shopping-card-button"]').first();
 
-  // открыть карточку товара если поиск по коду
+  // открыть карточку товара если поиск по конкретному коду
   private readonly shoppingCardButtons = () =>
     this.page.locator('[data-test="shopping-card-button"]');
 
@@ -34,6 +34,7 @@ export class OrderCreatePage {
   private readonly addButtonFromListing = () =>
     this.page.locator('[data-test="add-position"]');
 
+  // действия с карточками товара
   // оформить ЗАЗУ в карточке товара
   private readonly createZazaButton = () =>
     this.page.locator('a[data-test="ZAZA"]');
@@ -61,22 +62,6 @@ export class OrderCreatePage {
   // кликнуть найти
   private readonly addButtonSearch = () =>
     this.page.getByRole("button", { name: " Найти " });
-
-  // регистрация в ПЛ
-  private readonly registerInLoyaltyButton = () =>
-    this.page.getByRole("button", { name: "Зарегистрируй клиента в ПЛ" });
-
-  // модальное окно регистрации в ПЛ
-  private readonly loyaltyRegistrationModal = () =>
-    this.page.getByRole('button', { name: 'Подтверждение кодом' });
-
-  // кнопка "Отправить" в модальном окне регистрации в ПЛ
-  private readonly loyaltyRegistrationSendButton = () =>
-    this.page.getByRole('button', { name: 'Отправить'
-    // this.loyaltyRegistrationModal().getByRole("button", {
-    //   name: "Отправить",
-    //   exact: true,
-    });
 
   // ===============
   // КОРЗИНА ЗАКАЗА
@@ -269,28 +254,6 @@ export class OrderCreatePage {
     await this.remainSwitch().click();
   }
 
-  // РЕГИСТРАЦИЯ В ПЛ
-  async clickRegisterInLoyaltyProgram() {
-    await this.registerInLoyaltyButton().click();
-  }
-
-  // модальное окно регистрации в ПЛ должно быть открыто
-  async expectLoyaltyRegistrationModalVisible() {
-    await expect(this.loyaltyRegistrationModal()).toBeVisible();
-  }
-
-  // отправить в модальном окне регистрации в ПЛ
-  async clickSendInLoyaltyRegistrationModal() {
-    await this.loyaltyRegistrationModal().click();
-    await this.loyaltyRegistrationSendButton().click();
-  }
-
-  // полная регистрация в ПЛ
-  async registerInLoyaltyProgram() {
-    await this.clickRegisterInLoyaltyProgram();
-    await this.clickSendInLoyaltyRegistrationModal();
-  }
-
   // поиск товара (добавить намбер)
   async searchProduct(productName: string) {
     await this.searchInput().click();
@@ -310,6 +273,8 @@ export class OrderCreatePage {
     await this.shoppingCardButtons().nth(index).click();
   }
 
+  // действия в карточке товара
+
   // добавить количество товара к магазинам внутри карточки товара (корзина)
   async fillQuantityForAllInputs(value: string) {
     await expect(this.quantityInputs().first()).toBeVisible();
@@ -320,7 +285,7 @@ export class OrderCreatePage {
       await this.quantityInputs().nth(i).fill(value);
     }
   }
- 
+
   // добавить в корзину из карточки (корзина)
   async addButtonInCart() {
     await this.addButton().click();
@@ -615,7 +580,6 @@ export class OrderCreatePage {
     await codeInput.click();
     await codeInput.fill(code);
 
-
     const option = modal
       .locator('[data-test="colors-item"]')
       .filter({ hasText: code })
@@ -632,7 +596,6 @@ export class OrderCreatePage {
     await expect(saveButton).toBeVisible();
     await saveButton.click();
   }
-  
 
   async expectColorCodeVisible(code: string) {
     await expect(this.page.getByText(code)).toBeVisible();

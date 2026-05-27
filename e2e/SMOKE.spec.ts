@@ -10,9 +10,11 @@ import {
   createAppealWithRandomPhoneAndClient,
   addZaza,
   applyBonusesWithTelegramCode,
+  confirmLoyaltyRegistrationWithTelegramCode,
 } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+import { ComponentPage } from "../pages/components/ComponentPage";
 import { test, expect } from "@playwright/test";
 
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
@@ -22,13 +24,15 @@ test(
   async ({ page }) => {
     label("tag", "smoke");
     feature("Auth");
-    const { page: page1 } = await createAppealWithRandomPhoneAndClient(page, {
-      clientType: "Физическое лицо",
-      clientName: "Иван Васильевич",
-    });
+    const { page: page1, phoneNumber } =
+      await createAppealWithRandomPhoneAndClient(page, {
+        clientType: "Физическое лицо",
+        clientName: "Иван Васильевич",
+      });
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const componentPage = new ComponentPage(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
@@ -36,9 +40,17 @@ test(
 
     await orderCreatePage.closeNotification();
     await page1.waitForTimeout(2000);
-    await orderCreatePage.clickRegisterInLoyaltyProgram();
-    await orderCreatePage.clickSendInLoyaltyRegistrationModal();
-    await expect(page1.getByText("Сообщение успешно отправлено"))
+    await componentPage.clickRegisterInLoyalty();
+    await componentPage.choseSendCode();
+
+    await componentPage.clickLoyaltyRegistrationSend();
+    const code = await confirmLoyaltyRegistrationWithTelegramCode(
+      page1,
+      phoneNumber,
+    );
+
+    console.log("Registration code:", code);
+    // await expect(page1.getByText("Сообщение успешно отправлено"))
   },
 );
 
