@@ -67,7 +67,7 @@ test(
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
     await orderCreatePage.openSearchFromOrder();
 
-    await orderCreatePage.searchProduct("штукатурка");
+    await orderCreatePage.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCardFromListing();
     await addZaza(page1, {
       storeFromText: "1021 РЦ Тмн, 50 лет Октября",
@@ -76,7 +76,7 @@ test(
 
     await orderCreatePage.goToCart();
     await orderCreatePage.saveOrder();
-    await page1.waitForTimeout(3000);
+    // await page1.waitForTimeout(3000);
     await expect(
       page1.locator('[data-test="zaza-Новая"]').nth(0),
     ).toBeVisible();

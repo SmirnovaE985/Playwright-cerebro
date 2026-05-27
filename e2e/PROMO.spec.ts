@@ -116,7 +116,8 @@ test(
     const { page: page1 } = await createAppeal(page);
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
-
+    await page1.mouse.move(500, 300);
+    await page1.mouse.move(510, 305);
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
@@ -267,7 +268,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "краска",
+      searchText: "грунтовка",
       quantity: 2,
     });
     const closeBtn = page1.locator(".ant-notification-notice-close");

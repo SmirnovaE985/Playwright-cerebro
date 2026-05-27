@@ -99,7 +99,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "краска",
+      searchText: "грунтовка",
       quantity: 1,
     });
 
