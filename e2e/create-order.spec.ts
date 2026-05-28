@@ -302,7 +302,7 @@ test(
     await orderCreatePage.addColoring("TVT Y356");
 
     await orderCreatePage.openSearchFromOrder();
-    await orderCreatePage.searchProduct("кисть");
+    await orderCreatePage.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
