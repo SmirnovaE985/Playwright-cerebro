@@ -137,8 +137,7 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
   const selectShop = shop
     .locator('xpath=ancestor::div[contains(@class,"ant-select")]')
     .first();
-  await selectShop.locator(".ant-select-selection-search").click();
-  await page1.getByText("БМ Тмн Панфиловцев").click();
+
   await page1.getByPlaceholder("Опишите претензию").fill("нахамили 8 раз");
   await page1.waitForTimeout(3000);
 
