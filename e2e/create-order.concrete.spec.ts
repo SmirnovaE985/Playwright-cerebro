@@ -7,7 +7,7 @@ import { deleteAllPositions } from "../helpers/commands";
 import { label, feature } from "allure-js-commons";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
-// import { ConcreteCarFormComponent } from "../pages/components/ComponentPage";
+import { ConcreteComponent } from "../pages/components/ComponentPage";
 
 // https://allure.itlabs.io/project/28/test-cases/6240?treeId=58
 test(
@@ -99,7 +99,7 @@ test.skip(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
-    const concreteCarForm = new ConcreteCarFormComponent(page1);
+    const concreteComponent = new ConcreteComponent(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
@@ -108,7 +108,7 @@ test.skip(
     await orderCreatePage.searchProduct("бетон");
     await orderCreatePage.openFirstProductCard();
 
-    await concreteCarForm.saveConcreteCar({
+    await concreteComponent.saveConcreteCar({
       quantity: "6",
       address: "Агеева 141",
       comment: "Позвонить за час",

@@ -16,6 +16,7 @@
     "test:regress": "playwright test --grep @regress"
   },
   "dependencies": {
-    "dotenv": "^17.3.1"
+    "dotenv": "^17.3.1",
+    "pg": "^8.21.0"
   }
 }

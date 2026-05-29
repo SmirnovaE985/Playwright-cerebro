@@ -35,6 +35,7 @@ export class OrderCreatePage {
     this.page.locator('[data-test="add-position"]');
 
   // действия с карточками товара
+
   // оформить ЗАЗУ в карточке товара
   private readonly createZazaButton = () =>
     this.page.locator('a[data-test="ZAZA"]');

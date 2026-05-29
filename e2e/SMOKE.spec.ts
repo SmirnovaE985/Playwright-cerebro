@@ -14,7 +14,7 @@ import {
 } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
-import { ComponentPage } from "../pages/components/ComponentPage";
+import { LoyaltyComponent } from "../pages/components/ComponentPage";
 import { test, expect } from "@playwright/test";
 
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
@@ -32,7 +32,7 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
-    const componentPage = new ComponentPage(page1);
+    const loyaltyComponent = new LoyaltyComponent(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
@@ -40,17 +40,19 @@ test(
 
     await orderCreatePage.closeNotification();
     await page1.waitForTimeout(2000);
-    await componentPage.clickRegisterInLoyalty();
-    await componentPage.choseSendCode();
+    await loyaltyComponent.clickRegisterInLoyalty();
+    await loyaltyComponent.chooseSendCode();
+    await loyaltyComponent.clickLoyaltyRegistrationSend();
 
-    await componentPage.clickLoyaltyRegistrationSend();
     const code = await confirmLoyaltyRegistrationWithTelegramCode(
       page1,
       phoneNumber,
     );
 
     console.log("Registration code:", code);
-    // await expect(page1.getByText("Сообщение успешно отправлено"))
+    await expect(
+      page1.locator('[data-test="client-promo-status"]', { hasText: "Умелец" }),
+    ).toBeVisible();
   },
 );
 
