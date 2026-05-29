@@ -5,7 +5,16 @@
 import { test, expect } from "@playwright/test";
 
 //  POST закрепить клиента за менеджером
+
+function generateClientPhone(): string {
+  const randomPart = Array.from({ length: 9 }, () =>
+    Math.floor(Math.random() * 10),
+  ).join("");
+  return `79${randomPart}`;
+}
+
 test("POST /assignments/ - create assignment", async ({ request }) => {
+  const clientPhone = generateClientPhone();
   const response = await request.post(
     "https://cc-my-client.stage.contact-center.itlabs.io/assignments/",
     {
@@ -15,7 +24,7 @@ test("POST /assignments/ - create assignment", async ({ request }) => {
         "Content-Type": "application/json",
       },
       data: {
-        client_phone: "79000003334",
+        client_phone: clientPhone,
         manager_login: "elesmirnova",
       },
     },
@@ -58,7 +67,7 @@ test("POST /assignments/ - duplicate assignment returns 409", async ({
 
 // Получить текущую привязку клиента
 test("GET full url /assignments/{phone}", async ({ request }) => {
-  const clientPhone = "79000003334";
+  const clientPhone = generateClientPhone();
   const managerLogin = "elesmirnova";
 
   const getResponse = await request.get(

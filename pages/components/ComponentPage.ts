@@ -1,18 +1,42 @@
 import { expect, Page } from "@playwright/test";
 
-type ConcreteCarFormData = {
+export type ConcreteCarFormData = {
   quantity: string;
   address: string;
   comment?: string;
 };
 
-export class ComponentPage {
+export class LoyaltyComponent {
   constructor(private readonly page: Page) {}
 
-  // ==========
-  // БЕТОН
-  // ЛОКАТОРЫ
-  // ==========
+  private readonly registerInLoyaltyButton = () =>
+    this.page.getByRole("button", { name: "Зарегистрируй клиента в ПЛ" });
+
+  private readonly loyaltyRegistrationModal = () =>
+    this.page.getByRole("button", { name: "Подтверждение кодом" });
+
+  private readonly loyaltyRegistrationSendButton = () =>
+    this.page.getByRole("button", { name: "Отправить" });
+
+  async clickRegisterInLoyalty() {
+    await this.registerInLoyaltyButton().click();
+  }
+
+  async chooseSendCode() {
+    await this.loyaltyRegistrationModal().click();
+  }
+
+  async expectLoyaltyRegistrationModalVisible() {
+    await expect(this.loyaltyRegistrationModal()).toBeVisible();
+  }
+
+  async clickLoyaltyRegistrationSend() {
+    await this.loyaltyRegistrationSendButton().click();
+  }
+}
+
+export class ConcreteComponent {
+  constructor(private readonly page: Page) {}
 
   private readonly quantityInputs = () =>
     this.page.locator('[data-test="add-quantity-input"]');
@@ -37,11 +61,6 @@ export class ComponentPage {
 
   private readonly saveConcreteCarSubmitButton = () =>
     this.page.locator(".ant-btn-primary", { hasText: "Сохранить" });
-
-  // ==========
-  // БЕТОН
-  // МЕТОДЫ
-  // ==========
 
   async fillQuickAddQuantity(value: string) {
     await this.quantityInputs().first().click();
@@ -81,40 +100,19 @@ export class ComponentPage {
     await this.addConcreteCarSubmitButton().click();
   }
 
-  async submitSavedCar() {}
-
-  // ==========================
-  // РЕГИСТРАЦИЯ В ЛОЯЛЬНОСТИ
-  // ЛОКАТОРЫ
-  // ==========================
-
-  private readonly registerInLoyaltyButton = () =>
-    this.page.getByRole("button", { name: "Зарегистрируй клиента в ПЛ" });
-
-  private readonly loyaltyRegistrationModal = () =>
-    this.page.getByRole("button", { name: "Подтверждение кодом" });
-
-  private readonly loyaltyRegistrationSendButton = () =>
-    this.page.getByRole("button", { name: "Отправить" });
-
-  // ==========================
-  // РЕГИСТРАЦИЯ В ЛОЯЛЬНОСТИ
-  // МЕТОДЫ
-  // ==========================
-
-  async clickRegisterInLoyalty() {
-    await this.registerInLoyaltyButton().click();
+  async submitSavedCar() {
+    await this.saveConcreteCarSubmitButton().click();
   }
 
-  async choseSendCode() {
-    await this.loyaltyRegistrationModal().click();
-  }
+  async saveConcreteCar(data: ConcreteCarFormData) {
+    await this.fillQuickAddQuantity(data.quantity);
+    await this.fillDeliveryAddress(data.address);
+    await this.selectTomorrowDeliveryDate();
 
-  async expectLoyaltyRegistrationModalVisible() {
-    await expect(this.loyaltyRegistrationModal()).toBeVisible();
-  }
+    if (data.comment) {
+      await this.fillCarComment(data.comment);
+    }
 
-  async clickLoyaltyRegistrationSend() {
-    await this.loyaltyRegistrationSendButton().click();
+    await this.submitAddedCar();
   }
 }

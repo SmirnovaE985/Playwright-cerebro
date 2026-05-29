@@ -2,12 +2,21 @@
 // #7507 запрещено удаление закрепления другим менеджером
 
 import { test, expect } from "@playwright/test";
+import { waitForAssignmentInDb } from "../utils/db";
 
+function generateClientPhone(): string {
+  return `79${Math.floor(Math.random() * 1_000_000_000)
+    .toString()
+    .padStart(9, "0")}`;
+}
+
+// =============================================================
 // https://allure.itlabs.io/project/28/test-cases/7519?treeId=58
+// =============================================================
 test("#7519 закрепление и удаление закрепления за менеджером", async ({
   request,
 }) => {
-  const clientPhone = "79000003334";
+  const clientPhone = generateClientPhone();
   const managerLogin = "elesmirnova";
 
   // Привязать клиента к менеджеру
@@ -27,10 +36,27 @@ test("#7519 закрепление и удаление закрепления з
   );
 
   const createText = await createResponse.text();
+  console.log("clientPhone:", clientPhone);
   console.log("create status:", createResponse.status());
   console.log("create response:", createText);
 
   expect([201, 409]).toContain(createResponse.status());
+
+  // Проверка записи в БД
+  const row = await waitForAssignmentInDb(clientPhone);
+
+  expect(row).not.toBeNull();
+  expect(row.client_phone).toBe(clientPhone);
+  expect(row.assigned_at).not.toBeNull();
+  expect(row.manager_login).toBe(managerLogin.toUpperCase());
+
+  // Формат даты/времени
+  expect(row.assigned_at_formatted).toBeTruthy();
+  expect(row.assigned_at_formatted).toMatch(
+    /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{4}$/,
+  );
+
+  expect(row.is_active).toBe(true);
 
   // Получить текущую привязку клиента
   const getResponse = await request.get(
@@ -74,6 +100,21 @@ test("#7519 закрепление и удаление закрепления з
   console.log("delete response:", await deleteResponse.text());
   expect(deleteResponse.status()).toBe(204);
 
+  // Проверка в БД после отвязки
+  const rowAfterDelete = await waitForAssignmentInDb(clientPhone);
+
+  expect(rowAfterDelete).not.toBeNull();
+  expect(rowAfterDelete.client_phone).toBe(clientPhone);
+  expect(rowAfterDelete.manager_login).toBe(managerLogin.toUpperCase());
+
+  expect(rowAfterDelete.unassigned_at).not.toBeNull();
+  expect(rowAfterDelete.unassigned_at_formatted).toBeTruthy();
+  expect(rowAfterDelete.unassigned_at_formatted).toMatch(
+    /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{4}$/,
+  );
+
+  expect(rowAfterDelete.is_active).toBe(false);
+
   // проверить текущую привязку клиента
   const getAfterDeleteResponse = await request.get(
     `https://cc-my-client.stage.contact-center.itlabs.io/assignments/${clientPhone}`,
@@ -95,14 +136,17 @@ test("#7519 закрепление и удаление закрепления з
   expect(errorBody.detail).toBe("Привязка не найдена");
 });
 
-// https://allure.itlabs.io/project/28/test-cases/7507?treeId=58
-test("#7507 запрещено удаление закрепления другим менеджером", async ({
+// =============================================================
+// https://allure.itlabs.io/project/28/test-cases/7519?treeId=58
+// =============================================================
+test("#7507запрещено удаление закрепления другим менеджером", async ({
   request,
 }) => {
-  const clientPhone = "79000003232";
+  const clientPhone = generateClientPhone();
   const managerLogin = "elesmirnova";
   const anotherManager = "mmalyutina";
 
+  // Привязать клиента к менеджеру
   const createResponse = await request.post(
     "https://cc-my-client.stage.contact-center.itlabs.io/assignments/",
     {
@@ -119,10 +163,29 @@ test("#7507 запрещено удаление закрепления друг�
   );
 
   const createText = await createResponse.text();
+  console.log("clientPhone:", clientPhone);
   console.log("create status:", createResponse.status());
   console.log("create response:", createText);
+
   expect([201, 409]).toContain(createResponse.status());
 
+  // Проверка записи в БД
+  const row = await waitForAssignmentInDb(clientPhone);
+
+  expect(row).not.toBeNull();
+  expect(row.client_phone).toBe(clientPhone);
+  expect(row.assigned_at).not.toBeNull();
+  expect(row.manager_login).toBe(managerLogin.toUpperCase());
+
+  // Формат даты/времени
+  expect(row.assigned_at_formatted).toBeTruthy();
+  expect(row.assigned_at_formatted).toMatch(
+    /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{4}$/,
+  );
+
+  expect(row.is_active).toBe(true);
+
+  // Получить текущую привязку клиента
   const getResponse = await request.get(
     `https://cc-my-client.stage.contact-center.itlabs.io/assignments/${clientPhone}`,
     {
@@ -146,6 +209,7 @@ test("#7507 запрещено удаление закрепления друг�
   expect(body.is_active).toBe(true);
   expect(body.assigned_at).toBeTruthy();
 
+  // попытка удаления закрепления другим менеджером
   const deleteResponse = await request.delete(
     `https://cc-my-client.stage.contact-center.itlabs.io/assignments/${clientPhone}`,
     {
