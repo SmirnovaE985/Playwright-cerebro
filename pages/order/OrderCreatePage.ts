@@ -1,11 +1,7 @@
 import { expect, Page } from "@playwright/test";
 
-// ========
-// локаторы
-// ========
-export class OrderCreatePage {
+export class SearchProduct {
   constructor(private readonly page: Page) {}
-
   // выбор магазина в листинге
   private readonly objectSelect = () =>
     this.page.locator(".ant-select-selection-overflow");
@@ -17,6 +13,51 @@ export class OrderCreatePage {
   // найти товар
   private readonly searchButton = () =>
     this.page.locator('[data-test="search-button"]');
+
+  // переключить свитчер "скрыть нулевые остатки"
+  private readonly remainSwitch = () =>
+    this.page.locator('[data-test="remain-switch"]');
+
+  // // выбираем магазин (один или несколько)
+
+  async selectObject(objectName: string | string[]) {
+    const objects = Array.isArray(objectName) ? objectName : [objectName];
+
+    for (const name of objects) {
+      await this.objectSelect().click();
+
+      const input = this.page
+        .locator(".ant-select-selection-search-input")
+        .last();
+      await input.fill(name);
+
+      const dropdown = this.page.locator(".ant-select-dropdown").last();
+      const option = dropdown
+        .locator(".ant-select-item-option")
+        .filter({ hasText: name })
+        .first();
+
+      await option.waitFor({ state: "visible" });
+      await option.click();
+    }
+  }
+
+  // скрыть нулевые остатки
+  async toggleRemainSwitch() {
+    await this.remainSwitch().click();
+  }
+
+  // поиск товара (добавить намбер)
+  async searchProduct(productName: string) {
+    await this.searchInput().click();
+    await this.searchInput().fill(productName);
+    await this.searchButton().click();
+    await this.remainSwitch().click();
+  }
+}
+
+export class OrderCreatePage {
+  constructor(private readonly page: Page) {}
 
   // открыть карточку товара первую из поиска (корзина)
   private readonly firstShoppingCardButton = () =>
@@ -56,14 +97,6 @@ export class OrderCreatePage {
   private readonly toCartButton = () =>
     this.page.locator('[data-test="to-cart-button"]');
 
-  // поле "Номер заказа" при причине обращениия "Редактирование"
-  private readonly searchInputEditOrder = () =>
-    this.page.locator('[data-test="search-input-number-order"]');
-
-  // кликнуть найти
-  private readonly addButtonSearch = () =>
-    this.page.getByRole("button", { name: " Найти " });
-
   // ===============
   // КОРЗИНА ЗАКАЗА
   // ===============
@@ -79,6 +112,14 @@ export class OrderCreatePage {
   // сохранить заказ
   private readonly saveOrderButton = () =>
     this.page.locator('[data-test="save-order"]');
+
+  // подтвердить уверенность в отгрузке
+  private readonly confirmButton = () =>
+    this.page
+      .locator(".ant-modal-content", {
+        hasText: "Выбери один из вариантов перед сохранением",
+      })
+      .getByRole("button", { name: "Да", exact: true });
 
   // количество позиций в корзине (именно как сущностей)
   private readonly cartPositions = () =>
@@ -115,7 +156,7 @@ export class OrderCreatePage {
   private readonly coloringButtons = () =>
     this.page.locator('[data-icon="format-painter"]');
 
-  // ?
+  //
   private readonly spinner = () => this.page.locator(".ant-spin-spinning");
 
   // цена в модалке карточки товара
@@ -153,34 +194,6 @@ export class OrderCreatePage {
   private readonly coloringButton = () =>
     this.page.locator('[data-test="coloring"]');
 
-  // переключить свитчер
-  private readonly remainSwitch = () =>
-    this.page.locator('[data-test="remain-switch"]');
-
-  // ==================
-  // ОТПРАВКА SMS
-  // ==================
-
-  // открыть отправку sms
-  private readonly sendSmsButton = () =>
-    this.page.locator('[data-test="send-sms"]');
-
-  // открыть список шаблонов sms
-  private readonly patternSmsButton = () =>
-    this.page.locator('[data-test="pattern-sms"]');
-
-  // выбрать шаблон sms по названию
-  private readonly smsPatternOption = (patternName: string) =>
-    this.page.getByText(patternName);
-
-  // отправить sms
-  private readonly sendSmsForButton = () =>
-    this.page.locator('[data-test="send-sms-for"]');
-
-  // сообщение об успешной отправке sms
-  private readonly smsSentSuccessMessage = () =>
-    this.page.getByText("Сообщение успешно отправлено!");
-
   // кнопка удаления всех позиций
   private readonly deleteAllPositionsButton = () =>
     this.page.locator('[data-test="delete-all-position"]');
@@ -192,75 +205,40 @@ export class OrderCreatePage {
   private readonly cancelPoints = () =>
     this.page.getByRole("button", { name: "Отменить" });
 
-  /////////
-  // БЕТОН
-  /////////
-  // адрес доставки
-  private readonly deliveryAddressInput = () =>
-    this.page.locator('[data-test="delivery-address"]');
+  // /////////
+  // // БЕТОН
+  // /////////
+  // // адрес доставки
+  // private readonly deliveryAddressInput = () =>
+  //   this.page.locator('[data-test="delivery-address"]');
 
-  // первая подсказка адреса
-  private readonly firstAddressSuggestion = (addressText: string) =>
-    this.page.getByText(addressText).first();
+  // // первая подсказка адреса
+  // private readonly firstAddressSuggestion = (addressText: string) =>
+  //   this.page.getByText(addressText).first();
 
-  // поле выбора даты доставки
-  private readonly deliveryDateInput = () =>
-    this.page.locator('input[placeholder*="Выберите дату"]');
+  // // поле выбора даты доставки
+  // private readonly deliveryDateInput = () =>
+  //   this.page.locator('input[placeholder*="Выберите дату"]');
 
-  // выбрать конкретную дату в календаре
-  private readonly deliveryDateCell = (date: string) =>
-    this.page.locator(`td[title="${date}"]`);
+  // // выбрать конкретную дату в календаре
+  // private readonly deliveryDateCell = (date: string) =>
+  //   this.page.locator(`td[title="${date}"]`);
 
-  // комментарий для машины
-  private readonly commentCarInput = () =>
-    this.page.locator('[data-test="comment-car"]');
+  // // комментарий для машины
+  // private readonly commentCarInput = () =>
+  //   this.page.locator('[data-test="comment-car"]');
 
-  // кнопка "Добавить" в модалке/форме машины
-  private readonly addConcreteCarSubmitButton = () =>
-    this.page.locator(".ant-btn-primary", { hasText: "Добавить" });
+  // // кнопка "Добавить" в модалке/форме машины
+  // private readonly addConcreteCarSubmitButton = () =>
+  //   this.page.locator(".ant-btn-primary", { hasText: "Добавить" });
 
-  // кнопка "Сохранить" в модалке/форме машины
-  private readonly saveConcreteCarSubmitButton = () =>
-    this.page.locator(".ant-btn-primary", { hasText: "Сохранить" });
+  // // кнопка "Сохранить" в модалке/форме машины
+  // private readonly saveConcreteCarSubmitButton = () =>
+  //   this.page.locator(".ant-btn-primary", { hasText: "Сохранить" });
 
   // ======
   // МЕТОДЫ
   // ======
-
-  // ГЛАВНЫЙ ЛИСТИНГ
-
-  // выбираем магазин (один или несколько)
-  async selectObject(objectName: string | string[]) {
-    const objects = Array.isArray(objectName) ? objectName : [objectName];
-
-    await this.objectSelect().click();
-
-    const dropdown = this.page.locator(".ant-select-dropdown").last();
-
-    for (const name of objects) {
-      const option = dropdown
-        .locator(".ant-select-item-option")
-        .filter({
-          hasText: name,
-        })
-        .first();
-
-      await option.scrollIntoViewIfNeeded();
-      await option.click();
-    }
-  }
-
-  // скрыть нулевые остатки
-  async toggleRemainSwitch() {
-    await this.remainSwitch().click();
-  }
-
-  // поиск товара (добавить намбер)
-  async searchProduct(productName: string) {
-    await this.searchInput().click();
-    await this.searchInput().fill(productName);
-    await this.searchButton().click();
-  }
 
   // ОТКРЫТЬ КАРТОЧКУ (НАЖАВ НА КОРЗИНУ У ТОВАРА)
 
@@ -322,6 +300,7 @@ export class OrderCreatePage {
   // создать предложение
   async makeOffer() {
     await this.makeOfferButton().click();
+    await this.confirmButton().click();
     await expect(
       this.page.getByText("Предложение успешно создано"),
     ).toBeVisible();
@@ -330,6 +309,7 @@ export class OrderCreatePage {
   // создать заказ
   async makeOrder() {
     await this.makeOrderButton().click();
+    await this.confirmButton().click();
   }
 
   // сохранить заказ
@@ -363,22 +343,6 @@ export class OrderCreatePage {
     return (
       await this.page.evaluate(() => navigator.clipboard.readText())
     ).trim();
-  }
-
-  // ввести номер заказа в причине обращения "Редактирование"
-  async searchInputEditOrderBtn(orderNumber?: string | number) {
-    const input = this.searchInputEditOrder();
-
-    await input.waitFor({ state: "visible" });
-    await input.click();
-
-    if (orderNumber !== undefined && orderNumber !== null) {
-      await input.press("Control+A");
-      await input.press("Backspace");
-      await input.type(String(orderNumber));
-      await expect(input).toHaveValue(String(orderNumber));
-      await this.addButtonSearch().click();
-    }
   }
 
   // Получить текущее количество позиций в корзине
@@ -422,43 +386,6 @@ export class OrderCreatePage {
     await expect(
       this.page.getByText("Применение баллов отменено"),
     ).toBeVisible();
-  }
-
-  // ==================
-  // ОТПРАВКА SMS
-  // ==================
-
-  // открыть модалку/форму отправки sms
-  async openSendSms() {
-    await this.sendSmsButton().click();
-  }
-
-  // открыть список шаблонов sms
-  async openSmsPatterns() {
-    await this.patternSmsButton().click();
-  }
-
-  // выбрать шаблон sms
-  async chooseSmsPattern(patternName: string) {
-    await this.smsPatternOption(patternName).click();
-  }
-
-  // отправить sms
-  async sendSms() {
-    await this.sendSmsForButton().click();
-  }
-
-  // полный сценарий отправки sms по шаблону
-  async sendSmsWithPattern(patternName: string) {
-    await this.openSendSms();
-    await this.openSmsPatterns();
-    await this.chooseSmsPattern(patternName);
-    await this.sendSms();
-  }
-
-  // ожидание успешной отправки sms
-  async expectSmsSentSuccess() {
-    await expect(this.smsSentSuccessMessage()).toBeVisible();
   }
 
   // проверка, что кнопка удаления всех позиций видима
@@ -593,65 +520,11 @@ export class OrderCreatePage {
       exact: true,
     });
 
-    // { timeout: 3000 }
     await expect(saveButton).toBeVisible();
     await saveButton.click();
   }
 
   async expectColorCodeVisible(code: string) {
     await expect(this.page.getByText(code)).toBeVisible();
-  }
-
-  /////////
-  // БЕТОН
-  /////////
-  // заполнить количество в карточке быстрого добавления
-  async fillQuickAddQuantity(value: string) {
-    // await this.quantityInputs().first().click();
-    await this.quantityInputs().clear();
-    await this.quantityInputs().first().click();
-    await this.quantityInputs().first().fill(value);
-  }
-
-  // заполнить адрес доставки и выбрать первую подсказку
-  async fillDeliveryAddress(address: string) {
-    await this.deliveryAddressInput().fill(address);
-    await this.firstAddressSuggestion(address).click();
-  }
-
-  // выбрать дату доставки: +1 день от текущей даты
-  async selectTomorrowDeliveryDate() {
-    await this.deliveryDateInput().click();
-
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, "0");
-    const day = String(tomorrow.getDate()).padStart(2, "0");
-    const tomorrowFormatted = `${year}-${month}-${day}`;
-
-    await this.deliveryDateCell(tomorrowFormatted).click();
-  }
-
-  // заполнить комментарий для машины
-  async fillCarComment(comment: string) {
-    await this.commentCarInput().fill(comment);
-  }
-
-  // проверить комментарий для машины
-  async expectCarCommentToHaveValue(comment: string) {
-    await expect(this.commentCarInput()).toHaveValue(comment);
-  }
-
-  // подтвердить добавление машины
-  async submitAddedCar() {
-    await this.addConcreteCarSubmitButton().click();
-  }
-
-  // подтвердить добавление машины
-  async submitSavedCar() {
-    await this.saveConcreteCarSubmitButton().click();
   }
 }
