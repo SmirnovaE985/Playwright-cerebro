@@ -23,6 +23,8 @@ import {
 } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+import { EditOrderPage } from "../pages/components/ComponentPage";
+import { SearchProduct } from "../pages/order/OrderCreatePage";
 
 // // https://allure.itlabs.io/project/28/test-cases/5369?treeId=58
 test(
@@ -39,16 +41,17 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    await orderCreatePage.searchProduct("ведро");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("ведро");
     await orderCreatePage.openFirstProductCard();
 
     // Добавляем товар с ручной ценой
     const manualPriceInput = page1.locator('[data-test="input-price-modal-0"]');
-    await manualPriceInput.clear();
     await manualPriceInput.fill("500");
 
     // Сохраняем введённую цену
@@ -56,7 +59,8 @@ test(
     await orderCreatePage.addButtonInCart();
 
     // Добавляем второй товар без ручной цены
-    await orderCreatePage.searchProduct("кисть");
+
+    await searchProduct.searchProduct("кисть");
 
     await addProductToCart(page1, {
       productName: "кисть",
@@ -116,14 +120,16 @@ test(
     const { page: page1 } = await createAppeal(page);
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
+
     await page1.mouse.move(500, 300);
     await page1.mouse.move(510, 305);
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
 
-    await orderCreatePage.selectObject(["РЦ Тмн, 50 лет Октября, 109 ко"]);
-    await orderCreatePage.searchProduct("перчатки");
+    await searchProduct.selectObject(["РЦ Тмн, 50 лет Октября, 109 ко"]);
+    await searchProduct.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.fillQuantityForAllInputs("1");
     await orderCreatePage.addButtonInCart();
@@ -142,13 +148,12 @@ test(
   "#5365 Применение баллов ПЛ, сертификата и промокода вместе",
   { tag: ["@regress"] },
   async ({ page }) => {
-    test.setTimeout(60000);
     label("tag", "regress");
     feature("Auth");
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "краска",
+      searchText: "грунтовка",
       quantity: 1,
     });
 
@@ -187,10 +192,11 @@ test(
     }
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await orderCreatePage.searchProduct("638243");
+    await searchProduct.searchProduct("638243");
     await orderCreatePage.openFirstProductCardFromListing();
     await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
 
@@ -235,6 +241,8 @@ test(
     }
 
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
+
     await orderCreatePage.closeNotification();
     const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
     expect(code).toHaveLength(4);
@@ -245,7 +253,7 @@ test(
     ).toBeVisible();
     await page1.waitForTimeout(3000);
     await orderCreatePage.openSearchFromOrder();
-    await orderCreatePage.searchProduct("кисть");
+    await searchProduct.searchProduct("кисть");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -350,6 +358,7 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const editOrderPage = new EditOrderPage(page1);
     await orderCreatePage.closeNotification();
     const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
     expect(code).toHaveLength(4);
@@ -364,7 +373,7 @@ test(
     const orderNumber = await orderCreatePage.getCopiedOrderNumber();
     await orderCreatePage.closeOrder();
 
-    await orderCreatePage.searchInputEditOrderBtn(orderNumber);
+    await editOrderPage.searchInputEditOrderBtn(orderNumber);
     await orderCreatePage.cancelPL();
     await deleteAllPositions(page1);
   },
@@ -380,7 +389,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "кисть",
+      searchText: "валик",
       quantity: 1,
     });
 

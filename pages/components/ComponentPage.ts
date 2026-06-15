@@ -116,3 +116,96 @@ export class ConcreteComponent {
     await this.submitAddedCar();
   }
 }
+
+export class EditOrderPage {
+  constructor(private readonly page: Page) {}
+
+  // поле "Номер заказа" при причине обращения "Редактирование"
+  private readonly searchInputEditOrder = () =>
+    this.page.locator('[data-test="search-input-number-order"]');
+
+  // кликнуть найти
+  private readonly addButtonSearch = () =>
+    this.page.getByRole("button", { name: " Найти " });
+
+  // ввести номер заказа в причине обращения "Редактирование"
+  async searchInputEditOrderBtn(orderNumber?: string | number) {
+    const input = this.searchInputEditOrder();
+
+    await input.waitFor({ state: "visible" });
+    await input.click();
+
+    if (orderNumber !== undefined && orderNumber !== null) {
+      await input.press("Control+A");
+      await input.press("Backspace");
+      await input.type(String(orderNumber));
+      await expect(input).toHaveValue(String(orderNumber));
+      await this.addButtonSearch().click();
+    }
+  }
+}
+
+export class SendSms {
+  constructor(private readonly page: Page) {}
+
+  // =============
+  // ОТПРАВКА SMS
+  // ==================
+
+  // открыть отправку sms
+  private readonly sendSmsButton = () =>
+    this.page.locator('[data-test="send-sms"]');
+
+  // открыть список шаблонов sms
+  private readonly patternSmsButton = () =>
+    this.page.locator('[data-test="pattern-sms"]');
+
+  // выбрать шаблон sms по названию
+  private readonly smsPatternOption = (patternName: string) =>
+    this.page.getByText(patternName);
+
+  // отправить sms
+  private readonly sendSmsForButton = () =>
+    this.page.locator('[data-test="send-sms-for"]');
+
+  // сообщение об успешной отправке sms
+  private readonly smsSentSuccessMessage = () =>
+    this.page.getByText("Сообщение успешно отправлено!");
+
+  // ========
+  //  методы
+  // ========
+
+  // открыть модалку/форму отправки sms
+  async openSendSms() {
+    await this.sendSmsButton().click();
+  }
+
+  // открыть список шаблонов sms
+  async openSmsPatterns() {
+    await this.patternSmsButton().click();
+  }
+
+  // выбрать шаблон sms
+  async chooseSmsPattern(patternName: string) {
+    await this.smsPatternOption(patternName).click();
+  }
+
+  // отправить sms
+  async sendSms() {
+    await this.sendSmsForButton().click();
+  }
+
+  // полный сценарий отправки sms по шаблону
+  async sendSmsWithPattern(patternName: string) {
+    await this.openSendSms();
+    await this.openSmsPatterns();
+    await this.chooseSmsPattern(patternName);
+    await this.sendSms();
+  }
+
+  // ожидание успешной отправки sms
+  async expectSmsSentSuccess() {
+    await expect(this.smsSentSuccessMessage()).toBeVisible();
+  }
+}

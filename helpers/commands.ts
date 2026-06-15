@@ -92,13 +92,13 @@ export async function createAppeal(
     .first()
     .locator('[data-test="select-client"]')
     .click();
-
+  await page.mouse.move(500, 300);
+  await page.mouse.move(510, 305);
   await expect(page1).toHaveURL(/\/appeal/);
 
   const phoneNumber =
     contactType === "Телефон" ? contactValue.replace(/\D/g, "") : null;
-  await page.mouse.move(500, 300);
-  await page.mouse.move(510, 305);
+
   return {
     page: page1,
     contactType,
@@ -271,6 +271,14 @@ export async function createOrder(
 
   if (makeOrder) {
     await page1.locator('[data-test="make-order"]').click();
+
+    await page1
+      .locator(".ant-modal-content", {
+        hasText: "Выбери один из вариантов перед сохранением",
+      })
+      .getByRole("button", { name: "Да", exact: true })
+      .click();
+
     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
   }
 
@@ -436,6 +444,8 @@ export async function createOrderCheckPromo(
     .locator('[data-test="select-client"]')
     .click();
   await page1.locator('[data-test="select-appeal"]').click();
+  await page1.mouse.move(500, 300);
+  await page1.mouse.move(510, 305);
   await page1
     .locator('[data-test="select-appeal"] li')
     .filter({ hasText: "Новый заказ" })
@@ -501,6 +511,12 @@ export async function createOrderCheckPromo(
   // Опциональное создание заказа
   if (makeOrder) {
     await page1.locator('[data-test="make-order"]').click();
+    await page1
+      .locator(".ant-modal-content", {
+        hasText: "Выбери один из вариантов перед сохранением",
+      })
+      .getByRole("button", { name: "Да", exact: true })
+      .click();
     // опциональные шаги ПОСЛЕ создания заказа
     if (options?.afterMakeOrder) {
       await options.afterMakeOrder(page1);
@@ -871,9 +887,7 @@ export async function getPromoCodeFromChatRosaMessage(
 
           console.log("Telegram matched text:", text);
 
-          const codeMatch = text.match(
-            /(?:списания\s*баллов.*?|код\s*подтверждения)\s*[:\-]\s*(\d{4})/i,
-          );
+          const codeMatch = text.match(/код\s*подтверждения[\s:：-]*?(\d{4})/i);
 
           promoCode = codeMatch?.[1] ?? null;
           return promoCode;

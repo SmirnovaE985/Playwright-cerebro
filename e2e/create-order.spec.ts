@@ -18,6 +18,7 @@ import {
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 import { test, expect } from "@playwright/test";
+import { SearchProduct } from "../pages/order/OrderCreatePage";
 
 // https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
 test(
@@ -34,6 +35,7 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+
     await orderCreatePage.closeNotification();
     await orderCreatePage.makeOffer();
   },
@@ -54,11 +56,14 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await orderCreatePage.closeNotification();
     await orderCreatePage.closeOrder();
     await page1.getByText("Перейти в поиск").click();
-    await orderCreatePage.searchProduct("кисть");
+    await searchProduct.toggleRemainSwitch();
+
+    await searchProduct.searchProduct("валик");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
 
@@ -81,17 +86,19 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
+
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-
-    await orderCreatePage.searchProduct("кисть");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    // await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("кисть");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
 
-    await orderCreatePage.searchProduct("ведро");
+    await searchProduct.searchProduct("ведро");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
 
@@ -125,6 +132,7 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await page1.mouse.move(500, 300);
     await page1.mouse.move(510, 305);
@@ -132,9 +140,9 @@ test(
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-    await orderCreatePage.searchProduct("перчатки");
+    await searchProduct.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -168,17 +176,18 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject([
+    await searchProduct.selectObject([
       "БМ Ожогина Садовая 3А",
       "РЦ Тмн, 50 лет Октября, 109 ко",
       "БМ Тмн Московский тракт 5 км",
     ]);
-    await orderCreatePage.searchProduct("перчатки");
+    await searchProduct.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.fillQuantityForAllInputs("1");
     await orderCreatePage.addButtonInCart();
@@ -206,13 +215,15 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
 
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    await orderCreatePage.searchProduct("87745");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    // await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("геотекстиль");
     await orderCreatePage.openFirstProductCard();
 
     await orderCreatePage.addButtonInCart();
@@ -254,13 +265,15 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject("БМ Ожогина Садовая 3А");
-    await orderCreatePage.searchProduct("геотекстиль");
+    await searchProduct.selectObject("БМ Ожогина Садовая 3А");
+    // await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("геотекстиль");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -282,14 +295,15 @@ test(
     const { page: page1 } = await createAppeal(page);
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-
-    await orderCreatePage.searchProduct("краска");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("краска");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
 
@@ -302,7 +316,7 @@ test(
     await orderCreatePage.addColoring("TVT Y356");
 
     await orderCreatePage.openSearchFromOrder();
-    await orderCreatePage.searchProduct("перчатки");
+    await searchProduct.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -325,14 +339,15 @@ test(
     const { page: page1 } = await createAppeal(page);
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    await orderCreatePage.toggleRemainSwitch();
-    await orderCreatePage.searchProduct("краска");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    // await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("краска");
 
     await orderCreatePage.openProductCardByIndex(2);
     await orderCreatePage.addButtonInCart();

@@ -302,6 +302,8 @@ test(
 
     const page1 = popupOrNull ?? page;
     await page1.locator('[data-test="select-appeal"]').click();
+    await page1.mouse.move(500, 300);
+    await page1.mouse.move(510, 305);
     await page1
       .locator('[data-test="select-appeal"] li')
       .filter({ hasText: "Новый заказ" })
