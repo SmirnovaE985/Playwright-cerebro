@@ -12,6 +12,7 @@ import { label, feature } from "allure-js-commons";
 import { addColoring } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+import { SearchProduct } from "../pages/order/OrderCreatePage";
 
 // https://allure.itlabs.io/project/28/test-cases/5411?treeId=58
 test(
@@ -24,11 +25,13 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
-    await orderCreatePage.searchProduct("ведро");
+    await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("ведро");
     await orderCreatePage.openFirstProductCardFromListing();
     await addZaza(page1, {
       storeFromText: "1021 РЦ Тмн, 50 лет Октября",
@@ -52,11 +55,12 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
-    await orderCreatePage.searchProduct("ведро");
+    await searchProduct.searchProduct("ведро");
     await orderCreatePage.openFirstProductCardFromListing();
     await addZaza(page1, {
       storeFromText: "1021 РЦ Тмн, 50 лет Октября",
@@ -67,7 +71,7 @@ test(
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
     await orderCreatePage.openSearchFromOrder();
 
-    await orderCreatePage.searchProduct("перчатки");
+    await searchProduct.searchProduct("перчатки");
     await orderCreatePage.openFirstProductCardFromListing();
     await addZaza(page1, {
       storeFromText: "1021 РЦ Тмн, 50 лет Октября",
@@ -98,11 +102,13 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
-    await orderCreatePage.searchProduct("геотекстиль");
+    await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("геотекстиль");
     await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {
@@ -130,10 +136,11 @@ test.skip(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await orderCreatePage.searchProduct("бетон");
+    await searchProduct.searchProduct("бетон");
     await orderCreatePage.openFirstProductCardFromListing();
     await page1.locator('a[data-test="ZAZA"]').click();
 
@@ -154,12 +161,14 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.searchProduct("570060");
+    await searchProduct.toggleRemainSwitch();
+    await searchProduct.searchProduct("570060");
     await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {

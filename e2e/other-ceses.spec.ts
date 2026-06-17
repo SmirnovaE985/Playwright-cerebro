@@ -10,7 +10,7 @@ import { label, feature } from "allure-js-commons";
 import { fillLoginForm } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
-import { Services } from "../pages/components/ComponentPage";
+import { SearchProduct } from "../pages/order/OrderCreatePage";
 
 // https://allure.itlabs.io/project/28/test-cases/4587?treeId=58
 test(
@@ -60,13 +60,14 @@ test("#4592 Создание претензии", { tag: ["@regress"] }, async (
 
   const appealStartPage = new AppealStartPage(page1);
   const orderCreatePage = new OrderCreatePage(page1);
+  const searchProduct = new SearchProduct(page1);
 
   await appealStartPage.selectSaleOrg("1000");
   await appealStartPage.openAppealSelector();
   await appealStartPage.chooseNewOrder();
 
-  await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-  await orderCreatePage.searchProduct("638318");
+  await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+  await searchProduct.searchProduct("638318");
   await orderCreatePage.openFirstProductCard();
   await orderCreatePage.addButtonInCart();
   await orderCreatePage.goToCart();
@@ -163,13 +164,14 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
 
     await appealStartPage.selectSaleOrg("1000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    await orderCreatePage.searchProduct("638318");
+    await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
+    await searchProduct.searchProduct("638318");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();

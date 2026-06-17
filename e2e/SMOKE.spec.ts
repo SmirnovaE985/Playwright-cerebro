@@ -16,6 +16,7 @@ import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 import { LoyaltyComponent } from "../pages/components/ComponentPage";
 import { test, expect } from "@playwright/test";
+import { SearchProduct } from "../pages/order/OrderCreatePage";
 
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
 test(
@@ -35,6 +36,8 @@ test(
     const loyaltyComponent = new LoyaltyComponent(page1);
 
     await appealStartPage.openAppealSelector();
+    await page1.mouse.move(500, 300);
+    await page1.mouse.move(510, 305);
     await appealStartPage.chooseNewOrder();
     await appealStartPage.selectSaleOrg("1000");
 
@@ -67,12 +70,14 @@ test(
 
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
+    const searchProduct = new SearchProduct(page1);
+
     // постепенный скрол до появления нужного элемента
     await appealStartPage.selectSaleOrg("3000");
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await orderCreatePage.searchProduct("краска");
+    await searchProduct.searchProduct("краска");
     await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {
