@@ -3,13 +3,14 @@
 // #4964 Регистрация Ошибки/ОС [ok]
 // #3350 Шаблоны СМС из хэдра/корзины [ok]
 
-import { test, expect } from "@playwright/test";
+import { test, expect, chromium } from "@playwright/test";
 import { createAppeal, sendSms } from "../helpers/commands";
 import { randomInt } from "crypto";
 import { label, feature } from "allure-js-commons";
 import { fillLoginForm } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
+import { Services } from "../pages/components/ComponentPage";
 
 // https://allure.itlabs.io/project/28/test-cases/4587?treeId=58
 test(
@@ -241,5 +242,105 @@ test(
       templateText: "Интернет заказ. Доставка.",
       needScrollToTemplate: true,
     });
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test(
+  "выбор услуги Установка бордюров",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const services = new Services(page1);
+    await orderCreatePage.closeNotification();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await services.selectServiceType("Установка бордюров");
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test(
+  "выбор услуги Выравнивание участка ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const services = new Services(page1);
+    await orderCreatePage.closeNotification();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await services.selectServiceType("Выравнивание участка ");
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test("Услуга уборка после ремонта", { tag: ["@regress"] }, async ({ page }) => {
+  label("tag", "regress");
+  feature("Auth");
+  const { page: page1 } = await createAppeal(page);
+  const appealStartPage = new AppealStartPage(page1);
+  const orderCreatePage = new OrderCreatePage(page1);
+  const services = new Services(page1);
+  await orderCreatePage.closeNotification();
+  await appealStartPage.openAppealSelector();
+  await appealStartPage.chooseNewOrder();
+  await services.selectServiceType("Услуга уборка после ремонта");
+});
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test("Заявка на расчет материала", { tag: ["@regress"] }, async ({ page }) => {
+  label("tag", "regress");
+  feature("Auth");
+  const { page: page1 } = await createAppeal(page);
+  const appealStartPage = new AppealStartPage(page1);
+  const orderCreatePage = new OrderCreatePage(page1);
+  const services = new Services(page1);
+  await orderCreatePage.closeNotification();
+  await appealStartPage.openAppealSelector();
+  await appealStartPage.chooseNewOrder();
+  await services.selectServiceType("Заявка на расчет материала ");
+});
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test(
+  "Бесплатный замер и расчет кровли",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const services = new Services(page1);
+    await orderCreatePage.closeNotification();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await services.selectServiceType("Бесплатный замер и расчет кровли ");
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test(
+  "Готовые решения для умного дома",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const services = new Services(page1);
+    await orderCreatePage.closeNotification();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await services.selectServiceType("Готовые решения для умного дома ");
   },
 );

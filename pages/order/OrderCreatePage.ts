@@ -80,6 +80,11 @@ export class OrderCreatePage {
   private readonly saveOrderButton = () =>
     this.page.locator('[data-test="save-order"]');
 
+  private readonly confirmYes = () =>
+    this.page
+      .getByRole("dialog", { name: "Уверен в отгрузке?" })
+      .locator('[data-test="confirmYes"]');
+
   // количество позиций в корзине (именно как сущностей)
   private readonly cartPositions = () =>
     this.page.locator('[data-test="cart-position"]');
@@ -322,6 +327,7 @@ export class OrderCreatePage {
   // создать предложение
   async makeOffer() {
     await this.makeOfferButton().click();
+    await this.confirmYes().click();
     await expect(
       this.page.getByText("Предложение успешно создано"),
     ).toBeVisible();
@@ -330,11 +336,13 @@ export class OrderCreatePage {
   // создать заказ
   async makeOrder() {
     await this.makeOrderButton().click();
+    await this.confirmYes().click();
   }
 
   // сохранить заказ
   async saveOrder() {
     await this.saveOrderButton().click();
+    await this.confirmYes().click();
   }
 
   // проверка "Успешно сохранено"
@@ -480,11 +488,11 @@ export class OrderCreatePage {
   async saveIMKS() {
     await this.IMKSprice().click();
   }
-
+  // //////////////////////////////////////////////////////////////////////////////////////////////////////
   // смена ЕИ (выбор по тексту ЕИ)
   async changeUnit(unitName: string) {
     await this.editUnitsButton().click();
-    await this.page.getByText(unitName).click();
+    await this.page.locator(unitName).click();
   }
 
   // смена ЕИ (выбор по дата-атрибуту ЕИ)

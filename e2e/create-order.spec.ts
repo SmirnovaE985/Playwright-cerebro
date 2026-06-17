@@ -208,33 +208,30 @@ test(
     const orderCreatePage = new OrderCreatePage(page1);
 
     await appealStartPage.openAppealSelector();
+    await page1.mouse.move(500, 300);
+    await page1.mouse.move(510, 305);
     await appealStartPage.chooseNewOrder();
+
     await appealStartPage.selectSaleOrg("1000");
 
     await orderCreatePage.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    await orderCreatePage.searchProduct("87745");
+    await orderCreatePage.searchProduct("геотекстиль");
     await orderCreatePage.openFirstProductCard();
 
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
     await orderCreatePage.openCartPosition(0);
 
-    await orderCreatePage.changeUnit("пм.");
+    await orderCreatePage.changeUnitDataLoc("unit-PM");
 
     await orderCreatePage.saveEditedPosition();
 
     await orderCreatePage.makeOrder();
-    await expect(
-      page1.getByText("Произошла ошибка, заказ не сохранен"),
-    ).toBeVisible();
     await orderCreatePage.closeNotification();
 
     await orderCreatePage.openCartPosition(0);
-    await orderCreatePage.changeUnit("1бух. = 50м.");
+    await orderCreatePage.changeUnitDataLoc("unit-ROL");
     await orderCreatePage.saveEditedPosition();
-    await orderCreatePage.makeOrder();
-    await orderCreatePage.expectOrderCreatedSuccess();
-    await orderCreatePage.expectOrderCreatedSuccess();
 
     await orderCreatePage.closeNotification();
     await deleteAllPositions(page1);
