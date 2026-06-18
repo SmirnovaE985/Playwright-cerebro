@@ -18,7 +18,12 @@ import {
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 import { test, expect } from "@playwright/test";
-import { SearchProduct } from "../pages/order/OrderCreatePage";
+import { SearchProduct } from "../pages/components/SearchProduct";
+import { OrderPaymentByLink } from "../pages/order/OrderPayment";
+import {
+  mockSmsPaymentRequest,
+  setupOrderPaidStatusMock,
+} from "../helpers/paymentMocks";
 
 // https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
 test(
@@ -269,7 +274,7 @@ test(
     await appealStartPage.chooseNewOrder();
 
     await searchProduct.selectObject("БМ Ожогина Садовая 3А");
-    // await searchProduct.toggleRemainSwitch();
+
     await searchProduct.searchProduct("геотекстиль");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
@@ -343,7 +348,6 @@ test(
     await appealStartPage.chooseNewOrder();
 
     await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    // await searchProduct.toggleRemainSwitch();
     await searchProduct.searchProduct("краска");
 
     await orderCreatePage.openProductCardByIndex(2);
@@ -361,11 +365,47 @@ test(
 
     await orderCreatePage.expectColorCodeVisible("TVT Y356");
     await orderCreatePage.expectColorCodeVisible("BM OC-46");
-    // await orderCreatePage.waitForSpinnerHidden();
 
-    // await orderCreatePage.editColoringByIndex(0, "TVT K441");
     // модалка открывается, но не вводит код
     await orderCreatePage.addColoringByIndex(0, "TVT K441");
     await deleteAllPositions(page1);
+  },
+);
+
+test(
+  "# Создание заказа с оплатой по ссылке ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const orderPayment = new OrderPaymentByLink(page1);
+    const searchProduct = new SearchProduct(page1);
+
+    await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+
+    await searchProduct.selectObject("БМ Ожогина Садовая 3А");
+    await searchProduct.searchProduct("перчатки");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await orderCreatePage.closeNotification();
+    //  заглушка статуса оплаты
+    await mockSmsPaymentRequest(page1);
+    const paidOrderMock = await setupOrderPaidStatusMock(page1);
+
+    await orderPayment.payViaSmsLink();
+
+    paidOrderMock.enablePaidMode();
+
+    await orderPayment.expectOrderFullyPaid();
+    await expect(page.getByText("Полностью оплачен ")).toBeVisible();
   },
 );
