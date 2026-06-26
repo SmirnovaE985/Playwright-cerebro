@@ -9,7 +9,7 @@ import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 import { ConcreteComponent } from "../pages/components/ComponentPage";
 import { SendSms } from "../pages/components/ComponentPage";
-import { SearchProduct } from "../pages/order/OrderCreatePage";
+import { SearchProduct } from "../pages/components/SearchProduct";
 
 // https://allure.itlabs.io/project/28/test-cases/6240?treeId=58
 test(

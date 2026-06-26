@@ -10,7 +10,8 @@ import { label, feature } from "allure-js-commons";
 import { fillLoginForm } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
-import { SearchProduct } from "../pages/order/OrderCreatePage";
+import { SearchProduct } from "../pages/components/SearchProduct";
+import { Services } from "../pages/components/Services";
 
 // https://allure.itlabs.io/project/28/test-cases/4587?treeId=58
 test(
@@ -262,6 +263,7 @@ test(
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await services.selectServiceType("Установка бордюров");
+    await expect(page1.getByText("Услуга отправлена")).toBeVisible();
   },
 );
 
@@ -280,6 +282,7 @@ test(
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await services.selectServiceType("Выравнивание участка ");
+    await expect(page1.getByText("Услуга отправлена")).toBeVisible();
   },
 );
 
@@ -295,6 +298,7 @@ test("Услуга уборка после ремонта", { tag: ["@regress"] 
   await appealStartPage.openAppealSelector();
   await appealStartPage.chooseNewOrder();
   await services.selectServiceType("Услуга уборка после ремонта");
+  await expect(page1.getByText("Услуга отправлена")).toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
@@ -309,6 +313,7 @@ test("Заявка на расчет материала", { tag: ["@regress"] },
   await appealStartPage.openAppealSelector();
   await appealStartPage.chooseNewOrder();
   await services.selectServiceType("Заявка на расчет материала ");
+  await expect(page1.getByText("Услуга отправлена")).toBeVisible();
 });
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
@@ -326,6 +331,7 @@ test(
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await services.selectServiceType("Бесплатный замер и расчет кровли ");
+    await expect(page1.getByText("Услуга отправлена")).toBeVisible();
   },
 );
 
@@ -344,5 +350,6 @@ test(
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
     await services.selectServiceType("Готовые решения для умного дома ");
+    await expect(page1.getByText("Услуга отправлена")).toBeVisible();
   },
 );

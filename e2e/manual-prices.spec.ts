@@ -16,7 +16,7 @@ import {
 } from "../helpers/commands";
 import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
-import { SearchProduct } from "../pages/order/OrderCreatePage";
+import { SearchProduct } from "../pages/components/SearchProduct";
 
 //https://allure.itlabs.io/project/28/test-cases/5376?treeId=58
 test(
