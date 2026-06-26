@@ -1,5 +1,6 @@
 import { Page } from "@playwright/test";
 
+// отправка смс мб удалить
 export async function mockSmsPaymentRequest(page: Page) {
   await page.route(
     "**/api/eCardPaymentsApi/api/v1/orders/payments:createWithSmsSending",
@@ -21,9 +22,8 @@ export async function mockSmsPaymentRequest(page: Page) {
   );
 }
 
-export async function setupOrderPaidStatusMock(page: Page) {
-  let paidModeEnabled = false;
-
+// подмена payment
+export async function mockOrderPaidStatus(page: Page) {
   await page.route("**/api/sapApi/api/cerebro/v1/orders/**", async (route) => {
     const request = route.request();
 
@@ -32,26 +32,30 @@ export async function setupOrderPaidStatusMock(page: Page) {
       return;
     }
 
-    if (!paidModeEnabled) {
-      await route.continue();
-      return;
-    }
+    const requestBody = request.postDataJSON();
+    console.log("Original PUT order request body:", requestBody);
 
     const response = await route.fetch();
     const json = await response.json();
 
-    console.log("Original order payment status:", json?.data?.payment?.status);
+    console.log("Original PUT order response payment:", json?.data?.payment);
 
     if (json?.data?.payment) {
       json.data.payment = {
         ...json.data.payment,
+        totalOld: json.data.payment.totalOld ?? json.data.payment.total,
+        total: json.data.payment.total,
         payed: json.data.payment.total,
-        plait: true,
+        plait: false,
         status: "Полностью оплачен",
+        card: 0,
+        cash: 0,
+        qr: 0,
+        scores: 0,
       };
     }
 
-    console.log("Mocked order payment status:", json?.data?.payment?.status);
+    console.log("Mocked PUT order response payment:", json?.data?.payment);
 
     await route.fulfill({
       status: response.status(),
@@ -60,10 +64,48 @@ export async function setupOrderPaidStatusMock(page: Page) {
       body: JSON.stringify(json),
     });
   });
+}
 
-  return {
-    enablePaidMode: () => {
-      paidModeEnabled = true;
-    },
-  };
+// оплата ПЛАЙТ
+export async function mockFullPlait(page: Page) {
+  await page.route("**/api/sapApi/api/cerebro/v1/orders/**", async (route) => {
+    const request = route.request();
+
+    if (request.method() !== "PUT") {
+      await route.continue();
+      return;
+    }
+
+    const requestBody = request.postDataJSON();
+    console.log("Original PUT order request body:", requestBody);
+
+    const response = await route.fetch();
+    const json = await response.json();
+
+    console.log("Original PUT order response payment:", json?.data?.payment);
+
+    if (json?.data?.payment) {
+      json.data.payment = {
+        ...json.data.payment,
+        totalOld: json.data.payment.totalOld ?? json.data.payment.total,
+        total: json.data.payment.total,
+        payed: json.data.payment.total,
+        plait: true,
+        status: "Полностью оплачен",
+        card: 0,
+        cash: 0,
+        qr: 0,
+        scores: 0,
+      };
+    }
+
+    console.log("Mocked PUT order response payment:", json?.data?.payment);
+
+    await route.fulfill({
+      status: response.status(),
+      headers: response.headers(),
+      contentType: "application/json",
+      body: JSON.stringify(json),
+    });
+  });
 }

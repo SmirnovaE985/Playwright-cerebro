@@ -16,7 +16,7 @@ import { AppealStartPage } from "../pages/appeal/AppealStartPage";
 import { OrderCreatePage } from "../pages/order/OrderCreatePage";
 import { LoyaltyComponent } from "../pages/components/ComponentPage";
 import { test, expect } from "@playwright/test";
-import { SearchProduct } from "../pages/order/OrderCreatePage";
+import { SearchProduct } from "../pages/components/SearchProduct";
 
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
 test(

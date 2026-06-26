@@ -22,7 +22,8 @@ import { SearchProduct } from "../pages/components/SearchProduct";
 import { OrderPaymentByLink } from "../pages/order/OrderPayment";
 import {
   mockSmsPaymentRequest,
-  setupOrderPaidStatusMock,
+  mockOrderPaidStatus,
+  mockFullPlait,
 } from "../helpers/paymentMocks";
 
 // https://allure.itlabs.io/project/28/test-cases/4609?treeId=58
@@ -372,12 +373,14 @@ test(
   },
 );
 
+//https://allure.itlabs.io/project/28/test-cases/7759?treeId=58
 test(
-  "# Создание заказа с оплатой по ссылке ",
+  "# Создание заказа с оплатой по ссылке",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
-    feature("Auth");
+    feature("Order payment");
+
     const { page: page1 } = await createAppeal(page);
 
     const appealStartPage = new AppealStartPage(page1);
@@ -396,16 +399,62 @@ test(
     await orderCreatePage.goToCart();
     await orderCreatePage.makeOrder();
     await orderCreatePage.expectOrderCreatedSuccess();
+    const bonuses = page1.locator('[data-test="cart-total-bonus-total"]');
+    // считываем и запоминаем значение
+    const initialBonusValue = await bonuses.innerText();
     await orderCreatePage.closeNotification();
-    //  заглушка статуса оплаты
+
+    // Подключаем моки ДО пользовательских действий
     await mockSmsPaymentRequest(page1);
-    const paidOrderMock = await setupOrderPaidStatusMock(page1);
+    await mockOrderPaidStatus(page1);
 
     await orderPayment.payViaSmsLink();
-
-    paidOrderMock.enablePaidMode();
+    // await orderPayment.saveOrder();
 
     await orderPayment.expectOrderFullyPaid();
-    await expect(page.getByText("Полностью оплачен ")).toBeVisible();
+    // снова считываем значение
+    const currentBonusValue = await bonuses.innerText();
+    // сравниваем с прошлым значением
+    expect(currentBonusValue).toBe(initialBonusValue);
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7760?treeId=58
+test(
+  "# Создание заказа с оплатой ПЛАЙТ",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Order payment");
+
+    const { page: page1 } = await createAppeal(page);
+
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const orderPayment = new OrderPaymentByLink(page1);
+    const searchProduct = new SearchProduct(page1);
+
+    await appealStartPage.selectSaleOrg("1000");
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+
+    await searchProduct.selectObject("БМ Ожогина Садовая 3А");
+    await searchProduct.searchProduct("3179");
+    await orderCreatePage.openFirstProductCard();
+    await orderCreatePage.addButtonInCart();
+    await orderCreatePage.goToCart();
+    await orderCreatePage.makeOrder();
+    await orderCreatePage.expectOrderCreatedSuccess();
+    await orderCreatePage.closeNotification();
+
+    await mockSmsPaymentRequest(page1);
+    await mockFullPlait(page1);
+
+    await orderPayment.payPlait();
+    await orderPayment.expectOrderFullyPaid();
+    // бонусы не начисляются при оплате ПЛАЙТ
+    await expect(
+      page1.locator('[data-test="cart-total-bonus-total"]'),
+    ).toHaveText("0");
   },
 );
