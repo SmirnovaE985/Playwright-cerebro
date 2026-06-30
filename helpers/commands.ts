@@ -580,7 +580,7 @@ export async function addColoring(page1: Page, code: string) {
 
 type AddZazaOptions = {
   storeFromText: string;
-  storeToText?: string;
+  storeToText?: string | "first";
   unitCode?: string;
 };
 
@@ -633,6 +633,7 @@ export async function addZaza(page1: Page, options: AddZazaOptions) {
   await selectOptionFromDropdown(page1, storeFromText);
 
   // storeTo
+
   await expect(storeTo).toBeVisible();
   await storeTo.click();
 

@@ -191,7 +191,16 @@ test(
     await orderInput.press("Control+A");
     await orderInput.fill(orderNumber);
     await page1.locator(".ant-select-selection-overflow").click();
-    await page1.getByText("РЦ Тимберленд 50летОктября").click();
+
+    const item = page1.getByText("РЦ Тмн, Прокат инструмента").first();
+    const box = await item.boundingBox();
+
+    if (box) {
+      await page1.mouse.move(box.x + 5, box.y + box.height / 2);
+      await page1.mouse.move(box.x + 25, box.y + box.height / 2, { steps: 5 });
+      await page1.mouse.click(box.x + 25, box.y + box.height / 2);
+    }
+
     await page1
       .getByRole("button", { name: "Зарегистрировать ошибку" })
       .click();

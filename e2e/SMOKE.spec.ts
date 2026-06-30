@@ -77,12 +77,12 @@ test(
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
 
-    await searchProduct.searchProduct("краска");
+    await searchProduct.searchProduct("160010");
     await orderCreatePage.openFirstProductCardFromListing();
 
     await addZaza(page1, {
       storeFromText: "3005 БМ Брз, Пролетарская, 4А",
-      storeToText: "РЦ Екб, Шефская, 1",
+      // storeToText: "first",
     });
 
     await orderCreatePage.goToCart();

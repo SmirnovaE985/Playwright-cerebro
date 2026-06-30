@@ -234,7 +234,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "цемент",
+      searchText: "валик",
       quantity: 2,
     });
     const appealStartPage = new AppealStartPage(page1);

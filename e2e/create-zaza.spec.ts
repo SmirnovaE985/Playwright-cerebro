@@ -79,7 +79,7 @@ test(
     });
 
     await orderCreatePage.goToCart();
-    await orderCreatePage.saveOrder();
+    await page1.locator('[data-test="save-order"]').click();
     // await page1.waitForTimeout(3000);
     await expect(
       page1.locator('[data-test="zaza-Новая"]').nth(0),
