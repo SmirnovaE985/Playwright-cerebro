@@ -232,7 +232,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "цемент",
+      searchText: "валик",
       quantity: 1,
     });
 

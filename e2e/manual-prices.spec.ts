@@ -249,7 +249,7 @@ test(
     await expect(
       page1.locator('[data-test="cart-total-bonus-total"]'),
     ).toBeVisible();
-    await orderCreatePage.saveOrder();
+    await page1.locator('[data-test="save-order"]').click();
     await applyPromoCode(page1, "CALLCENTER1");
     await expect(
       page1.getByText(

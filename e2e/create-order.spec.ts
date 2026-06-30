@@ -35,7 +35,7 @@ test(
     feature("Auth");
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: false,
-      searchText: "цемент",
+      searchText: "валик",
       quantity: 1,
     });
 
@@ -56,7 +56,7 @@ test(
     feature("Auth");
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "цемент",
+      searchText: "валик",
       quantity: 1,
     });
 
@@ -99,7 +99,7 @@ test(
     await appealStartPage.chooseNewOrder();
 
     await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    // await searchProduct.toggleRemainSwitch();
+
     await searchProduct.searchProduct("кисть");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
@@ -118,6 +118,8 @@ test(
     await page1.locator('[data-test="order-canceled-checkbox"]').click();
     await page1.locator('[data-test="return-position"]').click();
     await expect(page1.locator('[data-icon="delete"]')).toBeEnabled();
+    await page1.locator('[data-test="save-order"]').click();
+    await deleteAllPositions(page1);
   },
 );
 
@@ -148,7 +150,7 @@ test(
 
     await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
 
-    await searchProduct.searchProduct("перчатки");
+    await searchProduct.searchProduct("1459");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
@@ -157,7 +159,7 @@ test(
     await orderCreatePage.openCartPosition(0);
     const priceBeforeUnitChange =
       await orderCreatePage.getModalEditInputPriceNormalized();
-    await orderCreatePage.changeUnit("1пач. = 300пар.");
+    await orderCreatePage.changeUnitDataLoc("unit-UP");
     await orderCreatePage.waitModalEditInputPriceChanged(priceBeforeUnitChange);
     const expectedTotalCost =
       await orderCreatePage.getModalEditInputPriceNormalized();
@@ -324,7 +326,7 @@ test(
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
 
-    await orderCreatePage.saveOrder();
+    await page1.locator('[data-test="save-order"]').click();
     await orderCreatePage.expectOrderSavedSuccess();
     await orderCreatePage.expectColorCodeVisible("TVT Y356");
 
