@@ -60,10 +60,10 @@ test(
 
     // Добавляем второй товар без ручной цены
 
-    await searchProduct.searchProduct("кисть");
+    await searchProduct.searchProduct("11030");
 
     await addProductToCart(page1, {
-      productName: "кисть",
+      productName: "11030",
     });
 
     await orderCreatePage.makeOrder();
@@ -88,7 +88,7 @@ test(
         .trim() ?? "0";
 
     expect(Number(actualCartPrice)).toBe(Number(expectedManualPrice));
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
     await expect(
       page1
@@ -154,14 +154,14 @@ test(
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
       searchText: "грунтовка",
-      quantity: 1,
+      quantity: 3,
     });
 
     if (!phoneNumber) {
       throw new Error("Не удалось получить номер телефона");
     }
 
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1001");
     expect(code).toHaveLength(4);
     await applyPromoCode(page1, "CALLCENTER1");
     await applyCertificate(page1, "10");
@@ -196,7 +196,7 @@ test(
 
     await appealStartPage.openAppealSelector();
     await appealStartPage.chooseNewOrder();
-    await searchProduct.searchProduct("638243");
+    await searchProduct.searchProduct("11030");
     await orderCreatePage.openFirstProductCardFromListing();
     await page1.locator('a[data-test="ZAZA"]').waitFor({ state: "visible" });
 
@@ -210,7 +210,7 @@ test(
     await expect(page1.getByText("Заказ успешно создан")).toBeVisible();
     await expect(page1.locator('[data-test="zaza-Новая"]')).toBeVisible();
 
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
     await expect(
       page1
@@ -232,7 +232,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "валик",
+      searchText: "11030",
       quantity: 1,
     });
 
@@ -244,7 +244,7 @@ test(
     const searchProduct = new SearchProduct(page1);
 
     await orderCreatePage.closeNotification();
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
     await expect(
       page1
@@ -258,7 +258,7 @@ test(
     await orderCreatePage.addButtonInCart();
     await orderCreatePage.goToCart();
 
-    await orderCreatePage.saveOrder();
+    await page1.locator('[data-test="save-order"]').click();
     await expect(
       page1.locator('button[type="button"]').filter({ hasText: "Отменить" }),
     ).toBeVisible();
@@ -301,15 +301,15 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "штукатурка",
-      quantity: 5,
+      searchText: "11030",
+      quantity: 2,
     });
 
     if (!phoneNumber) {
       throw new Error("Не удалось получить номер телефона");
     }
 
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
 
     await applyCertificate(page1, "10");
@@ -348,7 +348,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "штукатурка",
+      searchText: "11030",
       quantity: 1,
     });
 
@@ -360,7 +360,7 @@ test(
     const orderCreatePage = new OrderCreatePage(page1);
     const editOrderPage = new EditOrderPage(page1);
     await orderCreatePage.closeNotification();
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
 
     await expect(
@@ -389,7 +389,7 @@ test(
 
     const { page: page1, phoneNumber } = await createOrder(page, {
       makeOrder: true,
-      searchText: "валик",
+      searchText: "11030",
       quantity: 1,
     });
 
@@ -400,7 +400,7 @@ test(
     const appealStartPage = new AppealStartPage(page1);
     const orderCreatePage = new OrderCreatePage(page1);
     await orderCreatePage.closeNotification();
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
 
     await expect(
@@ -409,10 +409,8 @@ test(
         .filter({ hasText: "Списано" }),
     ).toBeVisible();
 
-    await applyPromoCode(page1, "CALLCENTER1");
-    await expect(
-      page1.getByText("Промокод не применен по условиям акции"),
-    ).toBeVisible();
+    await applyPromoCode(page1, "CALLCENTER1w");
+    await expect(page1.getByText("Неверный промокод")).toBeVisible();
     await expect(
       page1
         .locator('[data-test="bonuses-container"]')
