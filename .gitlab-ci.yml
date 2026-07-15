@@ -13,6 +13,17 @@ playwright_regress:
     PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
     ALLURE_RESULTS: "allure-results"
 
+  rules:
+    # Запускать Playwright только при запуске из Allure TestOps.
+    # По скриншотам Allure создаёт pipeline через GitLab API.
+    # Дополнительно разрешаем запуск только для main.
+    - if: '$CI_PIPELINE_SOURCE == "api" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+      when: on_success
+
+    # Push из VS Code, merge в main, Merge Request,
+    # расписания и другие способы запуска тесты не запускают.
+    - when: never
+
   before_script:
     - node -v
     - npm -v
