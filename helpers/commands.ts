@@ -1184,6 +1184,30 @@ export async function applyCertificate(
   await page1.locator('[data-test="use"]').click();
 }
 
+// ===========================
+// Выбор клиента и договора внутри корзины
+// ===========================
+export async function selectClientAndContract(
+  page1: Page,
+  clientCode: string,
+  clientName: string,
+  contractName: string,
+): Promise<void> {
+  // Поиск и выбор клиента
+  await page1.locator("[data-test=client-type-input]").click();
+  await page1.locator("[data-test=client-type-input]").fill(clientCode);
+  await page1.getByTitle(clientName, { exact: true }).click();
+
+  // Открытие списка договоров
+  await page1
+    .getByText("Договор", { exact: true })
+    .locator('xpath=following::input[@role="combobox"][1]')
+    .click();
+
+  // Выбор договора
+  await page1.getByTitle(contractName, { exact: true }).click();
+}
+
 // если используем дефолтный сертификат
 // await applyCertificate(page1, "10");
 
