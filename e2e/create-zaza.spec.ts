@@ -125,31 +125,6 @@ test(
   },
 );
 
-// https://allure.itlabs.io/project/28/test-cases/4249?treeId=58
-test.skip(
-  "#4249 Нельзя оформить ЗаЗу на бетон",
-  { tag: ["@regress"] },
-  async ({ page }) => {
-    label("tag", "regress");
-    feature("Auth");
-    const { page: page1 } = await createAppeal(page);
-
-    const appealStartPage = new AppealStartPage(page1);
-    const orderCreatePage = new OrderCreatePage(page1);
-    const searchProduct = new SearchProduct(page1);
-
-    await appealStartPage.openAppealSelector();
-    await appealStartPage.chooseNewOrder();
-    await searchProduct.searchProduct("бетон");
-    await orderCreatePage.openFirstProductCardFromListing();
-    await page1.locator('a[data-test="ZAZA"]').click();
-
-    await expect(
-      page1.locator('[data-test="search-input-store"] input'),
-    ).toBeDisabled();
-  },
-);
-
 // https://allure.itlabs.io/project/28/test-cases/5930?treeId=58
 test(
   "#5930 создание ЗАЗы с колеровкой",

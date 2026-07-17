@@ -115,8 +115,6 @@ playwright_regress:
       - playwright-report/
       - test-results/
 
-
-
 # stages:
 #   - test
 
