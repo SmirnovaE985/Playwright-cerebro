@@ -307,7 +307,6 @@ test(
     await appealStartPage.chooseNewOrder();
 
     await searchProduct.selectObject("РЦ Тмн, 50 лет Октября, 109 ко");
-    await searchProduct.toggleRemainSwitch();
     await searchProduct.searchProduct("краска");
     await orderCreatePage.openFirstProductCard();
     await orderCreatePage.addButtonInCart();

@@ -351,7 +351,6 @@ test(
       searchText: "11030",
       quantity: 1,
     });
-    git;
 
     if (!phoneNumber) {
       throw new Error("Не удалось получить номер телефона");

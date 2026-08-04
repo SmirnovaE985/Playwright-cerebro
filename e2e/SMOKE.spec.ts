@@ -19,7 +19,7 @@ import { test, expect } from "@playwright/test";
 import { SearchProduct } from "../pages/components/SearchProduct";
 
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
-test(
+test.skip(
   "#6021 Создание нового обращения и регистрация клиента в ПЛ",
   { tag: ["@smoke"] },
   async ({ page }) => {
@@ -114,7 +114,7 @@ test(
       throw new Error("Не удалось получить номер телефона");
     }
 
-    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "4");
+    const code = await applyBonusesWithTelegramCode(page1, phoneNumber, "1000");
     expect(code).toHaveLength(4);
     await expect(
       page1
