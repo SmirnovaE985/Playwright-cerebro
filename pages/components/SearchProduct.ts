@@ -41,10 +41,12 @@ export class SearchProduct {
     }
   }
 
+  // отдельная кнопка на переключатель "Скрыть нулевые остатки"
   async toggleRemainSwitch() {
     await this.remainSwitch().click();
   }
 
+  // поиск товара
   async searchProduct(productName: string) {
     await this.searchInput().click();
     await this.searchInput().fill(productName);

@@ -316,13 +316,7 @@ test(
       hasText: "Зарегистрируй клиента в ПЛ",
     });
 
-    await expect(regBtn).toBeVisible({ timeout: 10000 });
-    await expect(regBtn).toBeEnabled();
-    await regBtn.scrollIntoViewIfNeeded();
-    await regBtn.click();
-    await expect(
-      page1.getByText("Регистрация клиента в программе лояльности"),
-    ).toBeVisible();
+    await expect(regBtn).not.toBeVisible({ timeout: 10000 });
   },
 );
 

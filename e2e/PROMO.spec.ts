@@ -340,7 +340,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/5363?treeId=58
 test(
-  "#5363 Редактирование заказа с баллами ПЛ",
+  "#5363 Редактирование заказа с баллами ПЛ...",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");

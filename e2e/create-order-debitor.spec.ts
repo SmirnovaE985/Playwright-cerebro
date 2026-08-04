@@ -49,11 +49,14 @@ test(
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
-    const page1 = await createOrderCheckPromo(page, {
+
+    await createOrderCheckPromo(page, {
       searchText: "кисть",
       makeOrder: true,
+
       beforeMakeOrder: async (page1) => {
         await page1.locator("[data-test=client-type-input]").click();
+
         await page1.locator("[data-test=client-type-input]").fill("213370");
       },
     });
