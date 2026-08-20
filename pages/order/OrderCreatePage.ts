@@ -253,6 +253,11 @@ export class OrderCreatePage {
     await this.confirmYes().click();
   }
 
+  // подтверждение
+  async confirm(): Promise<void> {
+    await this.confirmYes().click();
+  }
+
   // сохранить заказ
   async saveOrder() {
     await this.saveOrderButton().click();
