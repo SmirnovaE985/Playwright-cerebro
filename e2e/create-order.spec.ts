@@ -376,7 +376,7 @@ test(
 
 //https://allure.itlabs.io/project/28/test-cases/7759?treeId=58
 test(
-  "# Создание заказа с оплатой по ссылке",
+  "#7755 Создание заказа с оплатой по ссылке",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
