@@ -29,11 +29,11 @@ export default defineConfig({
     viewport: { width: 1920, height: 1200 },
     headless: isCI,
   },
-
   projects: [
     {
       name: "chromium",
       testDir: "./e2e",
+      testIgnore: "**/api/**",
       use: {
         ...devices["Desktop Chrome"],
         baseURL: process.env.BASE_URL,
@@ -42,13 +42,33 @@ export default defineConfig({
     },
     {
       name: "api",
-      testDir: "./api",
+      testDir: "./e2e/api",
       use: {
         baseURL: process.env.API_BASE_URL,
         trace: "on-first-retry",
       },
     },
   ],
+
+  // projects: [
+  //   {
+  //     name: "chromium",
+  //     testDir: "./e2e",
+  //     use: {
+  //       ...devices["Desktop Chrome"],
+  //       baseURL: process.env.BASE_URL,
+  //       headless: isCI,
+  //     },
+  //   },
+  //   {
+  //     name: "api",
+  //     testDir: "./api",
+  //     use: {
+  //       baseURL: process.env.API_BASE_URL,
+  //       trace: "on-first-retry",
+  //     },
+  //   },
+  // ],
 });
 
 // import { defineConfig, devices } from "@playwright/test";
