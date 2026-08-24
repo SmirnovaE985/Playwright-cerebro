@@ -259,7 +259,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
 test(
-  "выбор услуги Установка бордюров",
+  "#7750 выбор услуги Установка бордюров",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
@@ -278,7 +278,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
 test(
-  "выбор услуги Выравнивание участка ",
+  "#7744 выбор услуги Выравнивание участка ",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
@@ -296,38 +296,46 @@ test(
 );
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
-test("Услуга уборка после ремонта", { tag: ["@regress"] }, async ({ page }) => {
-  label("tag", "regress");
-  feature("Auth");
-  const { page: page1 } = await createAppeal(page);
-  const appealStartPage = new AppealStartPage(page1);
-  const orderCreatePage = new OrderCreatePage(page1);
-  const services = new Services(page1);
-  await orderCreatePage.closeNotification();
-  await appealStartPage.openAppealSelector();
-  await appealStartPage.chooseNewOrder();
-  await services.selectServiceType("Услуга уборка после ремонта");
-  await expect(page1.getByText("Услуга отправлена")).toBeVisible();
-});
-
-// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
-test("Заявка на расчет материала", { tag: ["@regress"] }, async ({ page }) => {
-  label("tag", "regress");
-  feature("Auth");
-  const { page: page1 } = await createAppeal(page);
-  const appealStartPage = new AppealStartPage(page1);
-  const orderCreatePage = new OrderCreatePage(page1);
-  const services = new Services(page1);
-  await orderCreatePage.closeNotification();
-  await appealStartPage.openAppealSelector();
-  await appealStartPage.chooseNewOrder();
-  await services.selectServiceType("Заявка на расчет материала ");
-  await expect(page1.getByText("Услуга отправлена")).toBeVisible();
-});
+test(
+  "#7748 Услуга уборка после ремонта",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const services = new Services(page1);
+    await orderCreatePage.closeNotification();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await services.selectServiceType("Услуга уборка после ремонта");
+    await expect(page1.getByText("Услуга отправлена")).toBeVisible();
+  },
+);
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
 test(
-  "Бесплатный замер и расчет кровли",
+  "#7749 Заявка на расчет материала",
+  { tag: ["@regress"] },
+  async ({ page }) => {
+    label("tag", "regress");
+    feature("Auth");
+    const { page: page1 } = await createAppeal(page);
+    const appealStartPage = new AppealStartPage(page1);
+    const orderCreatePage = new OrderCreatePage(page1);
+    const services = new Services(page1);
+    await orderCreatePage.closeNotification();
+    await appealStartPage.openAppealSelector();
+    await appealStartPage.chooseNewOrder();
+    await services.selectServiceType("Заявка на расчет материала ");
+    await expect(page1.getByText("Услуга отправлена")).toBeVisible();
+  },
+);
+
+// https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
+test(
+  "#7747 Бесплатный замер и расчет кровли",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
@@ -346,7 +354,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/7743?treeId=58
 test(
-  "Готовые решения для умного дома",
+  "#7755 Готовые решения для умного дома",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");

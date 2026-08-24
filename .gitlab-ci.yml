@@ -3,6 +3,7 @@ stages:
 
 playwright_regress:
   stage: test
+  allow_failure: false
   timeout: 2h
   tags:
     - docker
@@ -68,7 +69,9 @@ playwright_regress:
               continue
 
           if file_path.startswith("API/"):
-              full_path = os.path.join("e2e", file_path)
+              full_path = os.path.join("e2e", "api", file_path[len("API/"):])
+          elif file_path.startswith("api/"):
+              full_path = os.path.join("e2e", "api", file_path[len("api/"):])
           elif file_path.startswith("e2e/"):
               full_path = file_path
           else:
@@ -93,19 +96,41 @@ playwright_regress:
           print(item)
       PY
     - |
-      ./allurectl watch --results $ALLURE_RESULTS -- bash -lc '
+      ./allurectl watch --results "$ALLURE_RESULTS" -- bash -lc '
+        set -euo pipefail
+
+        echo "=== VARIABLES ==="
+        echo "Browser=${Browser:-not-set}"
+        echo "BASE_URL is set: $([ -n "${BASE_URL:-}" ] && echo yes || echo no)"
+        echo "API_BASE_URL is set: $([ -n "${API_BASE_URL:-}" ] && echo yes || echo no)"
+
         echo "=== TESTPLAN JSON ==="
-        python3 -m json.tool .allure/testplan.json || cat .allure/testplan.json || true
+        python3 -m json.tool .allure/testplan.json || true
 
         echo "=== CHECK TESTPLAN SELECTORS ==="
-        python3 check_testplan.py || true
+        python3 check_testplan.py
 
         echo "=== PLAYWRIGHT ALL TESTS ==="
-        npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --list
+        npx playwright test \
+          -c playwright.config.ts \
+          --list
 
         echo "=== PLAYWRIGHT RUN ==="
-        npx playwright test -c playwright.config.ts --project="${Browser:-chromium}"
-      '
+        npx playwright test \
+          -c playwright.config.ts
+      # ./allurectl watch --results $ALLURE_RESULTS -- bash -lc '
+      #   echo "=== TESTPLAN JSON ==="
+      #   python3 -m json.tool .allure/testplan.json || cat .allure/testplan.json || true
+
+      #   echo "=== CHECK TESTPLAN SELECTORS ==="
+      #   python3 check_testplan.py || true
+
+      #   echo "=== PLAYWRIGHT ALL TESTS ==="
+      #   npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --list
+
+      #   echo "=== PLAYWRIGHT RUN ==="
+      #   npx playwright test -c playwright.config.ts --project="${Browser:-chromium}"
+      # '
 
   artifacts:
     when: always
@@ -152,3 +177,158 @@ playwright_regress:
 #       - allure-results/
 #       - playwright-report/
 #       - test-results/
+
+# stages:
+#   - test
+
+# playwright_regress:
+#   stage: test
+#   timeout: 2h
+#   tags:
+#     - docker
+#   image: mcr.microsoft.com/playwright:v1.58.2-jammy
+
+#   variables:
+#     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+#     PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
+#     ALLURE_RESULTS: "allure-results"
+
+#   rules:
+#     # Запускать Playwright только при запуске из Allure TestOps.
+#     # По скриншотам Allure создаёт pipeline через GitLab API.
+#     # Дополнительно разрешаем запуск только для main.
+#     - if: '$CI_PIPELINE_SOURCE == "api" && $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH'
+#       when: on_success
+
+#     # Push из VS Code, merge в main, Merge Request,
+#     # расписания и другие способы запуска тесты не запускают.
+#     - when: never
+
+#   before_script:
+#     - node -v
+#     - npm -v
+#     - npm ci
+#     - mkdir -p allure-results
+#     - mkdir -p test-results
+#     - mkdir -p playwright-report
+#     - curl -fsSL -o allurectl https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_amd64
+#     - chmod +x allurectl
+#     - ./allurectl --version
+
+#   script:
+#     - echo "Branch=${Branch:-main} Browser=${Browser:-chromium}"
+#     - test -n "$BASE_URL" || (echo "BASE_URL is NOT set" && exit 1)
+#     - test -n "$USER_LOGIN" || (echo "USER_LOGIN is NOT set" && exit 1)
+#     - test -n "$USER_PASSWORD" || (echo "USER_PASSWORD is NOT set" && exit 1)
+#     - |
+#       cat > check_testplan.py <<'PY'
+#       import json
+#       import os
+
+#       with open(".allure/testplan.json", "r", encoding="utf-8") as f:
+#           data = json.load(f)
+
+#       tests = data.get("tests", [])
+#       print("TOTAL IN TESTPLAN:", len(tests))
+
+#       missing = []
+#       bad_line = []
+
+#       for t in tests:
+#           selector = t.get("selector", "")
+#           if ":" not in selector:
+#               missing.append((t.get("id"), selector, "bad selector"))
+#               continue
+
+#           try:
+#               file_path, line, col = selector.rsplit(":", 2)
+#               line = int(line)
+#           except Exception:
+#               missing.append((t.get("id"), selector, "parse error"))
+#               continue
+
+#           if file_path.startswith("API/"):
+#               full_path = os.path.join("e2e", file_path)
+#           elif file_path.startswith("e2e/"):
+#               full_path = file_path
+#           else:
+#               full_path = os.path.join("e2e", file_path)
+
+#           if not os.path.exists(full_path):
+#               missing.append((t.get("id"), selector, "file missing"))
+#               continue
+
+#           with open(full_path, "r", encoding="utf-8") as src:
+#               lines = src.readlines()
+
+#           if line > len(lines):
+#               bad_line.append((t.get("id"), selector, f"line out of range, max={len(lines)}"))
+
+#       print("MISSING FILE COUNT:", len(missing))
+#       for item in missing:
+#           print(item)
+
+#       print("BAD LINE COUNT:", len(bad_line))
+#       for item in bad_line:
+#           print(item)
+#       PY
+#     - |
+#       ./allurectl watch --results $ALLURE_RESULTS -- bash -lc '
+#         echo "=== TESTPLAN JSON ==="
+#         python3 -m json.tool .allure/testplan.json || cat .allure/testplan.json || true
+
+#         echo "=== CHECK TESTPLAN SELECTORS ==="
+#         python3 check_testplan.py || true
+
+#         echo "=== PLAYWRIGHT ALL TESTS ==="
+#         npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --list
+
+#         echo "=== PLAYWRIGHT RUN ==="
+#         npx playwright test -c playwright.config.ts --project="${Browser:-chromium}"
+#       '
+
+#   artifacts:
+#     when: always
+#     expire_in: 7 days
+#     paths:
+#       - allure-results/
+#       - playwright-report/
+#       - test-results/
+
+# # stages:
+# #   - test
+
+# # playwright_regress:
+# #   stage: test
+# #   timeout: 2h
+# #   allow_failure: true
+# #   tags:
+# #     - docker
+# #   image: mcr.microsoft.com/playwright:v1.58.2-jammy
+
+# #   variables:
+# #     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+# #     PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright"
+
+# #   before_script:
+# #     - node -v
+# #     - npm -v
+# #     - npm ci
+# #     - mkdir -p allure-results
+# #     - mkdir -p test-results
+# #     - mkdir -p playwright-report
+
+# #   script:
+# #     - echo "Branch=${Branch:-main} Browser=${Browser:-chromium} Grep=${Grep:-@regress}"
+# #     - test -n "$BASE_URL" || (echo "BASE_URL is NOT set" && exit 1)
+# #     - test -n "$USER_LOGIN" || (echo "USER_LOGIN is NOT set" && exit 1)
+# #     - test -n "$USER_PASSWORD" || (echo "USER_PASSWORD is NOT set" && exit 1)
+# #     - npx playwright test -c playwright.config.ts --project="${Browser:-chromium}" --grep "${Grep:-@regress}"
+
+# #   artifacts:
+# #     when: always
+# #     expire_in: 7 days
+# #     paths:
+# #       - allure-results/
+# #       - playwright-report/
+# #       - test-results/

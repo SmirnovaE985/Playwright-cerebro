@@ -373,7 +373,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/4576?treeId=58
 test(
-  "#4576 Создание обращения - валидация (Мессенджер)",
+  "#4577 Создание обращения - валидация (Мессенджер)",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
@@ -422,7 +422,7 @@ test(
 
 // https://allure.itlabs.io/project/28/test-cases/4576?treeId=58
 test(
-  "#4576 Создание обращения - валидация (Телефон)",
+  "#4578 Создание обращения - валидация (Телефон)",
   { tag: ["@regress"] },
   async ({ page }) => {
     label("tag", "regress");
