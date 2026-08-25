@@ -109,6 +109,7 @@ playwright_regress:
 
         echo "=== CHECK TESTPLAN SELECTORS ==="
         python3 check_testplan.py
+        cp .allure/testplan.json testplan.json
 
         echo "=== PLAYWRIGHT ALL TESTS ==="
         npx playwright test \
@@ -139,6 +140,7 @@ playwright_regress:
       - allure-results/
       - playwright-report/
       - test-results/
+      - testplan.json
 
 # stages:
 #   - test
