@@ -21,7 +21,7 @@ import { SearchProduct } from "../pages/components/SearchProduct";
 // https://allure.itlabs.io/project/28/test-cases/6021?treeId=58
 test.skip(
   "#6021 Создание нового обращения и регистрация клиента в ПЛ",
-  { tag: ["@smoke"] },
+  { tag: ["@smoke", "@disabled"] },
   async ({ page }) => {
     label("tag", "smoke");
     feature("Auth");

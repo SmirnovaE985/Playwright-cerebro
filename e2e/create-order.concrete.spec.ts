@@ -49,9 +49,9 @@ test(
 // //https://allure.itlabs.io/project/28/test-cases/4141?treeId=58
 test.skip(
   "#4141Создать заказ на бетон через быстрое добавление в корзину",
-  { tag: ["@regress"] },
+  { tag: ["@regress", "@disabled"] },
   async ({ page }) => {
-    label("tag", "regress");
+    label("tag", "@regress");
     feature("Auth");
 
     const { page: page1 } = await createAppeal(page);
@@ -94,7 +94,7 @@ test.skip(
 // //https://allure.itlabs.io/project/28/test-cases/4141?treeId=58
 test.skip(
   "заказ на бетон не доступен в церебро, не использовать",
-  { tag: ["@regress"] },
+  { tag: ["@regress", "@disabled"] },
   async ({ page }) => {
     label("tag", "regress");
     feature("Auth");
